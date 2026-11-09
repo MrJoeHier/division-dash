@@ -1042,7 +1042,7 @@ function defaultPrompt() {
 }
 function renderHeader() {
   $("#h-level").textContent = "E" + (G.episode + 1) + " · L" + (G.level + 1);
-  const ln = document.getElementById("h-lvname"); if (ln) ln.textContent = LV_INFO[G.level] ? LV_INFO[G.level].name : "";
+  const ln = document.getElementById("h-lvname"); if (ln) ln.textContent = LVI(G.episode, G.level) ? LVI(G.episode, G.level).name : "";
   renderTimer();
   const np = G.problems.length || 4;
   $("#h-prob").textContent = Math.min(G.probIdx + 1, np) + "/" + np;
@@ -1094,8 +1094,8 @@ function renderOverlay() {
       (P.pens === 0 ? "Perfect — no mistakes!" : P.pens + (P.pens === 1 ? " slip" : " slips") + " this time.") + '</p><button class="big" data-act="next">' + (G.probIdx + 1 >= G.problems.length ? "Finish level" : "Next problem") + " ▶</button>";
   } else if (o.type === "level") {
     const tot = G.stars.reduce((a, b) => a + (b || 0), 0);
-    h = "<h1>🏅 " + LV_INFO[G.level].name + " survived!</h1><p>Episode " + (G.episode + 1) + " · Level " + (G.level + 1) + " complete</p>" + '<div class="stars" style="font-size:1.6rem">' + G.stars.map(s => "★".repeat(s) + "☆".repeat(3 - s)).join(" ") + "</div><p>" + tot + " of " + G.problems.length * 3 + " stars</p>" + refillHtml(o) +
-      '<button class="big" data-act="next">On to Level ' + (G.level + 2) + ": " + LV_INFO[G.level + 1].name + " ▶</button>";
+    h = "<h1>🏅 " + LVI(G.episode, G.level).name + " survived!</h1><p>Episode " + (G.episode + 1) + " · Level " + (G.level + 1) + " complete</p>" + '<div class="stars" style="font-size:1.6rem">' + G.stars.map(s => "★".repeat(s) + "☆".repeat(3 - s)).join(" ") + "</div><p>" + tot + " of " + G.problems.length * 3 + " stars</p>" + refillHtml(o) +
+      '<button class="big" data-act="next">On to Level ' + (G.level + 2) + ": " + LVI(G.episode, G.level + 1).name + " ▶</button>";
   } else if (o.type === "episode") {
     const tot = G.stars.reduce((a, b) => a + (b || 0), 0), nx = EPISODES[G.episode + 1].secs / 60;
     h = '<div class="epbadge">🎉</div><h1>Episode ' + (G.episode + 1) + " complete!</h1><p>You escaped " + EP_INFO[G.episode].name.toLowerCase() + "! Level 4: " + tot + " of " + G.problems.length * 3 + " stars.</p>" + refillHtml(o) +
@@ -1367,7 +1367,7 @@ const ASSET = n => "assets/" + n;
 const DEV = /[?&]dev=1\b/.test(location.search);
 const EP_INFO = [
   { name: "The Jungle", filter: "", soon: "" },
-  { name: "The Desert", filter: "sepia(.6) saturate(1.35) hue-rotate(-14deg) brightness(1.06)", soon: "Desert scenes coming soon — jungle scenes for now" },
+  { name: "The Savanna", filter: "", map: "map-savanna", pts: [[382, 925], [200, 800], [552, 515], [160, 272], [468, 248]], soon: "Levels 3–4 scenes coming soon", mapSoon: "Savanna scenes coming soon — jungle scenes for now" },
   { name: "The Frozen Peaks", filter: "grayscale(.45) hue-rotate(165deg) saturate(.75) brightness(1.14)", soon: "Arctic scenes coming soon — jungle scenes for now" }
 ];
 const LV_INFO = [
@@ -1376,7 +1376,17 @@ const LV_INFO = [
   { name: "Jaguar Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
   { name: "The Great Escape", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
 ];
-const MAP_PTS = [[385, 905], [190, 790], [575, 520], [172, 345], [400, 292]];
+const JUNGLE_PTS = [[385, 905], [190, 790], [575, 520], [172, 345], [400, 292]];
+const EP_LV = {
+  1: [
+    { name: "Hippo River", brief: "Solve 4 problems to pole past the hippos!", winCap: "Across Hippo River!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
+    { name: "Tightrope Gorge", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2", win: "win-e2l2", lose: "lose-e2l2" },
+    Object.assign({ placeholder: true }, LV_INFO[2]),
+    Object.assign({ placeholder: true }, LV_INFO[3])
+  ]
+};
+const LVS = ep => EP_LV[ep] || LV_INFO;
+const LVI = (ep, lv) => LVS(ep)[lv];
 const TUNE = { loseHold: 3800, clipStall: 6000, clipCap: 16000 };
 let flowTok = 0;
 const unlocked = () => Math.max(1, Math.min(3, store.get("unlocked", 1)));
@@ -1392,9 +1402,9 @@ function getVideo(name) {
   return v;
 }
 function preloadLevel(lv) {
-  const L = LV_INFO[lv]; if (!L) return;
+  const L = LVI(G.episode, lv); if (!L) return;
   getVideo(L.win); const im = new Image(); im.src = ASSET(L.lose + ".jpg");
-  const nx = LV_INFO[lv + 1]; if (nx) getVideo(nx.setup);
+  const nx = LVI(G.episode, lv + 1); if (nx) getVideo(nx.setup);
 }
 const Cine = (() => {
   const root = document.getElementById("cine");
@@ -1430,7 +1440,8 @@ const Cine = (() => {
   }
   function map(ep, lv) {
     return new Promise(res => {
-      const E = EP_INFO[ep] || EP_INFO[0], L = LV_INFO[lv];
+      const E = EP_INFO[ep] || EP_INFO[0], L = LVI(ep, lv), MAP_PTS = E.pts || JUNGLE_PTS, mapImg = E.map || "map-jungle";
+      const soon = E.mapSoon !== undefined ? (L.placeholder ? E.mapSoon : "") : E.soon;
       let svg = "";
       for (let k = 0; k < lv; k++) segDots(MAP_PTS[k], MAP_PTS[k + 1], k).forEach(p => { svg += '<circle class="dot old" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="6"/>'; });
       segDots(MAP_PTS[lv], MAP_PTS[lv + 1], lv).forEach(p => { svg += '<circle class="dot nd" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="8"/>'; });
@@ -1439,9 +1450,9 @@ const Cine = (() => {
         const st = i <= lv ? "done" : i === lv + 1 ? "cur" : "todo";
         svg += '<g class="mk ' + st + '" transform="translate(' + MAP_PTS[i][0] + "," + MAP_PTS[i][1] + ')">' + (st === "cur" ? '<circle class="pulse" r="24"/>' : "") + '<circle class="ring" r="23"/><text>' + (st === "done" ? "✓" : i) + "</text></g>";
       }
-      show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET("map-jungle.webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET("map-jungle.jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 768 1024" preserveAspectRatio="none">' + svg +
+      show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 768 1024" preserveAspectRatio="none">' + svg +
         '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + L.name + "</div></div>" +
-        (E.soon ? '<div class="msoon">' + E.soon + "</div>" : "") + "</div></div>");
+        (soon ? '<div class="msoon">' + soon + "</div>" : "") + "</div></div>");
       const dots = Array.from(root.querySelectorAll(".dot.nd")); let i = 0, fin = false, timers = [];
       const finish = () => { if (fin) return; fin = true; timers.forEach(clearTimeout); res(); };
       const arrive = () => { const m = root.querySelector(".mk.cur"); if (m) m.classList.add("arrived"); SFX.place(); timers.push(setTimeout(finish, 1500 * Math.max(ANIM, 0.05))); };
@@ -1477,7 +1488,7 @@ const Cine = (() => {
   }
   function lose(lv, reason) {
     return new Promise(res => {
-      const src = ASSET(LV_INFO[lv].lose + ".jpg");
+      const src = ASSET(LVI(G.episode, lv).lose + ".jpg");
       show('<div class="cscreen lose"><div class="cbg" style="background-image:url(\'' + src + '\')"></div><div class="vwrap"><img class="cv" src="' + src + '" alt=""></div>' +
         '<div class="ylose">YOU LOSE</div><div class="lreason">' + (reason === "time" ? "Out of time!" : "Out of strength!") + '</div><button class="again" data-cine="again">↻ Play again</button></div>');
       const b = root.querySelector(".again"); let ready = false;
@@ -1495,7 +1506,7 @@ async function beginLevel(ep, lv, keep, opts) {
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; G.episode = ep; G.level = lv; render();
   if (!opts.noMap) { Music.play("theme"); await Cine.map(ep, lv); if (tok !== flowTok) return; }
-  const L = LV_INFO[lv];
+  const L = LVI(ep, lv);
   Music.play("suspense");
   await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay });
   if (tok !== flowTok) return;
@@ -1512,7 +1523,8 @@ async function winLevel() {
   if (lastLevel) store.set("unlocked", Math.max(unlocked(), Math.min(3, G.episode + 2)));
   G.overlay = { type: "cine" }; render();
   Music.play("win");
-  await Cine.clip(LV_INFO[G.level].win, { kind: "win", cap: LV_INFO[G.level].winCap });
+  const WL = LVI(G.episode, G.level);
+  await Cine.clip(WL.win, { kind: "win", cap: WL.winCap });
   if (tok !== flowTok) return;
   Cine.hide();
   G.overlay = { type, from, to: G.strength }; render();
@@ -1589,7 +1601,7 @@ runTitle();
 getVideo("setup-l1"); getVideo("win-l1");
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
-window.__MVM = { G, Cine, Music, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, unlocked, setAnim: v => { ANIM = v; } };
+window.__MVM = { G, Cine, Music, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, unlocked, setAnim: v => { ANIM = v; } };
 window.__DD = { G, EPISODES, render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
