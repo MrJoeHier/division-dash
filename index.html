@@ -359,20 +359,24 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 /* map */
 .cscreen.map { background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%27.9%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20values%3D%270%200%200%200%20.1%20%200%200%200%200%20.06%20%200%200%200%200%20.02%20%200%200%200%20.55%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27160%27%20height%3D%27160%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E"), radial-gradient(ellipse at center, #4a3018, #120b05); }
 .mapbox { position:relative; width:min(100vw, calc(100vh * 16 / 9)); height:min(100vh, calc(100vw * 9 / 16)); width:min(100vw, calc(100dvh * 16 / 9)); height:min(100dvh, calc(100vw * 9 / 16)); animation:mapIn .8s cubic-bezier(.2,1,.3,1) both; }
-.mapbox .mban { top:1.2%; padding:0.7vh 2vh 0.9vh; }
-.mapbox .mep { font-size:clamp(0.7rem, 2.4vh, 1.15rem); }
-.mapbox .mlv { font-size:clamp(1.6rem, 6.5vh, 3.6rem); }
-.mapbox .mname { font-size:clamp(0.95rem, 3vh, 1.55rem); }
-.mapbox .mchoice { bottom:7%; }
-.mapbox .mlb { right:2%; bottom:2.2%; min-width:50px; height:50px; font-size:1.25rem; }
+.mapbox .mban { top:0.6%; left:10%; right:10%; padding:0.35vh 1.4vh 0.45vh; background:radial-gradient(ellipse at center, rgba(20,12,4,.55), rgba(20,12,4,.18) 70%, rgba(20,12,4,0)); }
+.mapbox .mep { font-size:clamp(0.65rem, 1.9vh, 0.95rem); letter-spacing:.18em; }
+.mapbox .mlv { font-size:clamp(1.15rem, 4.2vh, 2.35rem); margin:.15vh 0; }
+.mapbox .mname { font-size:clamp(0.8rem, 2.3vh, 1.15rem); }
+.mapbox .mlb { right:2%; bottom:2%; min-width:48px; height:48px; font-size:1.2rem; }
 @keyframes mapIn { from { opacity:0; transform:scale(1.08) rotate(-1.5deg); } to { opacity:1; transform:none; } }
-.trail-outline { fill:none; stroke:#2a1608; stroke-width:14; stroke-linecap:round; stroke-linejoin:round; opacity:.55; }
-.trail-path { fill:none; stroke:#e8c48a; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; opacity:.92; }
+.trail-outline { fill:none; stroke:#2a1608; stroke-width:16; stroke-linecap:round; stroke-linejoin:round; opacity:.62; }
+.trail-path { fill:none; stroke:#e8c48a; stroke-width:9; stroke-linecap:round; stroke-linejoin:round; opacity:.95; }
 .mlab rect { fill:rgba(20,12,4,.78); stroke:#f3c65a; stroke-width:2; rx:10; }
-.mlab text { fill:#fff3d0; font:800 22px "Cinzel MVM", Georgia, serif; text-anchor:middle; dominant-baseline:central; }
+.mlab text { fill:#fff3d0; font:800 20px "Cinzel MVM", Georgia, serif; text-anchor:middle; dominant-baseline:central; }
 .mlab.cur rect { fill:rgba(140,30,18,.88); stroke:#ffd43b; }
 .mlab.done rect { fill:rgba(40,90,40,.82); }
 .mlab.todo { opacity:.88; }
+.mlab.rv text { fill:#ffe9a8; }
+.mk.rv .ring { fill:#7a1d12; stroke:#ffd43b; }
+.mchoice { position:absolute; left:auto; right:3%; bottom:11%; width:min(260px, 34%); display:flex; flex-direction:column; gap:10px; justify-content:flex-end; align-items:stretch; z-index:3; opacity:0; transform:translateY(16px); pointer-events:none; transition:opacity .35s, transform .35s cubic-bezier(.2,1.4,.4,1); }
+.mchoice.show { opacity:1; transform:none; pointer-events:auto; }
+.mchoice .mcbtn { flex:0 0 auto; max-width:none; width:100%; min-height:58px; font-size:clamp(0.95rem, 2vh, 1.2rem); }
 .mapbox > img { position:absolute; inset:0; width:100%; height:100%; display:block; }
 .mapbox > svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
 .dot { fill:#e01b1b; stroke:#fff1cc; stroke-width:2.5; opacity:0; transform-box:fill-box; transform-origin:center; }
@@ -496,8 +500,8 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 @keyframes atIn { from { opacity:0; transform:translateY(-20px) scale(.9); } to { opacity:1; transform:none; } }
 /* map: leaderboard button + continue / save for later */
 .mlb { position:absolute; right:3%; bottom:3%; z-index:3; min-width:56px; height:56px; padding:0 14px; border-radius:999px; border:2px solid #f3c65a; background:rgba(20,12,4,.78); color:#fff3d0; font-size:1.4rem; box-shadow:0 6px 16px rgba(0,0,0,.5); }
-.mchoice { position:absolute; left:6%; right:6%; bottom:11%; display:flex; gap:12px; justify-content:center; z-index:3; opacity:0; transform:translateY(20px); pointer-events:none; transition:opacity .35s, transform .35s cubic-bezier(.2,1.4,.4,1); }
-.mchoice.show { opacity:1; transform:none; pointer-events:auto; }
+/* mchoice rules live with map styles */
+
 .mcbtn { flex:1; max-width:300px; min-height:74px; border-radius:18px; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(1.05rem, 2.3vh, 1.4rem); letter-spacing:.03em; border:2px solid #f3c65a; background:linear-gradient(#4f8a3c, #2f6b2a); color:#fff; box-shadow:0 6px 0 #1f1208, 0 12px 28px rgba(0,0,0,.6); }
 .mcbtn.sec { background:linear-gradient(#70482a, #3e2612); color:#fff3d0; }
 .mcbtn:active { transform:translateY(4px); box-shadow:0 2px 0 #1f1208; }
@@ -1148,9 +1152,12 @@ function render() {
         const attrs = k === P.cur ? 'data-mp="' + pl + '"' : "";
         put(r.prod, cy.pos - pl, '<span class="dg">' + ps[ps.length - 1 - pl] + "</span>", "hand prod" + (fresh.has("arrive:" + k) ? " arrive" : ""), attrs);
       }
-      const leftCol = Math.min(cy.pos - ps.length + 1, cy.pos - cy.topStr.length + 1);
-      extra += '<div class="sign hand' + (fresh.has("arrive:" + k) ? " side-in" : "") + '" style="left:' + (X(cy.pos - ps.length + 1) - 0.72 * cw) + "px;top:" + Y(r.prod) + 'px">−</div>';
-      extra += '<div class="rule-line" style="left:' + (X(leftCol) - 0.1 * cw) + "px;width:" + ((cy.pos - leftCol + 1.2) * cw) + "px;top:" + (Y(r.diff) - 1) + 'px"></div>';
+      // Minus + subtraction bar only after Subtract is tapped (cy.sub), not when the product lands.
+      if (cy.sub) {
+        const leftCol = Math.min(cy.pos - ps.length + 1, cy.pos - cy.topStr.length + 1);
+        extra += '<div class="sign hand" style="left:' + (X(cy.pos - ps.length + 1) - 0.72 * cw) + "px;top:" + Y(r.prod) + 'px">−</div>';
+        extra += '<div class="rule-line" style="left:' + (X(leftCol) - 0.1 * cw) + "px;width:" + ((cy.pos - leftCol + 1.2) * cw) + "px;top:" + (Y(r.diff) - 1) + 'px"></div>';
+      }
     }
     if (cy.sub) {
       cy.sub.written.forEach((v, kk) => { if (v !== undefined) put(r.diff, cy.pos - kk, '<span class="dg">' + v + "</span>", "hand diff"); });
@@ -1599,12 +1606,33 @@ document.addEventListener("visibilitychange", () => { if (!AC) return; try { if 
 const ASSET = n => "assets/" + n;
 const DEV = /[?&]dev=1\b/.test(location.search);
 const EP_INFO = [
-  { name: "The Jungle", filter: "", soon: "", map: "map-jungle-wide", pts: [[768, 790], [450, 690], [1040, 430], [400, 300], [780, 220]],
-    lab: [[0, 55], [-90, 40], [70, 50], [-100, 30], [0, 55]] },
-  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", pts: [[768, 800], [390, 690], [1120, 430], [390, 255], [920, 175]],
-    lab: [[0, 55], [-80, 45], [70, 50], [-95, 40], [0, 55]] },
-  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", pts: [[768, 790], [450, 580], [1100, 340], [470, 300], [780, 130]],
-    lab: [[0, 55], [-90, 40], [70, 50], [-100, 40], [0, 55]] }
+  { name: "The Jungle", filter: "", soon: "", map: "map-jungle-wide", rendezvous: "Seaplane Rendezvous",
+    pts: [[768, 805], [455, 705], [1035, 435], [405, 305], [775, 245]],
+    lab: [[110, 10], [-105, 35], [85, 45], [-115, 25], [0, 58]],
+    path: [
+      [768,805],[740,795],[700,785],[650,775],[600,760],[550,745],[500,725],[470,715],[455,705],
+      [470,680],[510,650],[560,620],[620,590],[680,560],[740,530],[800,505],[860,480],[920,460],[980,445],[1035,435],
+      [1000,415],[940,395],[870,375],[790,355],[710,340],[620,325],[530,315],[460,310],[405,305],
+      [450,290],[520,275],[590,265],[660,255],[720,250],[775,245]
+    ] },
+  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", rendezvous: "Safari Truck",
+    pts: [[770, 810], [395, 700], [1125, 440], [385, 260], [910, 195]],
+    lab: [[115, 5], [-95, 40], [80, 48], [-110, 35], [20, 58]],
+    path: [
+      [770,810],[720,795],[650,780],[560,760],[480,740],[420,720],[395,700],
+      [430,670],[500,640],[580,610],[670,580],[760,550],[860,520],[960,490],[1050,465],[1125,440],
+      [1060,410],[980,380],[880,350],[760,320],[640,295],[520,275],[440,265],[385,260],
+      [450,245],[540,230],[640,215],[740,205],[830,198],[910,195]
+    ] },
+  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", rendezvous: "Helicopter Rendezvous",
+    pts: [[768, 800], [430, 600], [1120, 420], [450, 340], [780, 230]],
+    lab: [[115, 5], [-100, 40], [75, 48], [-115, 35], [0, 58]],
+    path: [
+      [768,800],[720,780],[650,750],[560,710],[490,660],[450,630],[430,600],
+      [480,575],[560,555],[660,530],[760,505],[870,480],[980,455],[1060,435],[1120,420],
+      [1050,400],[960,380],[850,365],[730,355],[600,348],[520,344],[450,340],
+      [500,320],[580,300],[660,280],[720,255],[780,230]
+    ] }
 ];
 const LV_INFO = [
   { name: "Gator River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across Gator River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
@@ -1710,11 +1738,42 @@ const Cine = (() => {
       };
     });
   }
-  function segDots(a, b, k) {
-    const [x1, y1] = a, [x2, y2] = b, dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy), s = (k % 2 ? 1 : -1) * 0.2;
-    const cx = (x1 + x2) / 2 - dy * s, cy = (y1 + y2) / 2 + dx * s, n = Math.max(7, Math.round(len / 30)), pts = [];
-    for (let i = 1; i < n; i++) { const t = i / n, u = 1 - t; pts.push([u * u * x1 + 2 * u * t * cx + t * t * x2, u * u * y1 + 2 * u * t * cy + t * t * y2]); }
-    return pts;
+  function polyPath(pts) {
+    if (!pts || !pts.length) return "";
+    let d = "M " + pts[0][0] + " " + pts[0][1];
+    for (let i = 1; i < pts.length; i++) d += " L " + pts[i][0] + " " + pts[i][1];
+    return d;
+  }
+  function nearestIdx(path, pt) {
+    let best = 0, bd = 1e15;
+    for (let i = 0; i < path.length; i++) {
+      const dx = path[i][0] - pt[0], dy = path[i][1] - pt[1], d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = i; }
+    }
+    return best;
+  }
+  function pathSlice(path, a, b) {
+    const i0 = nearestIdx(path, a), i1 = nearestIdx(path, b);
+    const lo = Math.min(i0, i1), hi = Math.max(i0, i1);
+    const slice = path.slice(lo, hi + 1);
+    return i0 <= i1 ? slice : slice.slice().reverse();
+  }
+  function dotsAlong(pathSeg, spacing) {
+    if (!pathSeg || pathSeg.length < 2) return [];
+    const out = [], sp = spacing || 28;
+    let carry = sp * 0.55;
+    for (let i = 0; i < pathSeg.length - 1; i++) {
+      const x1 = pathSeg[i][0], y1 = pathSeg[i][1], x2 = pathSeg[i + 1][0], y2 = pathSeg[i + 1][1];
+      const len = Math.hypot(x2 - x1, y2 - y1); if (len < 1) continue;
+      let t = carry;
+      while (t < len) {
+        const u = t / len;
+        out.push([x1 + (x2 - x1) * u, y1 + (y2 - y1) * u]);
+        t += sp;
+      }
+      carry = t - len;
+    }
+    return out;
   }
   function map(ep, lv, mo) {
     return new Promise(res => {
@@ -1722,6 +1781,7 @@ const Cine = (() => {
       const showSave = !!(mo && mo.showSave);
       const E = EP_INFO[ep] || EP_INFO[0], L = LVI(ep, lv);
       const MAP_PTS = E.pts || JUNGLE_PTS, mapImg = E.map || "map-jungle-wide", labs = E.lab || [];
+      const PATH = E.path || MAP_PTS;
       const levels = LVS(ep);
       const soon = E.mapSoon !== undefined ? (L.placeholder ? E.mapSoon : "") : E.soon;
       let fin = false, arrived = false, timers = [], dots = [], i = 0, resizeT = 0;
@@ -1733,39 +1793,35 @@ const Cine = (() => {
       const finish = () => { if (fin) return; if (choice) { const c = root.querySelector(".mchoice"); if (c) c.classList.add("show"); } else done(); };
       const arrive = () => { if (arrived) return; arrived = true; const m = root.querySelector(".mk.cur"); if (m) m.classList.add("arrived"); SFX.place(); timers.push(setTimeout(finish, (choice ? 450 : 1200) * Math.max(ANIM, 0.05))); };
       const step = () => {
-        if (i < dots.length) { dots[i++].classList.add("on"); SFX.dot(i); Ambience.step(); timers.push(setTimeout(step, 170 * ANIM)); }
+        if (i < dots.length) { dots[i++].classList.add("on"); SFX.dot(i); Ambience.step(); timers.push(setTimeout(step, 150 * ANIM)); }
         else arrive();
       };
-      function curvePath(pts) {
-        let d = "M " + pts[0][0] + " " + pts[0][1];
-        for (let k = 0; k < pts.length - 1; k++) {
-          const a = pts[k], b = pts[k + 1], dx = b[0] - a[0], dy = b[1] - a[1], s = (k % 2 ? 1 : -1) * 0.22;
-          d += " Q " + ((a[0] + b[0]) / 2 - dy * s).toFixed(1) + " " + ((a[1] + b[1]) / 2 + dx * s).toFixed(1) + " " + b[0] + " " + b[1];
-        }
-        return d;
-      }
       function buildSvg() {
-        const full = MAP_PTS.slice(0, 5);
-        const trailD = curvePath(full);
-        let svg = '<path class="trail-outline" d="' + trailD + '"/><path class="trail-path" d="' + trailD + '"/>';
-        for (let k = 0; k < lv; k++) segDots(MAP_PTS[k], MAP_PTS[k + 1], k).forEach(p => { svg += '<circle class="dot old" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="6"/>'; });
-        segDots(MAP_PTS[lv], MAP_PTS[lv + 1], lv).forEach(p => { svg += '<circle class="dot nd" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="8"/>'; });
+        let svg = '<path class="trail-outline" d="' + polyPath(PATH) + '"/><path class="trail-path" d="' + polyPath(PATH) + '"/>';
+        for (let k = 0; k < lv; k++) dotsAlong(pathSlice(PATH, MAP_PTS[k], MAP_PTS[k + 1]), 30).forEach(p => { svg += '<circle class="dot old" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="6"/>'; });
+        dotsAlong(pathSlice(PATH, MAP_PTS[lv], MAP_PTS[lv + 1]), 28).forEach(p => { svg += '<circle class="dot nd" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="8"/>'; });
         svg += '<g class="mk start" transform="translate(' + MAP_PTS[0][0] + "," + MAP_PTS[0][1] + ')"><circle class="ring" r="17"/><text style="font-size:18px">★</text></g>';
         for (let n = 1; n <= 4; n++) {
           const st = n <= lv ? "done" : n === lv + 1 ? "cur" : "todo";
-          svg += '<g class="mk ' + st + '" transform="translate(' + MAP_PTS[n][0] + "," + MAP_PTS[n][1] + ')">' + (st === "cur" ? '<circle class="pulse" r="24"/>' : "") + '<circle class="ring" r="23"/><text>' + (st === "done" ? "✓" : n) + "</text></g>";
+          const isRv = n === 4;
+          if (isRv) {
+            svg += '<g class="mk rv ' + st + '" transform="translate(' + MAP_PTS[n][0] + "," + MAP_PTS[n][1] + ')">' + (st === "cur" ? '<circle class="pulse" r="26"/>' : "") + '<circle class="ring" r="24"/><text style="font-size:22px">' + (st === "done" ? "✓" : "⚑") + "</text></g>";
+          } else {
+            svg += '<g class="mk ' + st + '" transform="translate(' + MAP_PTS[n][0] + "," + MAP_PTS[n][1] + ')">' + (st === "cur" ? '<circle class="pulse" r="24"/>' : "") + '<circle class="ring" r="23"/><text>' + (st === "done" ? "✓" : n) + "</text></g>";
+          }
         }
+        // Start label
+        const soff = labs[0] || [110, 10];
+        svg += '<g class="mlab done" transform="translate(' + (MAP_PTS[0][0] + soff[0]) + "," + (MAP_PTS[0][1] + soff[1]) + ')"><rect x="-48" y="-16" width="96" height="32"/><text style="font-size:18px">Start</text></g>';
         for (let n = 1; n <= 4; n++) {
-          const nm = (levels[n - 1] && levels[n - 1].name) || ("Level " + n);
+          const isRv = n === 4;
+          const nm = isRv ? (E.rendezvous || ((levels[n - 1] && levels[n - 1].name) || ("Level " + n))) : ((levels[n - 1] && levels[n - 1].name) || ("Level " + n));
           const st = n <= lv ? "done" : n === lv + 1 ? "cur" : "todo";
           const off = labs[n] || [0, 55];
           const lx = MAP_PTS[n][0] + off[0], ly = MAP_PTS[n][1] + off[1];
-          const tw = Math.max(110, nm.length * 13 + 28);
-          svg += '<g class="mlab ' + st + '" transform="translate(' + lx + "," + ly + ')"><rect x="' + (-tw / 2) + '" y="-18" width="' + tw + '" height="36"/><text>' + nm.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text></g>";
+          const tw = Math.max(120, nm.length * 11.5 + 28);
+          svg += '<g class="mlab ' + (isRv ? "rv " : "") + st + '" transform="translate(' + lx + "," + ly + ')"><rect x="' + (-tw / 2) + '" y="-16" width="' + tw + '" height="32"/><text style="font-size:18px">' + nm.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text></g>";
         }
-        // start label
-        const soff = labs[0] || [0, 55];
-        svg += '<g class="mlab done" transform="translate(' + (MAP_PTS[0][0] + soff[0]) + "," + (MAP_PTS[0][1] + soff[1]) + ')"><rect x="-52" y="-18" width="104" height="36"/><text>Start</text></g>';
         return svg;
       }
       function render(keepProgress) {
