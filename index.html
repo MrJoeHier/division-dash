@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<title>Division Dash v14</title>
+<style>
+:root, [data-theme="notebook"] {
+  --app-bg:#e8e5de; --paper:#fffef9; --rule:#c9dcee; --margin:#eba9a9; --ink:#363b43; --ink-soft:#8b919b;
+  --accent:#3a72d8; --accent-soft:rgba(58,114,216,.13); --carry:#c4621c; --good:#2f9a5a; --bad:#d24848; --warn:#d99a1e;
+  --panel:#f2f0eb; --key:#ffffff; --key-ink:#2b2f36; --key-edge:#d3cec4; --key-off:#ece9e3; --header:#faf9f6;
+  --slot:#7d8796; --side-bg:rgba(58,114,216,.05); --side-edge:rgba(58,114,216,.28); --overlay:rgba(40,42,48,.45); --card:#ffffff;
+}
+[data-theme="slate"] {
+  --app-bg:#1d2025; --paper:#2a2e35; --rule:#394049; --margin:#62414a; --ink:#e9ebee; --ink-soft:#9aa2ad;
+  --accent:#7fb0ff; --accent-soft:rgba(127,176,255,.16); --carry:#f2a65f; --good:#62d394; --bad:#ff7a7a; --warn:#f3c55b;
+  --panel:#23272d; --key:#353a42; --key-ink:#eef0f3; --key-edge:#14171b; --key-off:#2b2f36; --header:#23272d;
+  --slot:#a8b0bb; --side-bg:rgba(127,176,255,.06); --side-edge:rgba(127,176,255,.3); --overlay:rgba(0,0,0,.55); --card:#2f343c;
+}
+[data-theme="sand"] {
+  --app-bg:#e6ddcc; --paper:#f9f3e5; --rule:#ddd0b5; --margin:#d8a28d; --ink:#4a4136; --ink-soft:#958a7a;
+  --accent:#2f7f7a; --accent-soft:rgba(47,127,122,.14); --carry:#b5562a; --good:#3c8a4f; --bad:#c2453a; --warn:#c48a1c;
+  --panel:#efe7d8; --key:#fffaf0; --key-ink:#3d352c; --key-edge:#cfc2a8; --key-off:#e9e0cf; --header:#f6f0e3;
+  --slot:#8f8371; --side-bg:rgba(47,127,122,.06); --side-edge:rgba(47,127,122,.3); --overlay:rgba(60,50,35,.45); --card:#fffaf0;
+}
+* { box-sizing:border-box; }
+html, body { height:100%; margin:0; overscroll-behavior:none; background:var(--app-bg); }
+body { touch-action:manipulation; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none;
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif; color:var(--ink); overflow:hidden; }
+button { font:inherit; color:inherit; touch-action:manipulation; -webkit-tap-highlight-color:transparent; cursor:pointer; }
+#app { display:flex; flex-direction:column; height:100vh; height:100dvh; padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+
+/* ---------- header ---------- */
+header { flex:0 0 auto; display:flex; align-items:center; gap:12px; padding:8px 14px; padding-top:calc(8px + env(safe-area-inset-top));
+  background:var(--header); border-bottom:1px solid var(--key-edge); min-height:56px; }
+.brand { font-weight:800; font-size:1.1rem; letter-spacing:.01em; white-space:nowrap; }
+.brand small { font-weight:600; color:var(--ink-soft); font-size:.75rem; margin-left:4px; }
+.chips { display:flex; gap:6px; align-items:center; margin-left:auto; flex-wrap:wrap; justify-content:flex-end; }
+.chip { background:var(--panel); border:1px solid var(--key-edge); border-radius:999px; padding:6px 9px; font-weight:700; font-size:.9rem; white-space:nowrap; }
+.chip .lbl { color:var(--ink-soft); font-weight:600; margin-right:4px; }
+.hearts { letter-spacing:2px; font-size:1.05rem; }
+.heart { color:var(--bad); display:inline-block; transition:transform .2s; }
+.heart.lost { color:var(--key-edge); }
+.heart.pop { animation:heartPop .55s ease; }
+@keyframes heartPop { 0%{transform:scale(1)} 30%{transform:scale(1.6) rotate(-12deg)} 100%{transform:scale(1)} }
+.meter { display:flex; align-items:center; gap:5px; }
+.meterbar { position:relative; width:clamp(76px, 12vw, 150px); height:14px; border-radius:999px; background:var(--key-off); border:1px solid var(--key-edge); overflow:hidden; }
+.fillbar { position:absolute; left:0; top:0; bottom:0; width:100%; border-radius:999px; background:var(--good); transition:width .9s cubic-bezier(.2,.9,.3,1), background .4s; }
+.fillbar::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); transform:translateX(-100%); }
+.fillbar.charging::after, .meter.charge .fillbar::after { animation:shine .9s ease-out 2; }
+@keyframes shine { to { transform:translateX(100%); } }
+.meter .pct { min-width:3.2em; text-align:right; font-variant-numeric:tabular-nums; }
+.meter.drain { animation:shake .38s ease; }
+.meter.drain .meterbar { box-shadow:0 0 0 3px rgba(210,72,72,.35); }
+.meter.charge .meterbar { box-shadow:0 0 0 4px rgba(47,154,90,.35); transition:box-shadow .3s; }
+.refill { display:flex; flex-direction:column; align-items:center; gap:6px; margin:10px 0 6px; }
+.refill .rlbl { font-weight:800; color:var(--good); }
+.refill .meterbar { width:min(320px, 80%); height:22px; }
+.refill .pct { font-weight:900; font-size:1.4rem; font-variant-numeric:tabular-nums; }
+.cell.qtarget { cursor:pointer; }
+.cell.qtarget::after { content:''; position:absolute; left:8%; right:8%; top:6%; bottom:4%; border:2.5px dashed var(--accent); border-radius:10px; background:var(--accent-soft); opacity:.75; }
+.cell.qtarget::before { content:''; position:absolute; inset:calc(var(--rh) * -.35) -3px -2px; } /* bigger touch area (upwards into the margin) */
+.cell.qtarget.hinting::after { animation:nudge .9s ease-in-out infinite; opacity:1; }
+.cell.selq { background:var(--accent-soft); border-radius:8px; box-shadow:inset 0 0 0 2.5px var(--accent); animation:slotPulse 1.3s ease-in-out infinite; }
+.timer .tv { font-variant-numeric:tabular-nums; font-size:1.05rem; font-weight:900; min-width:2.7em; display:inline-block; text-align:right; }
+.timer.warn { background:#fff3d6; border-color:var(--warn); color:#8a5a00; }
+.timer.danger { background:var(--bad); border-color:var(--bad); color:#fff; animation:tpulse 1s ease-in-out infinite; }
+.timer.danger .lbl { color:#fff; }
+.timer.paused { opacity:.6; }
+@keyframes tpulse { 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(210,72,72,.5);} 50%{ transform:scale(1.08); box-shadow:0 0 0 6px rgba(210,72,72,0);} }
+.epseg { margin:6px 0 2px; }
+.epbadge { font-size:3.2rem; line-height:1; animation:starIn .6s cubic-bezier(.3,1.7,.5,1); }
+.epnext { color:var(--ink) !important; }
+.icon-btn { width:44px; height:44px; border-radius:12px; border:1px solid var(--key-edge); background:var(--key); font-size:1.3rem; display:grid; place-items:center; }
+
+/* ---------- paper workspace ---------- */
+#work { flex:1 1 auto; min-height:0; position:relative; overflow:auto; -webkit-overflow-scrolling:touch; background:var(--paper); }
+#prompt { position:sticky; top:0; left:0; z-index:5; padding:8px 14px; font-weight:700; font-size:1rem; color:var(--ink);
+  background:linear-gradient(var(--paper) 70%, transparent); pointer-events:none; min-height:38px; }
+#prompt.warnmsg { color:var(--carry); }
+#prompt.badmsg { color:var(--bad); }
+#board { position:absolute; left:0; top:0; }
+.paperbg { position:absolute; left:0; top:0; pointer-events:none;
+  background-image:
+    linear-gradient(to right, transparent var(--mx), var(--margin) var(--mx), var(--margin) calc(var(--mx) + 2px), transparent calc(var(--mx) + 2px)),
+    repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--rh) - 1px), var(--rule) calc(var(--rh) - 1px), var(--rule) var(--rh)); }
+.hand { font-family: "Noteworthy", "Chalkboard SE", "Comic Neue", "Patrick Hand", "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive; font-variant-numeric:tabular-nums; }
+.cell { position:absolute; width:var(--cw); height:var(--rh); display:flex; align-items:flex-end; justify-content:center;
+  font-size:calc(var(--rh) * .68); line-height:1; padding-bottom:calc(var(--rh) * .1); color:var(--ink); font-weight:600; }
+.cell.divisor { color:var(--ink); }
+.cell.quo { color:var(--accent); font-weight:700; }
+.cell.cur { background:var(--accent-soft); }
+.cell.tap { cursor:pointer; }
+.cell.tap::before { content:''; position:absolute; inset:-6px -2px; } /* bigger hit area */
+.cell.place-hint { border-radius:8px; }
+.cell.placed { background:var(--accent-soft); border-radius:6px; }
+.cell.slot::after { content:''; position:absolute; left:10%; right:10%; top:12%; bottom:6%; border:2.5px dashed var(--slot); border-radius:8px; animation:slotPulse 1.3s ease-in-out infinite; }
+@keyframes slotPulse { 0%,100%{opacity:.55} 50%{opacity:1} }
+.cell.prod { color:var(--ink); }
+.cell.diff { color:var(--ink); }
+.cell.brought { color:var(--ink); }
+.cell.arrive { visibility:hidden; }
+.cell.struck > .dg { position:relative; opacity:.55; }
+.cell.struck > .dg::after { content:''; position:absolute; left:-18%; right:-18%; top:50%; height:2.5px; border-radius:2px; background:var(--carry); transform:rotate(-58deg); }
+.cell.struck.fresh > .dg::after { animation:strike .32s ease-out; }
+@keyframes strike { from{ transform:rotate(-58deg) scaleX(0);} to{ transform:rotate(-58deg) scaleX(1);} }
+.mark { position:absolute; top:calc(var(--rh) * .02); right:calc(var(--cw) * -.2); font-size:.56em; background:var(--paper); border-radius:4px; padding:0 1px; color:var(--carry); font-weight:800; line-height:1; }
+.mark.fresh { animation:markPop .38s cubic-bezier(.3,1.6,.5,1); }
+@keyframes markPop { 0%{ transform:translateY(8px) scale(.2); opacity:0;} 100%{ transform:none; opacity:1;} }
+.cell.nudge { animation:nudge .9s ease-in-out infinite; border-radius:8px; }
+.cell.nudge::before { content:''; position:absolute; inset:2px; border-radius:10px; box-shadow:0 0 0 3px var(--warn); background:rgba(217,154,30,.12); }
+@keyframes nudge { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-5px);} }
+.cell.shake, .shake { animation:shake .38s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(4px)} }
+.cell.glow { animation:glow .6s ease; }
+@keyframes glow { 0%{ text-shadow:0 0 0 transparent; transform:scale(1);} 40%{ text-shadow:0 0 14px var(--good); transform:scale(1.18);} 100%{ transform:scale(1);} }
+.sign { position:absolute; font-family:-apple-system, "Segoe UI", system-ui, sans-serif; font-weight:500; font-size:calc(var(--rh) * .62); line-height:1; color:var(--ink); display:flex; align-items:flex-end; height:var(--rh); padding-bottom:calc(var(--rh)*.14); width:var(--cw); justify-content:center; }
+.rule-line { position:absolute; height:2.5px; background:var(--ink); border-radius:2px; }
+svg.bracket { position:absolute; left:0; top:0; pointer-events:none; overflow:visible; }
+svg.bracket path { stroke:var(--ink); stroke-width:3; fill:none; stroke-linecap:round; }
+.rlabel { color:var(--accent); font-weight:700; }
+
+/* side multiply problem */
+.side { position:absolute; border:2px dashed var(--side-edge); background:var(--side-bg); border-radius:14px; }
+.side.fading { animation:fadeOut .7s ease forwards; }
+@keyframes fadeOut { 0%{opacity:1} 60%{opacity:1} 100%{opacity:0; transform:scale(.96)} }
+.side-in { animation:sideIn .28s ease-out; }
+@keyframes sideIn { from{ opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+.cell.carryc { font-size:calc(var(--rh) * .36); color:var(--carry); font-weight:800; padding-bottom:0; align-items:center; height:calc(var(--rh) * .6); }
+.cell.focus { color:var(--accent); }
+.cell.focus::before { content:''; position:absolute; left:14%; right:14%; bottom:4%; height:3px; border-radius:3px; background:var(--accent); opacity:.6; }
+.cell.sp-filled { color:var(--ink); }
+
+/* compare box */
+.cmp { position:absolute; display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px 10px; border-radius:14px;
+  background:var(--card); border:2px solid var(--accent); box-shadow:0 8px 24px rgba(0,0,0,.15); animation:sideIn .25s ease-out; z-index:4; }
+.cmp .q { font-weight:800; font-size:1rem; white-space:nowrap; }
+.cmp .row { display:flex; gap:10px; }
+.cmp button { min-width:84px; min-height:52px; border-radius:12px; border:2px solid var(--key-edge); background:var(--key); font-size:1.15rem; font-weight:800; }
+.cmp button.yes { border-color:var(--good); color:var(--good); }
+.cmp button.no { border-color:var(--bad); color:var(--bad); }
+.cmp button:active { transform:scale(.96); }
+
+/* ---------- input area ---------- */
+#input { flex:0 0 auto; background:var(--panel); border-top:1px solid var(--key-edge); padding:10px 12px calc(10px + env(safe-area-inset-bottom)); }
+#inner { display:grid; gap:10px; max-width:640px; margin:0 auto; grid-template-columns:1fr; grid-template-areas:"steps" "pad" "ctx"; }
+.steps { grid-area:steps; display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; }
+.padwrap { grid-area:pad; display:flex; flex-direction:column; gap:8px; }
+.cmpbar { display:flex; flex-direction:column; gap:6px; padding:8px; border-radius:16px; background:var(--card); border:2px solid var(--accent); box-shadow:0 6px 18px rgba(0,0,0,.12); }
+.cmpbar[hidden] { display:none; }
+.cmpbar.in { animation:sideIn .22s ease-out; }
+.cmpbar .cq { text-align:center; font-weight:800; font-size:1.05rem; }
+.cmpbar .crow { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.cbtn { min-height:max(64px, var(--kh, 58px)); border-radius:14px; border:2px solid var(--key-edge); background:var(--key); font-size:1.5rem; font-weight:900; box-shadow:0 3px 0 var(--key-edge); }
+.cbtn.yes { border-color:var(--good); color:var(--good); }
+.cbtn.no { border-color:var(--bad); color:var(--bad); }
+.cbtn:active { transform:translateY(3px); box-shadow:none; }
+.cell.cmpnum { color:var(--accent); font-weight:800; }
+.cell.cmpnum::after { content:''; position:absolute; left:2%; right:2%; top:10%; bottom:4%; border-radius:8px; background:var(--accent-soft); box-shadow:inset 0 0 0 2px var(--accent); animation:slotPulse 1.3s ease-in-out infinite; }
+.cell.cmpdiv { color:var(--accent); font-weight:800; }
+.cell.cmpdiv::after { content:''; position:absolute; left:6%; right:6%; bottom:2%; height:3px; border-radius:3px; background:var(--accent); }
+.pad { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+.pad .zero { grid-column:1 / span 3; }
+.ctx { grid-area:ctx; display:flex; gap:8px; }
+.ctx button { flex:1; }
+.key, .step, .ctxb { min-height:var(--kh, 58px); border-radius:14px; border:1px solid var(--key-edge); background:var(--key); color:var(--key-ink);
+  box-shadow:0 3px 0 var(--key-edge); font-weight:800; transition:transform .06s, box-shadow .06s, background .15s, opacity .15s; position:relative; }
+.key { font-size:1.6rem; }
+.step { font-size:2rem; line-height:1; }
+.ctxb { font-size:1.05rem; }
+.key:active:not(:disabled), .step:active:not(:disabled), .ctxb:active:not(:disabled), .pressed { transform:translateY(3px); box-shadow:0 0 0 var(--key-edge); }
+.step.active { background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 3px 0 rgba(0,0,0,.25); }
+.step.okflash { animation:okflash .45s ease; }
+@keyframes okflash { 0%{ box-shadow:0 0 0 0 var(--good);} 60%{ box-shadow:0 0 0 10px transparent;} }
+button:disabled { opacity:.38; cursor:default; background:var(--key-off); box-shadow:none; }
+.ctxb.cant { border-color:var(--carry); color:var(--carry); }
+.ctxb.hidden { display:none; }
+.wrongflash { background:var(--bad) !important; color:#fff !important; }
+
+@media (orientation: landscape) and (min-width: 700px) {
+  #inner { max-width:1000px; grid-template-columns: 1.25fr 1fr; grid-template-areas:"steps pad" "ctx pad"; align-items:start; }
+  .steps { align-self:stretch; }
+  .step { min-height:calc(var(--kh, 54px) * 1.55); }
+  #input { --kh: min(54px, 7.4vh); }
+}
+@media (orientation: portrait) { #input { --kh: min(60px, 6.2vh); } }
+
+/* ---------- overlays ---------- */
+.overlay { position:fixed; inset:0; background:var(--overlay); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; animation:fadeIn .2s; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.card { background:var(--card); color:var(--ink); border-radius:22px; padding:24px 26px; width:min(560px, 100%); max-height:90vh; overflow:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.3); text-align:center; animation:cardIn .35s cubic-bezier(.2,1.3,.4,1); }
+@keyframes cardIn { from{ transform:scale(.85); opacity:0;} to{ transform:none; opacity:1;} }
+.card h1 { margin:4px 0 6px; font-size:2rem; }
+.card h2 { margin:4px 0 8px; font-size:1.6rem; }
+.card p { margin:6px 0 14px; color:var(--ink-soft); font-weight:600; }
+.big { min-height:58px; padding:0 28px; border-radius:16px; border:none; background:var(--accent); color:#fff; font-size:1.2rem; font-weight:800; box-shadow:0 4px 0 rgba(0,0,0,.2); margin-top:8px; }
+.big:active { transform:translateY(3px); box-shadow:none; }
+.big.secondary { background:var(--key); color:var(--key-ink); border:1px solid var(--key-edge); }
+.stars { font-size:2.6rem; letter-spacing:6px; margin:6px 0; }
+.stars .s { display:inline-block; color:var(--key-edge); }
+.stars .s.on { color:#f4b400; animation:starIn .5s cubic-bezier(.3,1.7,.5,1) backwards; }
+@keyframes starIn { from{ transform:scale(0) rotate(-90deg);} to{ transform:none;} }
+.eq { font-size:1.6rem; font-weight:700; margin:6px 0; color:var(--ink); }
+.lvgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:8px; margin:12px 0; text-align:left; }
+.lv { min-height:64px; border-radius:14px; border:2px solid var(--key-edge); background:var(--key); padding:8px 10px; text-align:left; }
+.lv b { display:block; font-size:1rem; }
+.lv span { font-size:.78rem; color:var(--ink-soft); font-weight:600; }
+.lv.sel { border-color:var(--accent); background:var(--accent-soft); }
+.set-row { display:flex; flex-direction:column; gap:8px; text-align:left; margin:14px 0; }
+.set-row > label { font-weight:800; font-size:.95rem; }
+.seg { display:flex; gap:6px; flex-wrap:wrap; }
+.seg button { flex:1; min-height:50px; border-radius:12px; border:2px solid var(--key-edge); background:var(--key); font-weight:700; padding:4px 10px; }
+.seg button.sel { border-color:var(--accent); background:var(--accent-soft); }
+.seg button .soon { display:block; font-size:.7rem; color:var(--ink-soft); font-weight:600; }
+.toast { position:fixed; left:50%; top:76px; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:999px; font-weight:700; z-index:80; animation:fadeIn .2s; pointer-events:none; }
+.flyer { position:fixed; z-index:60; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; color:var(--ink); font-weight:600; line-height:1; will-change:transform; }
+.flyer.ghost { opacity:.55; color:var(--accent); }
+.confetti { position:fixed; width:10px; height:14px; z-index:70; pointer-events:none; border-radius:2px; }
+.combo { position:fixed; z-index:65; pointer-events:none; font-weight:900; color:var(--good); font-size:1.3rem; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">Division Dash <small>v14</small></div>
+    <div class="chips">
+      <div class="chip"><span id="h-level">E1 · L1</span></div>
+      <div class="chip timer" id="h-time" aria-label="Time left"><span class="lbl">⏱</span><span class="tv">4:00</span></div>
+      <div class="chip"><span class="lbl">Problem</span><span id="h-prob">1/5</span></div>
+      <div class="chip meter" id="h-meter" aria-label="Strength"><span class="lbl">Strength</span><div class="meterbar"><div class="fillbar"></div></div><span class="pct">100%</span></div>
+      <button class="icon-btn" id="btn-settings" aria-label="Settings">⚙︎</button>
+    </div>
+  </header>
+  <main id="work">
+    <div id="prompt"></div>
+    <div id="board"></div>
+  </main>
+  <section id="input">
+    <div id="inner">
+      <div class="steps">
+        <button class="step" data-step="divide" aria-label="Divide">÷</button>
+        <button class="step" data-step="multiply" aria-label="Multiply">×</button>
+        <button class="step" data-step="subtract" aria-label="Subtract">−</button>
+        <button class="step" data-step="compare" aria-label="Compare">C</button>
+        <button class="step" data-step="bring" aria-label="Bring down">↓</button>
+      </div>
+      <div class="padwrap">
+      <div id="cmpbar" class="cmpbar" hidden role="group" aria-label="Compare">
+        <div class="cq">Smaller than divisor?</div>
+        <div class="crow"><button id="cmp-yes" class="cbtn yes" data-act="yes">Yes</button><button id="cmp-no" class="cbtn no" data-act="no">No</button></div>
+      </div>
+      <div class="pad">
+        <button class="key" data-key="1">1</button><button class="key" data-key="2">2</button><button class="key" data-key="3">3</button>
+        <button class="key" data-key="4">4</button><button class="key" data-key="5">5</button><button class="key" data-key="6">6</button>
+        <button class="key" data-key="7">7</button><button class="key" data-key="8">8</button><button class="key" data-key="9">9</button>
+        <button class="key zero" data-key="0">0</button>
+      </div>
+      </div>
+      <div class="ctx">
+        <button class="ctxb" id="btn-rem">Remainder</button>
+        <button class="ctxb" id="btn-done">Done</button>
+        <button class="ctxb cant hidden" id="btn-cant">Can't subtract</button>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="overlay-root"></div>
+<script>
+(function () {
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+
+/* ================= settings / storage ================= */
+const store = {
+  get(k, def) { try { const v = localStorage.getItem("dd12." + k); return v === null ? def : JSON.parse(v); } catch (e) { return def; } },
+  set(k, v) { try { localStorage.setItem("dd12." + k, JSON.stringify(v)); } catch (e) {} }
+};
+const settings = { theme: store.get("theme", "notebook"), format: "remainders", sound: store.get("sound", true), haptics: store.get("haptics", true) };
+const THEMES = [["notebook", "Notebook"], ["sand", "Sand"], ["slate", "Slate"]];
+document.documentElement.setAttribute("data-theme", settings.theme);
+let ANIM = (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) ? 0.35 : 1;
+
+/* ================= levels ================= */
+const LEVELS = [
+  { name: "One-digit divisors", desc: "1-digit ÷ into 3- and 4-digit numbers", shapes: [[1, 3], [1, 3], [1, 4], [1, 4]] },
+  { name: "Two-digit divisors", desc: "2-digit ÷ into 4- and 5-digit numbers", shapes: [[2, 4], [2, 4], [2, 5], [2, 5]] },
+  { name: "Three-digit divisors", desc: "3-digit ÷ into 5- and 6-digit numbers", shapes: [[3, 5], [3, 5], [3, 6], [3, 6]] },
+  { name: "Four-digit divisors", desc: "4-digit ÷ into 6-digit numbers", shapes: [[4, 6], [4, 6]] }
+];
+
+/* ================= math engine ================= */
+function subNeedsBorrow(top, bot) {
+  const T = top.split("").map(Number).reverse(), B = bot.split("").map(Number).reverse();
+  let br = 0;
+  for (let k = 0; k < T.length; k++) { const t = T[k] - br, b = B[k] || 0; if (t < b) return true; br = 0; }
+  return false;
+}
+function analyze(D, d) {
+  const digs = D.split("").map(Number), n = digs.length;
+  let p = 0, cur = digs[0];
+  while (cur < d && p < n - 1) { p++; cur = cur * 10 + digs[p]; }
+  const cycles = []; let topStr = D.slice(0, p + 1), pos = p, zero = false, borrow = false;
+  for (;;) {
+    const top = parseInt(topStr, 10), q = Math.floor(top / d), prod = q * d, diff = top - prod;
+    if (q === 0) zero = true;
+    if (subNeedsBorrow(topStr, String(prod))) borrow = true;
+    cycles.push({ pos, topStr, q, prod, diff });
+    if (pos >= n - 1) break;
+    pos++; topStr = String(diff) + digs[pos];
+  }
+  return { p, cycles, quotient: cycles.map(c => c.q).join(""), remainder: cycles[cycles.length - 1].diff, zero, borrow, n, valid: parseInt(D.slice(0, p + 1), 10) >= d };
+}
+/* Multiply scaffold: ones digit, then carry (only if non-zero). Never a full multi-digit product. */
+function mulSteps(q, d) {
+  const ds = String(d).split("").map(Number).reverse(); // from right
+  if (q === 0) return [{ kind: "write", place: 0, val: 0, j: 0, c: 0 }];
+  const steps = []; let c = 0;
+  for (let j = 0; j < ds.length; j++) {
+    const t = q * ds[j] + c;
+    steps.push({ kind: "write", place: j, val: t % 10, j, c });
+    const nc = Math.floor(t / 10);
+    if (nc > 0) {
+      if (j < ds.length - 1) steps.push({ kind: "carry", j: j + 1, val: nc });
+      else steps.push({ kind: "lead", place: ds.length, val: nc });
+    }
+    c = nc;
+  }
+  return steps;
+}
+function genLevel(l) {
+  // Random problems in the requested shapes; mild preference for remainders and variety, nothing forced.
+  const cfg = LEVELS[l], out = [], seen = new Set();
+  for (const [dl, len] of cfg.shapes) {
+    let pick = null;
+    for (let t = 0; t < 400 && !pick; t++) {
+      const d = dl === 1 ? ri(2, 9) : ri(Math.pow(10, dl - 1), Math.pow(10, dl) - 1);
+      const D = ri(Math.pow(10, len - 1), Math.pow(10, len) - 1);
+      if (D < d) continue;
+      const key = D + "/" + d; if (seen.has(key)) continue;
+      const A = analyze(String(D), d);
+      if (!A.valid) continue;
+      if (A.remainder === 0 && Math.random() < 0.7) continue; // exact answers allowed, just less often
+      pick = { D: String(D), d };
+    }
+    if (!pick) { const d = dl === 1 ? ri(2, 9) : ri(Math.pow(10, dl - 1), Math.pow(10, dl) - 1); pick = { D: String(ri(Math.max(d, Math.pow(10, len - 1)), Math.pow(10, len) - 1)), d }; }
+    seen.add(pick.D + "/" + pick.d); out.push(pick);
+  }
+  return out;
+}
+
+/* ================= audio + haptics ================= */
+let AC = null, master = null;
+function audio() {
+  if (!settings.sound) return null;
+  try {
+    if (!AC) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); master = AC.createGain(); master.gain.value = 0.55; master.connect(AC.destination); }
+    if (AC.state === "suspended") AC.resume();
+  } catch (e) { return null; }
+  return AC;
+}
+function tone(f, t0, dur, type, g, f2) {
+  const ac = audio(); if (!ac) return;
+  const t = ac.currentTime + t0, o = ac.createOscillator(), gn = ac.createGain();
+  o.type = type || "sine"; o.frequency.setValueAtTime(f, t);
+  if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+  gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(g || 0.2, t + 0.012); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(gn); gn.connect(master); o.start(t); o.stop(t + dur + 0.05);
+}
+function noise(t0, dur, g, freq) {
+  const ac = audio(); if (!ac) return;
+  const len = Math.max(1, Math.floor(ac.sampleRate * dur)), buf = ac.createBuffer(1, len, ac.sampleRate), data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = ac.createBufferSource(), bp = ac.createBiquadFilter(), gn = ac.createGain();
+  src.buffer = buf; bp.type = "bandpass"; bp.frequency.value = freq || 2500; bp.Q.value = 0.8; gn.gain.value = g || 0.1;
+  src.connect(bp); bp.connect(gn); gn.connect(master); src.start(ac.currentTime + t0);
+}
+let streak = 0;
+const SCALE = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7, 1318.5, 1568, 1760];
+const SFX = {
+  tick() { const f = SCALE[Math.min(streak, SCALE.length - 1)]; tone(f, 0, 0.13, "triangle", 0.17); tone(f * 2, 0, 0.07, "sine", 0.04); noise(0, 0.05, 0.05, 3200); },
+  step() { tone(440, 0, 0.08, "triangle", 0.14); tone(659, 0.06, 0.13, "triangle", 0.14); },
+  place() { tone(523, 0, 0.1, "triangle", 0.15); tone(784, 0.07, 0.16, "triangle", 0.15); },
+  good() { tone(659, 0, 0.15, "sine", 0.2); tone(831, 0.08, 0.15, "sine", 0.2); tone(988, 0.16, 0.3, "sine", 0.2); tone(1976, 0.16, 0.2, "sine", 0.03); },
+  nudge() { tone(392, 0, 0.14, "sine", 0.12); tone(494, 0.13, 0.18, "sine", 0.1); },
+  retry() { tone(587, 0, 0.11, "sine", 0.12); tone(494, 0.1, 0.18, "sine", 0.11); },
+  buzz() { tone(150, 0, 0.3, "sawtooth", 0.16, 85); tone(156, 0, 0.3, "square", 0.07, 90); },
+  drop() { tone(1046, 0, 0.26, "sine", 0.12, 392); noise(0.2, 0.06, 0.06, 900); },
+  whoosh() { tone(260, 0, 0.32, "sine", 0.07, 820); noise(0, 0.25, 0.04, 1500); },
+  borrow() { noise(0, 0.1, 0.12, 1800); tone(700, 0.05, 0.09, "triangle", 0.09); },
+  win() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.32, "triangle", 0.17)); tone(1568, 0.38, 0.45, "sine", 0.07); tone(2093, 0.46, 0.35, "sine", 0.05); },
+  level() { [523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.12, 0.28, "triangle", 0.17)); tone(1047, 0.72, 0.7, "sine", 0.1); tone(1319, 0.72, 0.7, "sine", 0.07); tone(1568, 0.72, 0.7, "sine", 0.06); },
+  fill() { tone(220, 0, 0.9, "triangle", 0.1, 880); tone(330, 0.05, 0.85, "sine", 0.06, 1320); [784, 988, 1175, 1568].forEach((f, i) => tone(f, 0.75 + i * 0.08, 0.3, "triangle", 0.13)); noise(0, 0.6, 0.03, 2500); },
+  clock(sec) { tone(sec <= 3 ? 1320 : 990, 0, 0.05, "square", sec <= 3 ? 0.07 : 0.045); noise(0, 0.02, 0.04, 4000); },
+  episode() { [392, 523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.11, 0.35, "triangle", 0.16)); [1047, 1319, 1568, 2093].forEach(f => tone(f, 0.75, 1.1, "sine", 0.06)); noise(0.7, 0.5, 0.04, 3000); },
+  over() { [392, 349, 311, 262].forEach((f, i) => tone(f, i * 0.16, 0.3, "triangle", 0.14)); }
+};
+const canVibrate = typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
+function haptic(p) { if (settings.haptics && canVibrate) { try { navigator.vibrate(p); } catch (e) {} } }
+
+/* ================= game state ================= */
+const EPISODES = [{ secs: 240 }, { secs: 180 }, { secs: 120 }];
+const G = { episode: 0, timeLeft: 240, timeScale: 1, level: 0, probIdx: 0, strength: 100, problems: [], stars: [], P: null, overlay: null, started: false };
+const fresh = new Set();
+let lockUntil = 0;
+const locked = () => performance.now() < lockUntil;
+const lock = ms => { lockUntil = performance.now() + ms * ANIM; };
+
+function newLevel(l, keepStrength) { G.level = l; G.probIdx = 0; if (!keepStrength) G.strength = 100; G.stars = []; G.problems = genLevel(l); startProblem(); }
+function startProblem() {
+  G.timeLeft = EPISODES[G.episode].secs; G.lastTickSec = null;
+  const pr = G.problems[G.probIdx];
+  G.P = { D: pr.D, d: pr.d, ds: String(pr.d).split("").map(Number), digs: pr.D.split("").map(Number), n: pr.D.length, A: analyze(pr.D, pr.d),
+    phase: "place", expect: "divide", cycles: [], cur: -1, remTyped: "", pens: 0, msg: null, msgCls: "", nudgeK: null, sideFading: null };
+  streak = 0; G.overlay = null; render();
+}
+const curCy = () => G.P.cycles[G.P.cur];
+const topVal = cy => parseInt(cy.topStr, 10);
+function rowsOf(k) { return { top: k === 0 ? 1 : 1 + 2 * k, prod: 2 + 2 * k, diff: 3 + 2 * k }; }
+
+function say(msg, cls) { G.P.msg = msg; G.P.msgCls = cls || ""; }
+
+function penalty(sel) {
+  const P = G.P; if (!P) return;
+  G.strength = Math.max(0, G.strength - 10); P.pens++; streak = 0;
+  SFX.buzz(); haptic([70, 40, 90]);
+  fresh.add("drain");
+  render();
+  if (sel) { const el = typeof sel === "string" ? document.querySelector(sel) : sel; if (el) { el.classList.remove("shake", "wrongflash"); void el.offsetWidth; el.classList.add("shake", "wrongflash"); setTimeout(() => el.classList.remove("shake", "wrongflash"), 420); } }
+  const w = $("#work"); w.classList.remove("shake"); void w.offsetWidth;
+  if (G.strength <= 0) {
+    P.phase = "over"; lock(900);
+    setTimeout(() => { SFX.over(); G.overlay = { type: "over" }; render(); }, 650 * ANIM);
+  }
+}
+function good(kind) { streak++; (SFX[kind] || SFX.tick)(); haptic(12); }
+
+/* ================= per-problem countdown ================= */
+function timerRunning() { const P = G.P; return !!P && !G.overlay && G.started && P.phase !== "complete" && P.phase !== "over"; }
+let lastT = performance.now();
+function timerTick() {
+  const now = performance.now(), dt = Math.max(0, (now - lastT) / 1000); lastT = now;
+  if (!timerRunning()) { renderTimer(); return; }
+  G.timeLeft = Math.max(0, G.timeLeft - dt * G.timeScale);
+  const sec = Math.ceil(G.timeLeft);
+  if (sec <= 10 && sec > 0 && sec !== G.lastTickSec) { G.lastTickSec = sec; SFX.clock(sec); if (sec <= 5) haptic(8); }
+  renderTimer();
+  if (G.timeLeft <= 0) timeUp();
+}
+function timeUp() {
+  const P = G.P; P.phase = "over"; streak = 0; lock(900);
+  SFX.buzz(); haptic([90, 50, 120]); say("Time's up!", "badmsg"); render();
+  setTimeout(() => { if (G.P !== P || P.phase !== "over") return; SFX.over(); G.overlay = { type: "timeup" }; render(); }, 600 * ANIM);
+}
+function fmtTime(t) { const s = Math.ceil(t), m = Math.floor(s / 60); return m + ":" + String(s % 60).padStart(2, "0"); }
+function renderTimer() {
+  const el = document.getElementById("h-time"); if (!el) return;
+  const t = G.timeLeft; el.querySelector(".tv").textContent = fmtTime(t);
+  el.classList.toggle("warn", t < 60 && t >= 30); el.classList.toggle("danger", t < 30);
+  el.classList.toggle("paused", !timerRunning() && !!G.P && G.P.phase !== "over");
+  el.setAttribute("aria-label", "Time left " + fmtTime(t));
+}
+setInterval(timerTick, 200);
+
+/* ================= actions ================= */
+function act(type, arg) {
+  const P = G.P;
+  if (G.overlay) { if (type === "next") overlayNext(); return; }
+  if (!P || locked() || P.phase === "complete" || P.phase === "over") return;
+  switch (type) {
+    case "place": return onPlace(arg);
+    case "divtap": if (P.phase === "place") { P.placeHint = true; say("Tap the space above the dividend — where the first quotient digit goes. ↑", "warnmsg"); SFX.nudge(); render(); } return;
+    case "step": return onStep(arg);
+    case "digit": return onDigit(arg);
+    case "top": return onTop(arg);
+    case "yes": return onCompare(true);
+    case "no": return onCompare(false);
+    case "cant": return onCant();
+    case "remainder": return onRemainder();
+    case "done": return onDone();
+  }
+}
+function onPlace(i) {
+  const P = G.P; if (P.phase !== "place") return;
+  if (i !== P.A.p) { say("Not there. Find the first number big enough to divide by " + P.d + ".", "badmsg"); return penalty('[data-place="' + i + '"]'); }
+  P.placeHint = false;
+  P.cycles.push({ pos: i, topStr: P.D.slice(0, i + 1), q: null, mul: null, prodPlaced: false, sub: null, diff: null, brought: false });
+  P.cur = 0; P.phase = "quotient"; say(null);
+  for (let c = 0; c <= i; c++) fresh.add("glow:1," + c);
+  good("place"); render();
+}
+const STEP_SEL = s => '.step[data-step="' + s + '"]';
+function onStep(s) {
+  const P = G.P;
+  if (P.phase === "multiply") return; // buttons are disabled mid-multiply
+  if (P.phase === "place") { if (s === "divide") { say("Tap the space above the dividend where the quotient starts."); render(); return; } return penalty(STEP_SEL(s)); }
+  if ((P.phase === "quotient" && s === "divide") || (P.phase === "subtract" && s === "subtract") || (P.phase === "compare" && s === "compare")) return;
+  if (P.phase !== "needStep" || P.expect !== s) { say(null); return penalty(STEP_SEL(s)); }
+  const cy = curCy(); say(null);
+  flashOk(STEP_SEL(s));
+  if (s === "divide") { P.phase = "quotient"; good("step"); render(); return; }
+  if (s === "multiply") { cy.mul = { steps: mulSteps(cy.q, P.d), idx: 0, prod: {}, carries: {} }; P.phase = "multiply"; fresh.add("sidein"); good("step"); render(); return; }
+  if (s === "subtract") {
+    const T = cy.topStr.split("").map(Number).reverse(), prod = cy.q * P.d;
+    cy.sub = { work: T.slice(), B: String(prod).split("").map(Number).reverse(), marks: {}, struck: {}, col: 0, written: [], impossible: prod > topVal(cy), done: false };
+    P.phase = "subtract"; good("step"); render(); return;
+  }
+  if (s === "compare") { P.phase = "compare"; good("step"); render(); return; }
+  if (s === "bring") {
+    const from = document.querySelector('[data-cell="1,' + (cy.pos + 1) + '"]');
+    const fromRect = from ? from.getBoundingClientRect() : null;
+    cy.brought = true;
+    const k = P.cur, r = rowsOf(k);
+    P.cycles.push({ pos: cy.pos + 1, topStr: String(cy.diff) + P.digs[cy.pos + 1], q: null, mul: null, prodPlaced: false, sub: null, diff: null, brought: false, topRow: r.diff });
+    P.cur++; P.phase = "needStep"; P.expect = "divide";
+    fresh.add("bring:" + k); SFX.drop(); streak++; haptic(12);
+    render();
+    const to = document.querySelector('[data-cell="' + r.diff + "," + (cy.pos + 1) + '"]');
+    fly(fromRect, to, String(P.digs[cy.pos + 1]), "ghost", 520, () => { if (to) { to.classList.remove("arrive"); to.classList.add("glow"); } });
+    lock(560);
+  }
+}
+function flashOk(sel) { const el = document.querySelector(sel); if (el) { el.classList.remove("okflash"); void el.offsetWidth; el.classList.add("okflash"); setTimeout(() => el.classList.remove("okflash"), 480); } }
+
+function onDigit(v) {
+  const P = G.P, cy = curCy();
+  if (P.phase === "quotient") {
+    cy.q = v; cy.prevQ = null; P.phase = "needStep"; P.expect = "multiply"; say(null);
+    fresh.add("glow:0," + cy.pos); good("tick"); render(); return;
+  }
+  if (P.phase === "multiply") {
+    const m = cy.mul, st = m.steps[m.idx];
+    if (v !== st.val) { return penalty(".cell.slot"); }
+    if (st.kind === "carry") m.carries[st.j] = v; else m.prod[st.place] = v;
+    m.idx++; good("tick");
+    if (m.idx >= m.steps.length) return finishMultiply();
+    render(); return;
+  }
+  if (P.phase === "subtract") {
+    const s = cy.sub;
+    if (s.impossible) return penalty(".cell.slot");
+    const k = s.col, b = s.B[k] || 0;
+    if (s.work[k] < b && leadingOneBorrow(s, k)) {
+      // v13: the only digit to the left is a leading 1 — no borrow step, type the difference directly (10−8 → 2)
+      if (v !== s.work[k] + 10 - b) return penalty(".cell.slot");
+      s.work[k + 1] = 0; s.leadUsed = k + 1; s.written[k] = v; s.col++; P.nudgeK = null; say(null);
+      fresh.add("glow:" + rowsOf(P.cur).diff + "," + (cy.pos - k));
+      good("tick");
+      if (subFinished(s)) { s.done = true; cy.diff = topVal(cy) - cy.q * P.d; P.phase = "needStep"; P.expect = "compare"; }
+      render(); return;
+    }
+    if (s.work[k] < b) { // needs a borrow first: gentle, NON-penalty nudge (unique to borrowing)
+      P.nudgeK = borrowSource(s, k);
+      say("Borrow first — tap the digit to the left.", "warnmsg"); SFX.nudge(); haptic(8);
+      render(); return;
+    }
+    if (v !== s.work[k] - b) return penalty(".cell.slot");
+    s.written[k] = v; s.col++; P.nudgeK = null; say(null);
+    fresh.add("glow:" + rowsOf(P.cur).diff + "," + (cy.pos - k));
+    good("tick");
+    if (subFinished(s)) { s.done = true; cy.diff = topVal(cy) - cy.q * P.d; P.phase = "needStep"; P.expect = "compare"; }
+    render(); return;
+  }
+  if (P.phase === "remEntry") {
+    const rs = String(curCy().diff);
+    if (String(v) !== rs[P.remTyped.length]) return penalty(".cell.slot");
+    P.remTyped += v; good("tick");
+    if (P.remTyped.length === rs.length) return complete();
+    render(); return;
+  }
+}
+function leadingOneBorrow(s, k) { return k + 1 === s.work.length - 1 && s.work[k + 1] === 1 && !s.struck[k + 1]; }
+function borrowSource(s, k) { let j = k + 1; while (j < s.work.length - 1 && s.work[j] === 0) j++; return j; }
+function subFinished(s) {
+  if (s.col >= s.work.length) return true;
+  let rem = 0;
+  for (let i = s.work.length - 1; i >= s.col; i--) rem = rem * 10 + s.work[i] - (s.B[i] || 0);
+  return rem === 0;
+}
+function onTop(kk) {
+  const P = G.P; if (P.phase !== "subtract") return;
+  const cy = curCy(), s = cy.sub, k = s.col, sel = '[data-top="' + kk + '"]';
+  if (s.impossible || s.done || !(s.work[k] < (s.B[k] || 0))) return penalty(sel);
+  const j = borrowSource(s, k);
+  if (kk !== k + 1 && kk !== j) return penalty(sel);
+  s.work[j] -= 1; s.struck[j] = true; s.marks[j] = s.work[j]; fresh.add("b:" + j);
+  for (let i = j - 1; i > k; i--) { s.work[i] = 9; s.struck[i] = true; s.marks[i] = 9; fresh.add("b:" + i); }
+  s.work[k] += 10; s.struck[k] = true; s.marks[k] = s.work[k]; fresh.add("b:" + k);
+  P.nudgeK = null; say(null); SFX.borrow(); streak++; haptic(15);
+  render();
+}
+function finishMultiply() {
+  const P = G.P, cy = curCy(), k = P.cur;
+  render(); // show the final typed digit in the side problem before it flies
+  const rects = {};
+  $$("[data-sp]").forEach(el => { rects[el.getAttribute("data-sp")] = el.getBoundingClientRect(); });
+  // render the last typed digit first so it is visible in the side problem, then fly
+  cy.prodPlaced = true; P.phase = "needStep"; P.expect = "subtract"; P.sideFading = k;
+  fresh.add("arrive:" + k);
+  render();
+  SFX.whoosh();
+  const ps = String(cy.q * P.d);
+  for (let pl = 0; pl < ps.length; pl++) {
+    const to = document.querySelector('[data-mp="' + pl + '"]');
+    const r = rects[pl] || rects[String(pl)];
+    setTimeout(() => fly(r, to, ps[ps.length - 1 - pl], "", 480, () => { if (to) to.classList.remove("arrive"); }), 160 * ANIM);
+  }
+  lock(720);
+  setTimeout(() => { if (G.P === P && P.sideFading === k) { P.sideFading = null; render(); } }, 760 * ANIM);
+}
+function retry(dir) {
+  const P = G.P, cy = curCy();
+  cy.prevQ = cy.q; cy.q = null; cy.mul = null; cy.prodPlaced = false; cy.sub = null; cy.diff = null; P.nudgeK = null;
+  P.phase = "quotient"; P.sideFading = null;
+  say(dir === "bigger" ? "What's left is still big enough to divide — try a bigger quotient digit." : "That product is too big to subtract — try a smaller quotient digit.", "warnmsg");
+  SFX.retry(); haptic(10); render();
+}
+function onCant() {
+  const P = G.P; if (P.phase !== "subtract") return penalty("#btn-cant");
+  const s = curCy().sub;
+  if (s.impossible) return retry("smaller");
+  return penalty("#btn-cant");
+}
+function onCompare(yes) {
+  const P = G.P; if (P.phase !== "compare") return;
+  const cy = curCy(), smaller = cy.diff < P.d;
+  if (yes && smaller) { P.phase = "needStep"; P.expect = cy.pos < P.n - 1 ? "bring" : "final"; good("good"); render(); return; }
+  if (!yes && !smaller) return retry("bigger");
+  return penalty(yes ? "#cmp-yes" : "#cmp-no");
+}
+function onRemainder() {
+  const P = G.P;
+  if (P.phase === "remEntry") return;
+  if (P.phase === "needStep" && P.expect === "final" && curCy().diff > 0) { P.phase = "remEntry"; P.remTyped = ""; good("step"); render(); return; }
+  return penalty("#btn-rem");
+}
+function onDone() {
+  const P = G.P;
+  if (P.phase === "needStep" && P.expect === "final" && curCy().diff === 0) return complete();
+  return penalty("#btn-done");
+}
+function complete() {
+  const P = G.P; P.phase = "complete";
+  const stars = P.pens === 0 ? 3 : P.pens <= 2 ? 2 : 1; G.stars[G.probIdx] = stars;
+  render(); SFX.win(); haptic([20, 40, 20, 40, 60]);
+  const q = $(".cell.quo"); const r = q ? q.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 3, width: 0, height: 0 };
+  confetti(r.left + r.width / 2, r.top + r.height / 2, 46);
+  lock(700);
+  setTimeout(() => { if (G.P !== P) return; G.overlay = { type: "solved", stars }; render(); }, 900 * ANIM);
+}
+function overlayNext() {
+  const o = G.overlay; if (!o) return;
+  if (o.type === "start") { audio(); G.started = true; G.episode = o.ep || 0; newLevel(o.sel || 0, false); return; }
+  if (o.type === "solved") {
+    if (G.probIdx + 1 >= G.problems.length) {
+      const from = G.strength; G.strength = Math.min(100, G.strength + 30);
+      const lastLevel = G.level + 1 >= LEVELS.length, lastEp = G.episode + 1 >= EPISODES.length;
+      G.overlay = { type: !lastLevel ? "level" : lastEp ? "all" : "episode", from, to: G.strength };
+      if (lastLevel) { SFX.episode(); setTimeout(() => confetti(innerWidth * 0.25, innerHeight / 3, 70), 350 * ANIM); setTimeout(() => confetti(innerWidth * 0.75, innerHeight / 3, 70), 700 * ANIM); } else SFX.level(); confetti(innerWidth / 2, innerHeight / 3, 90); render(); animateRefill(from, G.strength); return;
+    }
+    G.probIdx++; startProblem(); return;
+  }
+  if (o.type === "level") { newLevel(G.level + 1, true); return; }
+  if (o.type === "episode") { G.episode++; newLevel(0, true); return; }
+  if (o.type === "all") { G.overlay = { type: "start", sel: 0, ep: 0 }; render(); return; }
+  if (o.type === "over" || o.type === "timeup") { newLevel(G.level, false); return; }
+  if (o.type === "settings") { G.overlay = o.prev || null; render(); return; }
+}
+
+/* ================= animation helpers ================= */
+function fly(fromRect, toEl, text, cls, dur, done) {
+  if (!ANIM || !fromRect || !toEl || !toEl.animate) { if (done) done(); return; }
+  const to = toEl.getBoundingClientRect();
+  const f = document.createElement("div");
+  f.className = "flyer hand " + (cls || ""); f.textContent = text;
+  const cs = getComputedStyle(toEl);
+  f.style.cssText = "left:" + to.left + "px;top:" + to.top + "px;width:" + to.width + "px;height:" + to.height + "px;font-size:" + cs.fontSize + ";padding-bottom:" + cs.paddingBottom;
+  document.body.appendChild(f);
+  const dx = fromRect.left + fromRect.width / 2 - (to.left + to.width / 2), dy = fromRect.top + fromRect.height / 2 - (to.top + to.height / 2);
+  const a = f.animate([{ transform: "translate(" + dx + "px," + dy + "px) scale(1)" }, { transform: "translate(" + dx * 0.5 + "px," + (dy * 0.5 - 18) + "px) scale(1.15)", offset: 0.5 }, { transform: "translate(0,0) scale(1)" }],
+    { duration: dur * ANIM, easing: "cubic-bezier(.25,.8,.3,1)" });
+  let fin = false; const end = () => { if (fin) return; fin = true; f.remove(); if (done) done(); };
+  a.onfinish = end; setTimeout(end, dur * ANIM + 200);
+}
+function meterColor(v) { return v > 50 ? "var(--good)" : v > 20 ? "var(--warn)" : "var(--bad)"; }
+function animateRefill(from, to) {
+  setTimeout(() => {
+    const bar = document.querySelector(".card .refill .fillbar"), lbl = document.querySelector(".card .refill .pct");
+    if (bar) { bar.style.width = to + "%"; bar.style.background = meterColor(to); bar.classList.add("charging"); }
+    SFX.fill(); haptic([15, 30, 15, 30, 40]);
+    const t0 = performance.now(), dur = 900 * Math.max(ANIM, 0.01);
+    const step = () => { const k = Math.min(1, (performance.now() - t0) / dur); if (lbl) lbl.textContent = Math.round(from + (to - from) * k) + "%"; if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+    fresh.add("refill"); renderHeader(); fresh.delete("refill");
+  }, 650 * ANIM);
+}
+function confetti(x, y, n) {
+  if (!ANIM || !document.body.animate) return;
+  const cols = ["#f4b400", "#3a72d8", "#2f9a5a", "#e2543e", "#9b59d0", "#16a3a8"];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement("div"); c.className = "confetti";
+    c.style.left = x + "px"; c.style.top = y + "px"; c.style.background = cols[i % cols.length];
+    document.body.appendChild(c);
+    const ang = Math.random() * Math.PI * 2, sp = 120 + Math.random() * 260;
+    const dx = Math.cos(ang) * sp, dy = Math.sin(ang) * sp - 160;
+    c.animate([{ transform: "translate(0,0) rotate(0)", opacity: 1 }, { transform: "translate(" + dx + "px," + (dy + 420) + "px) rotate(" + (Math.random() * 900 - 450) + "deg)", opacity: 0 }],
+      { duration: 1100 + Math.random() * 700, easing: "cubic-bezier(.15,.6,.4,1)" }).onfinish = () => c.remove();
+  }
+}
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+/* ================= rendering ================= */
+function layout() {
+  const P = G.P, work = $("#work");
+  const cb = document.getElementById("cmpbar"), cbH = cb && !cb.hidden ? cb.offsetHeight + 8 : 0; // fit as if the compare bar were not there, so the paper does not jump
+  const W = work.clientWidth - 18, H = work.clientHeight - 38 + cbH; // leave room for a scrollbar so nothing scrolls sideways
+  const dl = P.ds.length, n = P.n;
+  const sideCols = Math.max(dl, String(9 * P.d).length) + 1.8;
+  const remCols = dl + 1.6; // "R" + up to dl digits (only shown after the side problem is gone)
+  const totalCols = 1.0 + dl + 1.1 + n + 0.8 + Math.max(sideCols, remCols) + 0.4;
+  const rowsFull = 2 + 2 * P.A.cycles.length + 1.2;
+  let cw = Math.floor(Math.min(W / totalCols, H / ((rowsFull + 1.5) * 1.16)));
+  cw = Math.max(28, Math.min(68, cw));
+  const rh = Math.round(cw * 1.16);
+  const contentW = totalCols * cw;
+  const left = Math.max(cw * 1.0, (W - contentW) / 2 + cw * 1.0);
+  const X0 = left + (dl + 1.1) * cw;
+  const TOP = rh;
+  const SX = X0 + (n + 0.8) * cw;
+  return { cw, rh, X0, TOP, SX, sideCols, W, H: work.clientHeight, rowsFull, mx: Math.max(6, left - cw * 0.55), contentW: SX + Math.max(sideCols, remCols) * cw + 0.4 * cw };
+}
+function esc(s) { return String(s); }
+
+function render() {
+  renderHeader(); renderInput(); renderOverlay();
+  const P = G.P, board = $("#board");
+  if (!P) { board.innerHTML = ""; $("#prompt").textContent = ""; fresh.clear(); return; }
+  const L = layout(), { cw, rh, X0, TOP } = L;
+  const X = c => X0 + c * cw, Y = r => TOP + r * rh;
+  const cells = new Map();
+  const put = (r, c, txt, cls, attrs) => { const key = r + "," + c; const o = cells.get(key) || { r, c, txt: "", cls: [], attrs: "", mark: null }; if (txt !== undefined && txt !== null) o.txt = txt; if (cls) o.cls.push(...cls.split(" ").filter(Boolean)); if (attrs) o.attrs += " " + attrs; cells.set(key, o); return o; };
+  let extra = "";
+
+  // divisor
+  P.ds.forEach((dg, i) => { extra += '<div class="cell hand divisor' + (P.phase === "compare" ? " cmpdiv" : "") + '" style="left:' + (X0 - (P.ds.length + 0.75 - i) * cw) + "px;top:" + Y(1) + 'px">' + dg + "</div>"; });
+  // bracket
+  const bx = X0 - 0.3 * cw, y0 = Y(1) + 2, y1 = Y(2) - 2, xEnd = X(P.n) + 0.15 * cw;
+  extra += '<svg class="bracket" width="' + (xEnd + 10) + '" height="' + (y1 + 10) + '"><path d="M' + bx + "," + y0 + " Q" + (bx + 0.32 * cw) + "," + ((y0 + y1) / 2) + " " + (bx - 0.05 * cw) + "," + y1 + '"/><path d="M' + bx + "," + y0 + " L" + xEnd + "," + y0 + '"/></svg>';
+  // dividend
+  P.digs.forEach((dg, i) => {
+    let cls = "hand", attrs = 'data-cell="1,' + i + '"';
+    if (P.phase === "place") { cls += " tap"; attrs += ' data-divtap="' + i + '"'; }
+    put(1, i, '<span class="dg">' + dg + "</span>", cls, attrs);
+  });
+  // quotient spaces are the tap targets while choosing where the quotient starts
+  if (P.phase === "place") P.digs.forEach((dg, i) => put(0, i, "", "tap qtarget" + (P.placeHint ? " hinting" : ""), 'data-place="' + i + '"'));
+  // quotient
+  P.cycles.forEach(cy => { if (cy.q !== null) put(0, cy.pos, '<span class="dg">' + cy.q + "</span>", "hand quo"); });
+  // cycles
+  P.cycles.forEach((cy, k) => {
+    const r = rowsOf(k);
+    if (cy.prodPlaced) {
+      const ps = String(cy.q * P.d);
+      for (let pl = 0; pl < ps.length; pl++) {
+        const attrs = k === P.cur ? 'data-mp="' + pl + '"' : "";
+        put(r.prod, cy.pos - pl, '<span class="dg">' + ps[ps.length - 1 - pl] + "</span>", "hand prod" + (fresh.has("arrive:" + k) ? " arrive" : ""), attrs);
+      }
+      const leftCol = Math.min(cy.pos - ps.length + 1, cy.pos - cy.topStr.length + 1);
+      extra += '<div class="sign hand' + (fresh.has("arrive:" + k) ? " side-in" : "") + '" style="left:' + (X(cy.pos - ps.length + 1) - 0.72 * cw) + "px;top:" + Y(r.prod) + 'px">−</div>';
+      extra += '<div class="rule-line" style="left:' + (X(leftCol) - 0.1 * cw) + "px;width:" + ((cy.pos - leftCol + 1.2) * cw) + "px;top:" + (Y(r.diff) - 1) + 'px"></div>';
+    }
+    if (cy.sub) {
+      cy.sub.written.forEach((v, kk) => { if (v !== undefined) put(r.diff, cy.pos - kk, '<span class="dg">' + v + "</span>", "hand diff"); });
+      Object.keys(cy.sub.struck).forEach(kk => {
+        kk = +kk; const o = put(r.top, cy.pos - kk, null, "struck" + (k === P.cur && fresh.has("b:" + kk) ? " fresh" : ""));
+        o.mark = '<span class="mark' + (k === P.cur && fresh.has("b:" + kk) ? " fresh" : "") + '">' + cy.sub.marks[kk] + "</span>";
+      });
+    }
+    if (cy.brought) put(r.diff, cy.pos + 1, '<span class="dg">' + P.digs[cy.pos + 1] + "</span>", "hand brought" + (fresh.has("bring:" + k) ? " arrive" : ""), 'data-cell="' + r.diff + "," + (cy.pos + 1) + '"');
+  });
+  // current number highlight + tap targets
+  const cy = curCy();
+  if (cy) {
+    const r = rowsOf(P.cur), len = cy.topStr.length;
+    for (let kk = 0; kk < len; kk++) {
+      const c = cy.pos - kk;
+      const o = put(r.top, c, cells.has(r.top + "," + c) ? null : '<span class="dg">' + cy.topStr[len - 1 - kk] + "</span>", P.phase === "complete" ? "" : "cur");
+      if (P.phase === "subtract") { o.cls.push("tap"); o.attrs += ' data-top="' + kk + '"'; }
+      if (P.nudgeK === kk && P.phase === "subtract") o.cls.push("nudge");
+    }
+    if (P.phase === "quotient") {
+      if (cy.prevQ !== null && cy.prevQ !== undefined) put(0, cy.pos, '<span class="dg">' + cy.prevQ + "</span>", "hand quo selq");
+      else put(0, cy.pos, "", "slot");
+    }
+    if (P.phase === "subtract" && !cy.sub.done) put(r.diff, cy.pos - cy.sub.col, null, "slot");
+  }
+  // remainder
+  if ((P.phase === "remEntry" || P.phase === "complete") && cy && cy.diff > 0) {
+    extra += '<div class="cell hand rlabel" style="left:' + (X(P.n) + 0.2 * cw) + "px;top:" + Y(0) + 'px">R</div>';
+    for (let i = 0; i < P.remTyped.length; i++) put(0, P.n + 1 + i, '<span class="dg">' + P.remTyped[i] + "</span>", "hand quo");
+    if (P.phase === "remEntry") put(0, P.n + 1 + P.remTyped.length, "", "slot");
+  }
+  for (const f of fresh) if (f.startsWith("glow:")) { const [r, c] = f.slice(5).split(",").map(Number); const o = cells.get(r + "," + c); if (o) o.cls.push("glow"); }
+
+  // compare: the Yes/No prompt lives in the input area (#cmpbar); here we only highlight what is being compared
+  if (P.phase === "compare" && cy && cy.sub) {
+    const r = rowsOf(P.cur);
+    cy.sub.written.forEach((v, kk) => { const o = cells.get(r.diff + "," + (cy.pos - kk)); if (o && v !== undefined) o.cls.push("cmpnum"); });
+  }
+  let html = "";
+  for (const o of cells.values()) {
+    html += '<div class="cell ' + o.cls.join(" ") + '" style="left:' + (X(o.c) + (o.c >= P.n && o.r === 0 && o.cls.includes("quo") ? 0.1 * cw : 0)) + "px;top:" + Y(o.r) + 'px"' + o.attrs + ">" + o.txt + (o.mark || "") + "</div>";
+  }
+  // side multiply problem
+  let sideBottom = 0;
+  if (cy && cy.mul && (P.phase === "multiply" || P.sideFading === P.cur)) {
+    const m = cy.mul, dl = P.ds.length, SR = L.SX + L.sideCols * cw - 0.3 * cw;
+    const yTop = Y(rowsOf(P.cur).top);
+    const carryY = yTop + 0.1 * rh, divY = carryY + 0.6 * rh, mulY = divY + rh, prodY = mulY + rh + 4;
+    const st = P.phase === "multiply" ? m.steps[m.idx] : null;
+    let s = '<div class="side' + (P.sideFading === P.cur && P.phase !== "multiply" ? " fading" : "") + (fresh.has("sidein") ? " side-in" : "") + '" style="left:' + L.SX + "px;top:" + yTop + "px;width:" + (L.sideCols * cw) + "px;height:" + (prodY + rh + 0.25 * rh - yTop) + 'px"></div>';
+    P.ds.forEach((dg, i) => {
+      const j = dl - 1 - i; const foc = st && st.kind === "write" && st.j === j && cy.q !== 0;
+      s += '<div class="cell hand' + (foc ? " focus" : "") + '" style="left:' + (SR - (j + 1) * cw) + "px;top:" + divY + 'px">' + dg + "</div>";
+      const cv = m.carries[j];
+      const carrySlot = st && st.kind === "carry" && st.j === j;
+      if (cv !== undefined || carrySlot) {
+        const foc2 = st && st.kind === "write" && st.j === j && st.c > 0;
+        s += '<div class="cell hand carryc' + (carrySlot ? " slot" : "") + (foc2 ? " focus" : "") + '" style="left:' + (SR - (j + 1) * cw) + "px;top:" + carryY + 'px">' + (cv !== undefined ? cv : "") + "</div>";
+      }
+    });
+    const qFoc = st && (st.kind === "write");
+    s += '<div class="sign hand" style="left:' + (SR - (Math.max(dl, 2) + 0.9) * cw) + "px;top:" + mulY + 'px">×</div>';
+    s += '<div class="cell hand quo' + (qFoc ? " focus" : "") + '" style="left:' + (SR - cw) + "px;top:" + mulY + 'px">' + cy.q + "</div>";
+    const pw = Math.max(dl, String(9 * P.d).length) + 0.9;
+    s += '<div class="rule-line" style="left:' + (SR - pw * cw) + "px;width:" + (pw * cw) + "px;top:" + (mulY + rh) + 'px"></div>';
+    const places = Object.keys(m.prod).map(Number);
+    places.forEach(pl => { s += '<div class="cell hand sp-filled" data-sp="' + pl + '" style="left:' + (SR - (pl + 1) * cw) + "px;top:" + prodY + 'px">' + m.prod[pl] + "</div>"; });
+    if (st && st.kind !== "carry") s += '<div class="cell slot" style="left:' + (SR - (st.place + 1) * cw) + "px;top:" + prodY + 'px"></div>';
+    html += s; sideBottom = prodY + rh * 1.4;
+  }
+  html += extra;
+  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - 38, Y(L.rowsFull + 0.7), sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
+  board.style.cssText = "--cw:" + cw + "px;--rh:" + rh + "px;--mx:" + L.mx + "px;width:" + bw + "px;height:" + bh + "px";
+  board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + 38) + 'px;top:-38px"></div>' + html;
+  board.style.top = "38px"; board.style.position = "absolute";
+  // prompt
+  const pr = $("#prompt"); pr.className = P.msgCls || ""; pr.textContent = P.msg || defaultPrompt();
+  // keep the active spot visible
+  const act = board.querySelector(".slot, .nudge, .cmpnum");
+  if (act && act.scrollIntoView) { try { act.scrollIntoView({ block: "nearest", inline: "nearest" }); } catch (e) {} }
+  fresh.forEach(f => { if (f.startsWith("heart:")) return; }); fresh.clear();
+}
+function defaultPrompt() {
+  const P = G.P, cy = curCy();
+  switch (P.phase) {
+    case "place": return "Tap the space above the dividend where the quotient starts.";
+    case "quotient": return "Divide: how many " + P.d + "s fit in " + parseInt(cy.topStr, 10) + "?";
+    case "needStep": return P.expect === "final" ? "No digits left to bring down. What's next?" : "What's the next step?";
+    case "multiply": { const st = cy.mul.steps[cy.mul.idx]; if (!st) return "Multiply: done!"; return st.kind === "carry" ? "Multiply: write the carry." : st.kind === "lead" ? "Multiply: write the last carry in front." : "Multiply: write the ones digit."; }
+    case "subtract": return "Subtract, right to left.";
+    case "compare": return "Compare with the divisor.";
+    case "remEntry": return "Write the remainder.";
+    case "complete": return "Solved! " + P.D + " ÷ " + P.d + " = " + P.A.quotient.replace(/^0+(?=\d)/, "") + (P.A.remainder ? " R " + P.A.remainder : "");
+    case "over": return "Out of strength.";
+  }
+  return "";
+}
+function renderHeader() {
+  $("#h-level").textContent = "E" + (G.episode + 1) + " · L" + (G.level + 1);
+  renderTimer();
+  const np = G.problems.length || 4;
+  $("#h-prob").textContent = Math.min(G.probIdx + 1, np) + "/" + np;
+  const m = $("#h-meter"), bar = m.querySelector(".fillbar");
+  // the bar on screen keeps the pre-bonus value until the level-complete refill animation runs
+  const shown = G.overlay && (G.overlay.type === "level" || G.overlay.type === "all") && G.overlay.from !== undefined && !G.overlay.refilled && !fresh.has("refill") ? G.overlay.from : G.strength;
+  if (fresh.has("refill") && G.overlay) G.overlay.refilled = true;
+  bar.style.width = shown + "%"; bar.style.background = meterColor(shown);
+  m.querySelector(".pct").textContent = shown + "%";
+  m.setAttribute("aria-label", "Strength " + shown + " percent");
+  if (fresh.has("drain")) { m.classList.remove("drain"); void m.offsetWidth; m.classList.add("drain"); }
+  if (fresh.has("refill")) { m.classList.remove("charge"); void m.offsetWidth; m.classList.add("charge"); }
+}
+function renderInput() {
+  const cbar = document.getElementById("cmpbar"), showCmp = !!G.P && !G.overlay && G.P.phase === "compare";
+  if (cbar.hidden === showCmp) { cbar.hidden = !showCmp; if (showCmp) { cbar.classList.remove("in"); void cbar.offsetWidth; cbar.classList.add("in"); } }
+  const P = G.P, ph = P ? P.phase : "none";
+  const playing = P && !G.overlay && ph !== "complete" && ph !== "over";
+  const mid = ph === "multiply";
+  const activeStep = { place: "divide", quotient: "divide", multiply: "multiply", subtract: "subtract", compare: "compare" }[ph];
+  $$(".step").forEach(b => { b.disabled = !playing || mid; b.classList.toggle("active", !!playing && b.dataset.step === activeStep); });
+  const keysOn = playing && ["quotient", "multiply", "subtract", "remEntry"].includes(ph);
+  $$(".key").forEach(b => { b.disabled = !keysOn; });
+  $("#btn-rem").disabled = !playing || mid; $("#btn-done").disabled = !playing || mid;
+  $("#btn-cant").classList.toggle("hidden", ph !== "subtract"); $("#btn-cant").disabled = !playing;
+}
+function epSeg(sel, attr) {
+  return '<div class="seg epseg">' + EPISODES.map((E, i) => '<button data-' + attr + '="' + i + '" class="' + (sel === i ? "sel" : "") + '">Episode ' + (i + 1) + '<span class="soon">' + (E.secs / 60) + ":00 per problem</span></button>").join("") + "</div>";
+}
+function refillHtml(o) {
+  const v = o.refilled ? o.to : o.from;
+  return '<div class="refill"><div class="rlbl">Strength bonus +30%</div><div class="meterbar"><div class="fillbar" style="width:' + v + '%;background:' + meterColor(v) + '"></div></div><div class="pct">' + v + "%</div></div>";
+}
+function starsHtml(n) { let s = ""; for (let i = 0; i < 3; i++) s += '<span class="s' + (i < n ? " on" : "") + '" style="animation-delay:' + (i * 0.15) + 's">★</span>'; return '<div class="stars">' + s + "</div>"; }
+function renderOverlay() {
+  const root = $("#overlay-root"), o = G.overlay;
+  if (!o) { root.innerHTML = ""; return; }
+  if (root.dataset.sig === JSON.stringify(o) && root.innerHTML) return;
+  root.dataset.sig = JSON.stringify(o);
+  let h = "";
+  if (o.type === "start") {
+    h = '<h1>Division Dash</h1><p>Divide · Multiply · Subtract · Compare · Bring down</p>' + epSeg(o.ep || 0, "ep") + '<div class="lvgrid">' +
+      LEVELS.map((L, i) => '<button class="lv' + ((o.sel || 0) === i ? " sel" : "") + '" data-lv="' + i + '"><b>' + (i + 1) + ". " + L.name + "</b><span>" + L.desc + "</span></button>").join("") +
+      '</div><button class="big" data-act="next">Start E' + ((o.ep || 0) + 1) + " · Level " + ((o.sel || 0) + 1) + "</button>";
+  } else if (o.type === "solved") {
+    const P = G.P;
+    h = "<h2>Problem solved!</h2>" + starsHtml(o.stars) + '<div class="eq hand">' + P.D + " ÷ " + P.d + " = " + P.A.quotient.replace(/^0+(?=\d)/, "") + (P.A.remainder ? " R " + P.A.remainder : "") + "</div><p>" +
+      (P.pens === 0 ? "Perfect — no mistakes!" : P.pens + (P.pens === 1 ? " slip" : " slips") + " this time.") + '</p><button class="big" data-act="next">' + (G.probIdx + 1 >= G.problems.length ? "Finish level" : "Next problem") + " ▶</button>";
+  } else if (o.type === "level") {
+    const tot = G.stars.reduce((a, b) => a + (b || 0), 0);
+    h = "<h1>🏅 E" + (G.episode + 1) + " · Level " + (G.level + 1) + " complete!</h1>" + '<div class="stars" style="font-size:1.6rem">' + G.stars.map(s => "★".repeat(s) + "☆".repeat(3 - s)).join(" ") + "</div><p>" + tot + " of " + G.problems.length * 3 + " stars</p>" + refillHtml(o) +
+      '<button class="big" data-act="next">Level ' + (G.level + 2) + ": " + LEVELS[G.level + 1].name + " ▶</button>";
+  } else if (o.type === "episode") {
+    const tot = G.stars.reduce((a, b) => a + (b || 0), 0), nx = EPISODES[G.episode + 1].secs / 60;
+    h = '<div class="epbadge">🎉</div><h1>Episode ' + (G.episode + 1) + " complete!</h1><p>All four levels passed. Level 4: " + tot + " of " + G.problems.length * 3 + " stars.</p>" + refillHtml(o) +
+      '<p class="epnext">Episode ' + (G.episode + 2) + ": same four levels, but only <b>" + nx + ":00</b> per problem.</p>" + '<button class="big" data-act="next">Start Episode ' + (G.episode + 2) + " ▶</button>";
+  } else if (o.type === "timeup") {
+    h = '<div class="epbadge">⏰</div><h2>Time\'s up!</h2><p>E' + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". You have " + fmtTime(EPISODES[G.episode].secs) + " per problem. Recharge to 100% and try again with fresh problems.</p>" + '<button class="big" data-act="next">Retry level ' + (G.level + 1) + "</button>";
+  } else if (o.type === "all") {
+    h = '<div class="epbadge">🏆</div><h1>Division Champion!</h1><p>You beat all three episodes — every level, against the clock.</p>' + refillHtml(o) + '<button class="big" data-act="next">Play again</button>';
+  } else if (o.type === "over") {
+    h = "<h2>Out of strength</h2>" + '<div class="refill"><div class="meterbar"><div class="fillbar" style="width:0%"></div></div><div class="pct">0%</div></div>' + "<p>E" + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". Recharge to 100% and try again with fresh problems.</p>" + '<button class="big" data-act="next">Retry level ' + (G.level + 1) + "</button>";
+  } else if (o.type === "settings") {
+    h = "<h2>Settings</h2>" +
+      '<div class="set-row"><label>Answer format</label><div class="seg">' +
+      '<button class="sel" data-format="remainders">Remainders</button><button data-format="fractions">Fractions<span class="soon">coming soon</span></button><button data-format="decimals">Decimals<span class="soon">coming soon</span></button></div></div>' +
+      '<div class="set-row"><label>Look</label><div class="seg">' + THEMES.map(t => '<button data-theme-btn="' + t[0] + '" class="' + (settings.theme === t[0] ? "sel" : "") + '">' + t[1] + "</button>").join("") + "</div></div>" +
+      '<div class="set-row"><label>Sound &amp; feel</label><div class="seg"><button data-toggle="sound" class="' + (settings.sound ? "sel" : "") + '">Sound ' + (settings.sound ? "on" : "off") + '</button><button data-toggle="haptics" class="' + (settings.haptics ? "sel" : "") + '">Vibration ' + (settings.haptics ? "on" : "off") + (canVibrate ? "" : '<span class="soon">not supported on this device</span>') + "</button></div></div>" +
+      '<div class="set-row"><label>Jump to episode &amp; level (restarts with 100% strength)</label>' + epSeg(o.jumpEp !== undefined ? o.jumpEp : G.episode, "jumpep") + '<div class="seg">' + LEVELS.map((L, i) => '<button data-jump="' + i + '" class="' + (G.level === i && (o.jumpEp === undefined || o.jumpEp === G.episode) ? "sel" : "") + '">Level ' + (i + 1) + "</button>").join("") + "</div></div>" +
+      '<button class="big" data-act="next">Close</button>';
+  }
+  root.innerHTML = '<div class="overlay"><div class="card">' + h + "</div></div>";
+}
+
+/* ================= input wiring ================= */
+function press(el) { if (!el) return; el.classList.add("pressed"); setTimeout(() => el.classList.remove("pressed"), 90); }
+document.addEventListener("click", e => {
+  const t = e.target.closest("button, [data-place], [data-divtap], [data-top], [data-act]");
+  if (!t) return;
+  audio();
+  if (t.dataset.place !== undefined) return act("place", +t.dataset.place);
+  if (t.dataset.divtap !== undefined) return act("divtap", +t.dataset.divtap);
+  if (t.dataset.top !== undefined) return act("top", +t.dataset.top);
+  if (t.dataset.step) return act("step", t.dataset.step);
+  if (t.dataset.key) return act("digit", +t.dataset.key);
+  if (t.id === "btn-rem") return act("remainder");
+  if (t.id === "btn-done") return act("done");
+  if (t.id === "btn-cant") return act("cant");
+  if (t.id === "btn-settings") { if (G.overlay && G.overlay.type === "settings") return; G.overlay = { type: "settings", prev: G.overlay }; render(); return; }
+  if (t.dataset.ep !== undefined) { G.overlay.ep = +t.dataset.ep; SFX.step(); render(); return; }
+  if (t.dataset.jumpep !== undefined) { G.overlay.jumpEp = +t.dataset.jumpep; SFX.step(); render(); return; }
+  if (t.dataset.lv !== undefined) { G.overlay.sel = +t.dataset.lv; SFX.step(); render(); return; }
+  if (t.dataset.format) { if (t.dataset.format !== "remainders") { toast((t.dataset.format === "fractions" ? "Fractions" : "Decimals") + " mode is coming soon"); SFX.nudge(); } return; }
+  if (t.dataset.themeBtn) { settings.theme = t.dataset.themeBtn; store.set("theme", settings.theme); document.documentElement.setAttribute("data-theme", settings.theme); $("#overlay-root").dataset.sig = ""; render(); return; }
+  if (t.dataset.toggle) { settings[t.dataset.toggle] = !settings[t.dataset.toggle]; store.set(t.dataset.toggle, settings[t.dataset.toggle]); $("#overlay-root").dataset.sig = ""; if (t.dataset.toggle === "haptics") haptic(30); else SFX.step(); render(); return; }
+  if (t.dataset.jump !== undefined) { const ep = G.overlay.jumpEp !== undefined ? G.overlay.jumpEp : G.episode; G.overlay = null; G.started = true; G.episode = ep; newLevel(+t.dataset.jump, false); return; }
+  if (t.dataset.act === "next") return act("next");
+  if (t.dataset.act === "yes") return act("yes");
+  if (t.dataset.act === "no") return act("no");
+});
+const KEYMAP = { "/": ["step", "divide"], "÷": ["step", "divide"], "*": ["step", "multiply"], "x": ["step", "multiply"], "X": ["step", "multiply"], "-": ["step", "subtract"],
+  "<": ["step", "compare"], ",": ["step", "compare"], "b": ["step", "bring"], "B": ["step", "bring"], "ArrowDown": ["step", "bring"],
+  "r": ["remainder"], "R": ["remainder"], "y": ["yes"], "Y": ["yes"], "n": ["no"], "N": ["no"], "c": ["cant"], "C": ["cant"] };
+document.addEventListener("keydown", e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  audio();
+  if (e.key === "Escape" && G.overlay && G.overlay.type === "settings") { act("next"); return; }
+  if (/^[0-9]$/.test(e.key)) {
+    if (G.overlay) return;
+    press(document.querySelector('.key[data-key="' + e.key + '"]'));
+    const k = document.querySelector('.key[data-key="' + e.key + '"]'); if (k && k.disabled) return;
+    act("digit", +e.key); e.preventDefault(); return;
+  }
+  if (e.key === "Enter") { e.preventDefault(); if (G.overlay) return act("next"); return act("done"); }
+  const m = KEYMAP[e.key];
+  if (m && !G.overlay) { e.preventDefault(); if (m[0] === "step") press(document.querySelector(STEP_SEL(m[1]))); act(m[0], m[1]); }
+});
+// iOS: block pinch / double-tap zoom gestures
+document.addEventListener("gesturestart", e => e.preventDefault());
+document.addEventListener("dblclick", e => e.preventDefault(), { passive: false });
+let lastTouch = 0;
+document.addEventListener("touchend", e => { const now = Date.now(); if (now - lastTouch < 320 && e.target.closest("button, .tap")) { e.preventDefault(); e.target.click && e.target.closest("button, .tap").click(); } lastTouch = now; }, { passive: false });
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (G.P) render(); }, 80); });
+
+/* ================= boot ================= */
+G.overlay = { type: "start", sel: 0, ep: 0 };
+G.problems = genLevel(0); startProblem(); G.overlay = { type: "start", sel: 0, ep: 0 }; render();
+try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
+
+window.__DD = { G, EPISODES, render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
+  loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
+})();
+</script>
+</body>
+</html>
