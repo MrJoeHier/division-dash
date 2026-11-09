@@ -378,6 +378,128 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 #devp { position:fixed; left:6px; bottom:6px; z-index:300; display:flex; flex-wrap:wrap; gap:4px; max-width:560px; padding:6px; border-radius:10px; background:rgba(0,0,0,.78); color:#fff; font:700 12px system-ui, sans-serif; align-items:center; }
 #devp button, #devp select { font:700 12px system-ui, sans-serif; padding:5px 7px; border-radius:6px; border:1px solid #666; background:#222; color:#fff; }
 
+/* ================= login, resume, leaderboard, teacher, alerts ================= */
+.cscreen.login, .cscreen.resume { align-items:stretch; }
+.cscreen.login img.hero, .cscreen.resume img.hero { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:68% 50%; }
+.lgwrap { position:absolute; inset:0; overflow:auto; display:flex; flex-direction:column; align-items:center; gap:2vh; padding:calc(4vh + env(safe-area-inset-top)) 20px calc(64px + env(safe-area-inset-bottom)); }
+.lghead { text-align:center; }
+.tlogo.sm { font-size:clamp(2.4rem, 7vw, 5.4rem); }
+.lgcols { display:grid; grid-template-columns:1fr; gap:16px; width:min(1080px, 100%); margin-top:auto; margin-bottom:auto; }
+@media (min-aspect-ratio: 1/1) { .lgcols { grid-template-columns:1fr 1.15fr; align-items:start; } }
+.lgcard { background:rgba(24,15,7,.84); border:2px solid rgba(243,198,90,.55); border-radius:20px; padding:18px 20px; box-shadow:0 14px 40px rgba(0,0,0,.6); color:#f6e7c4; text-align:left; }
+.lgcard h2 { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; margin:0 0 12px; font-size:1.45rem; color:#f3c65a; letter-spacing:.04em; }
+#lgform { display:flex; gap:10px; }
+#lgname, .mdin { flex:1; min-width:0; width:100%; min-height:60px; border-radius:14px; border:2px solid #b48a4a; background:#fff8e6; color:#2a1c10; font:700 1.2rem -apple-system, "Segoe UI", system-ui, sans-serif; padding:0 16px; -webkit-user-select:text; user-select:text; outline:none; }
+#lgname:focus, .mdin:focus { border-color:#f3c65a; box-shadow:0 0 0 4px rgba(243,198,90,.35); }
+.lgbtn { min-height:60px; padding:0 22px; border-radius:14px; border:2px solid #f3c65a; background:linear-gradient(#4f8a3c,#2f6b2a); color:#fff; font:900 1.15rem "Cinzel MVM", Georgia, serif; white-space:nowrap; }
+.lgmsg { min-height:1.5em; margin-top:8px; font-weight:700; font-size:.98rem; } .lgmsg.ok { color:#bfe3a6; } .lgmsg.bad { color:#ff9c8a; }
+.lghint { margin:-4px 0 10px; color:#e3cfa3; font-weight:600; }
+.lgsub { margin:12px 0 8px; font-weight:800; color:#e3cfa3; font-size:.95rem; }
+.lgnames { display:flex; flex-wrap:wrap; gap:8px; max-height:26vh; overflow:auto; }
+.lgnames button { min-height:52px; padding:0 18px; border-radius:999px; border:2px solid rgba(243,198,90,.6); background:rgba(255,255,255,.08); color:#fff3d0; font-weight:800; font-size:1.08rem; }
+.lgnote { margin-top:12px; font-size:.85rem; color:#e3cfa3; opacity:.8; }
+.lgteach { position:absolute; right:14px; bottom:calc(12px + env(safe-area-inset-bottom)); min-height:40px; padding:0 14px; border-radius:999px; border:1px solid rgba(255,255,255,.28); background:rgba(0,0,0,.45); color:rgba(255,255,255,.72); font-weight:700; font-size:.85rem; z-index:3; }
+.rscard { margin:auto; width:min(640px, 100%); text-align:center; }
+.rscard h1 { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; color:#f3c65a; font-size:clamp(1.7rem, 4vw, 2.5rem); margin:4px 0 10px; }
+.rsline { font-size:1.2rem; font-weight:800; color:#fff3d0; margin:6px 0; }
+.rsdet { color:#e3cfa3; font-weight:600; margin:0 0 12px; }
+.rsmeter { display:flex; align-items:center; justify-content:center; gap:10px; margin:0 0 16px; font-weight:800; }
+.rsmeter .meterbar { width:min(280px, 60%); height:18px; }
+.rsbtns { display:flex; flex-direction:column; gap:10px; }
+.rsalt { min-height:56px; border-radius:16px; border:2px solid rgba(243,198,90,.6); background:rgba(255,255,255,.07); color:#fff3d0; font-weight:800; font-size:1.08rem; }
+.rsalt.cprimary { background:linear-gradient(#70482a, #3e2612); border-color:#f3c65a; }
+.tplayer { margin-top:12px; color:#fff3d0; font-weight:700; text-shadow:0 2px 6px #000; animation:fadeUp .9s .8s both; }
+.tplayer button { margin-left:6px; min-height:40px; padding:0 14px; border-radius:999px; border:1px solid rgba(243,198,90,.6); background:rgba(0,0,0,.5); color:#fff3d0; font-weight:800; }
+/* leaderboard */
+.lbtabs { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.lbtabs button { min-height:44px; padding:0 14px; border-radius:999px; border:2px solid rgba(243,198,90,.45); background:transparent; color:#f6e7c4; font-weight:800; }
+.lbtabs button.sel { background:#f3c65a; color:#2a1c10; border-color:#f3c65a; }
+.lbscroll { max-height:min(44vh, 420px); overflow:auto; }
+.lbt { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.lbt th { text-align:left; font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; color:#cdb88f; padding:6px 8px; border-bottom:1px solid rgba(243,198,90,.3); position:sticky; top:0; background:#1f140a; }
+.lbt td { padding:9px 8px; border-bottom:1px solid rgba(255,255,255,.08); font-weight:700; }
+.lbt td.rk { width:2.4em; color:#f3c65a; font-weight:900; }
+.lbt .ck { color:#8fd16f; font-weight:900; } .lbt .no { opacity:.35; }
+.lbempty { opacity:.8; padding:10px 0; font-weight:700; }
+/* modal */
+.mdl { position:fixed; inset:0; z-index:400; background:rgba(10,6,2,.66); display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn .2s; }
+.mdcard { width:min(540px, 100%); max-height:88vh; overflow:auto; background:linear-gradient(#3a2615, #24170c); color:#f6e7c4; border:2px solid #f3c65a; border-radius:20px; padding:20px 22px; box-shadow:0 20px 60px rgba(0,0,0,.6); text-align:left; animation:cardIn .3s cubic-bezier(.2,1.3,.4,1); }
+.mdcard.wide { width:min(860px, 100%); }
+.mdcard h2 { margin:0 0 8px; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; color:#f3c65a; font-size:1.4rem; }
+.mdcard p { margin:0 0 12px; color:#e9d6ad; font-weight:600; line-height:1.4; }
+.mderr { min-height:1.3em; color:#ff9c8a; font-weight:700; margin:8px 0; }
+.mdbtns { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:6px; }
+.mdbtns button, .tbtn { min-height:52px; padding:0 20px; border-radius:14px; border:2px solid #f3c65a; background:linear-gradient(#4f8a3c, #2f6b2a); color:#fff; font-weight:800; font-size:1.02rem; }
+.mdbtns .mdsec, .tbtn.sec { background:transparent; color:#f6e7c4; border-color:rgba(243,198,90,.5); }
+.mdbtns .danger, .tbtn.danger { background:linear-gradient(#c23b2a, #8e2216); border-color:#ffb3a6; }
+/* teacher */
+.cscreen.teacher { background:radial-gradient(ellipse at 50% 20%, #3a2615, #120b05); align-items:stretch; }
+.tchwrap { position:absolute; top:0; bottom:0; left:0; right:0; overflow:auto; padding:calc(20px + env(safe-area-inset-top)) 20px 40px; max-width:1200px; margin:0 auto; color:#f6e7c4; }
+.tchhead { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.tchhead h1 { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; color:#f3c65a; margin:0; font-size:2rem; }
+.tchsub { color:#cdb88f; font-weight:700; } .tchhead .tbtn { margin-left:auto; }
+.tchauth { margin-top:10px; font-weight:700; color:#cdb88f; }
+.tchact { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0; }
+.tchtable { background:rgba(0,0,0,.3); border:1px solid rgba(243,198,90,.35); border-radius:16px; overflow:auto; }
+.tchtable table { width:100%; border-collapse:collapse; min-width:740px; font-variant-numeric:tabular-nums; }
+.tchtable th { position:sticky; top:0; background:#2a1a0d; text-align:left; padding:10px 12px; font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; color:#cdb88f; }
+.tchtable td { padding:10px 12px; border-top:1px solid rgba(255,255,255,.08); font-weight:600; }
+.tchtable td.empty { text-align:center; padding:28px; opacity:.8; }
+.tchrow { white-space:nowrap; text-align:right; }
+.tchrow button { min-height:44px; padding:0 14px; margin-left:6px; border-radius:10px; border:1px solid rgba(243,198,90,.5); background:rgba(255,255,255,.06); color:#f6e7c4; font-weight:800; }
+.tchrow button.danger { border-color:#ff9c8a; color:#ffb3a6; }
+/* alerts */
+#atoasts { position:fixed; top:calc(12px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:450; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; width:min(92vw, 560px); }
+.atoast { background:rgba(24,15,7,.94); color:#fff3d0; border:2px solid #f3c65a; border-radius:16px; padding:12px 18px; font-weight:800; font-size:1.05rem; box-shadow:0 10px 30px rgba(0,0,0,.5); animation:atIn .45s cubic-bezier(.2,1.5,.4,1); text-align:center; transition:opacity .35s, transform .35s; }
+.atoast::before { content:"🏅 "; }
+.atoast.out { opacity:0; transform:translateY(-10px); }
+@keyframes atIn { from { opacity:0; transform:translateY(-20px) scale(.9); } to { opacity:1; transform:none; } }
+/* map: leaderboard button + continue / save for later */
+.mlb { position:absolute; right:3%; bottom:3%; z-index:3; min-width:56px; height:56px; padding:0 14px; border-radius:999px; border:2px solid #f3c65a; background:rgba(20,12,4,.78); color:#fff3d0; font-size:1.4rem; box-shadow:0 6px 16px rgba(0,0,0,.5); }
+.mchoice { position:absolute; left:6%; right:6%; bottom:11%; display:flex; gap:12px; justify-content:center; z-index:3; opacity:0; transform:translateY(20px); pointer-events:none; transition:opacity .35s, transform .35s cubic-bezier(.2,1.4,.4,1); }
+.mchoice.show { opacity:1; transform:none; pointer-events:auto; }
+.mcbtn { flex:1; max-width:300px; min-height:74px; border-radius:18px; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(1.05rem, 2.3vh, 1.4rem); letter-spacing:.03em; border:2px solid #f3c65a; background:linear-gradient(#4f8a3c, #2f6b2a); color:#fff; box-shadow:0 6px 0 #1f1208, 0 12px 28px rgba(0,0,0,.6); }
+.mcbtn.sec { background:linear-gradient(#70482a, #3e2612); color:#fff3d0; }
+.mcbtn:active { transform:translateY(4px); box-shadow:0 2px 0 #1f1208; }
+/* laptops / wide screens: keep the workspace a sensible width */
+@media (min-width: 1500px) { #app { max-width:1500px; margin:0 auto; } }
+@media (min-width: 1100px) and (orientation: landscape) { #inner { max-width:1060px; } }
+/* ================= Episode 3 snow theme ================= */
+body.ep-snow { background:#16293d;
+  --paper:#f8fbfe; --rule:rgba(80,125,170,.22); --margin:rgba(196,84,84,.32); --ink:#1b2a3a; --ink-soft:#4d6680;
+  --accent:#1d5f9a; --accent-soft:rgba(29,95,154,.14); --carry:#b4541f; --good:#2f8a55; --bad:#c23b2a; --warn:#c98a14;
+  --key-edge:#6f8faf; --key-off:#c4d3e1; --slot:#4d6f90; --side-bg:rgba(29,95,154,.06); --side-edge:rgba(29,95,154,.4); --card:#f4f8fc; --vine:#2a5a3e; }
+[data-theme] body.ep-snow #app { background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Ccircle%20cx%3D%2782%27%20cy%3D%2738%27%20r%3D%271.4%27%20fill%3D%27%23fff%27%20opacity%3D%270.37%27%2F%3E%3Ccircle%20cx%3D%27137%27%20cy%3D%2724%27%20r%3D%271.3%27%20fill%3D%27%23fff%27%20opacity%3D%270.38%27%2F%3E%3Ccircle%20cx%3D%27129%27%20cy%3D%2754%27%20r%3D%270.9%27%20fill%3D%27%23fff%27%20opacity%3D%270.57%27%2F%3E%3Ccircle%20cx%3D%2717%27%20cy%3D%2761%27%20r%3D%270.9%27%20fill%3D%27%23fff%27%20opacity%3D%270.56%27%2F%3E%3Ccircle%20cx%3D%27144%27%20cy%3D%2731%27%20r%3D%272.1%27%20fill%3D%27%23fff%27%20opacity%3D%270.67%27%2F%3E%3Ccircle%20cx%3D%27149%27%20cy%3D%2715%27%20r%3D%271.6%27%20fill%3D%27%23fff%27%20opacity%3D%270.55%27%2F%3E%3Ccircle%20cx%3D%2756%27%20cy%3D%2711%27%20r%3D%271.6%27%20fill%3D%27%23fff%27%20opacity%3D%270.42%27%2F%3E%3Ccircle%20cx%3D%27107%27%20cy%3D%2736%27%20r%3D%271.6%27%20fill%3D%27%23fff%27%20opacity%3D%270.64%27%2F%3E%3Ccircle%20cx%3D%27143%27%20cy%3D%2746%27%20r%3D%270.9%27%20fill%3D%27%23fff%27%20opacity%3D%270.64%27%2F%3E%3Ccircle%20cx%3D%2748%27%20cy%3D%2795%27%20r%3D%270.9%27%20fill%3D%27%23fff%27%20opacity%3D%270.71%27%2F%3E%3Ccircle%20cx%3D%27144%27%20cy%3D%2715%27%20r%3D%271.7%27%20fill%3D%27%23fff%27%20opacity%3D%270.60%27%2F%3E%3Ccircle%20cx%3D%27136%27%20cy%3D%27109%27%20r%3D%271.9%27%20fill%3D%27%23fff%27%20opacity%3D%270.58%27%2F%3E%3Ccircle%20cx%3D%27116%27%20cy%3D%2792%27%20r%3D%271.2%27%20fill%3D%27%23fff%27%20opacity%3D%270.75%27%2F%3E%3Ccircle%20cx%3D%2762%27%20cy%3D%2720%27%20r%3D%271.6%27%20fill%3D%27%23fff%27%20opacity%3D%270.61%27%2F%3E%3Ccircle%20cx%3D%2787%27%20cy%3D%27114%27%20r%3D%271.2%27%20fill%3D%27%23fff%27%20opacity%3D%270.84%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%27131%27%20r%3D%271.4%27%20fill%3D%27%23fff%27%20opacity%3D%270.73%27%2F%3E%3Ccircle%20cx%3D%2738%27%20cy%3D%27125%27%20r%3D%271.4%27%20fill%3D%27%23fff%27%20opacity%3D%270.83%27%2F%3E%3Ccircle%20cx%3D%2719%27%20cy%3D%27142%27%20r%3D%271.6%27%20fill%3D%27%23fff%27%20opacity%3D%270.79%27%2F%3E%3Ccircle%20cx%3D%2780%27%20cy%3D%2787%27%20r%3D%271.8%27%20fill%3D%27%23fff%27%20opacity%3D%270.65%27%2F%3E%3Ccircle%20cx%3D%27148%27%20cy%3D%27116%27%20r%3D%270.9%27%20fill%3D%27%23fff%27%20opacity%3D%270.40%27%2F%3E%3Ccircle%20cx%3D%2769%27%20cy%3D%27121%27%20r%3D%271.8%27%20fill%3D%27%23fff%27%20opacity%3D%270.38%27%2F%3E%3Ccircle%20cx%3D%2779%27%20cy%3D%27147%27%20r%3D%272.2%27%20fill%3D%27%23fff%27%20opacity%3D%270.76%27%2F%3E%3Ccircle%20cx%3D%2772%27%20cy%3D%2798%27%20r%3D%272.0%27%20fill%3D%27%23fff%27%20opacity%3D%270.52%27%2F%3E%3Ccircle%20cx%3D%27118%27%20cy%3D%2790%27%20r%3D%271.0%27%20fill%3D%27%23fff%27%20opacity%3D%270.41%27%2F%3E%3Ccircle%20cx%3D%2715%27%20cy%3D%2755%27%20r%3D%271.9%27%20fill%3D%27%23fff%27%20opacity%3D%270.41%27%2F%3E%3Ccircle%20cx%3D%2763%27%20cy%3D%27101%27%20r%3D%271.3%27%20fill%3D%27%23fff%27%20opacity%3D%270.79%27%2F%3E%3C%2Fsvg%3E"), url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27300%27%20height%3D%27150%27%20viewBox%3D%270%200%20300%20150%27%20opacity%3D%27.55%27%3E%3Cpath%20d%3D%27M40.0%2030.0%20L56.4%2057.6%20L47.4%2055.6%20L61.6%2085.2%20L49.7%2083.2%20L66.8%20112.8%20L52.1%20110.8%20L72.0%20140.4%20L54.4%20138.4%20L45.1%20142.8%20L45.1%20150.0%20L34.9%20150.0%20L34.9%20142.8%20L25.6%20138.4%20L8.0%20140.4%20L27.9%20110.8%20L13.2%20112.8%20L30.3%2083.2%20L18.4%2085.2%20L32.6%2055.6%20L23.6%2057.6%20Z%27%20fill%3D%27%231d4535%27%2F%3E%3Cpath%20d%3D%27M40.0%2030.0%20L50.2%2054.0%20L42.6%2050.4%20L36.8%2055.2%20L29.8%2054.0%20Z%27%20fill%3D%27%23ffffff%27%20opacity%3D%27.9%27%2F%3E%3Cpath%20d%3D%27M105.0%2070.0%20L116.3%2088.4%20L110.1%2086.4%20L119.8%20106.8%20L111.7%20104.8%20L123.4%20125.2%20L113.3%20123.2%20L127.0%20143.6%20L114.9%20141.6%20L108.5%20145.2%20L108.5%20150.0%20L101.5%20150.0%20L101.5%20145.2%20L95.1%20141.6%20L83.0%20143.6%20L96.7%20123.2%20L86.6%20125.2%20L98.3%20104.8%20L90.2%20106.8%20L99.9%2086.4%20L93.7%2088.4%20Z%27%20fill%3D%27%231d4535%27%2F%3E%3Cpath%20d%3D%27M105.0%2070.0%20L112.0%2086.0%20L106.8%2083.6%20L102.8%2086.8%20L98.0%2086.0%20Z%27%20fill%3D%27%23ffffff%27%20opacity%3D%27.9%27%2F%3E%3Cpath%20d%3D%27M190.0%2010.0%20L209.0%2042.2%20L198.5%2040.2%20L215.0%2074.4%20L201.2%2072.4%20L221.0%20106.6%20L203.9%20104.6%20L227.0%20138.8%20L206.7%20136.8%20L195.9%20141.6%20L195.9%20150.0%20L184.1%20150.0%20L184.1%20141.6%20L173.3%20136.8%20L153.0%20138.8%20L176.1%20104.6%20L159.0%20106.6%20L178.8%2072.4%20L165.0%2074.4%20L181.5%2040.2%20L171.0%2042.2%20Z%27%20fill%3D%27%231d4535%27%2F%3E%3Cpath%20d%3D%27M190.0%2010.0%20L201.8%2038.0%20L193.0%2033.8%20L186.3%2039.4%20L178.2%2038.0%20Z%27%20fill%3D%27%23ffffff%27%20opacity%3D%27.9%27%2F%3E%3Cpath%20d%3D%27M258.0%2055.0%20L271.3%2076.8%20L264.0%2074.8%20L275.6%2098.7%20L265.9%2096.7%20L279.8%20120.5%20L267.8%20118.5%20L284.0%20142.4%20L269.7%20140.4%20L262.2%20144.3%20L262.2%20150.0%20L253.8%20150.0%20L253.8%20144.3%20L246.3%20140.4%20L232.0%20142.4%20L248.2%20118.5%20L236.2%20120.5%20L250.1%2096.7%20L240.4%2098.7%20L252.0%2074.8%20L244.7%2076.8%20Z%27%20fill%3D%27%231d4535%27%2F%3E%3Cpath%20d%3D%27M258.0%2055.0%20L266.3%2074.0%20L260.1%2071.2%20L255.4%2075.0%20L249.7%2074.0%20Z%27%20fill%3D%27%23ffffff%27%20opacity%3D%27.9%27%2F%3E%3Cpath%20d%3D%27M0%20146%20Q75%20136%20150%20145%20T300%20144%20V150%20H0Z%27%20fill%3D%27%23f4f8fb%27%2F%3E%3C%2Fsvg%3E") repeat-x left bottom / 300px auto,
+  linear-gradient(180deg, #17304a 0%, #2c5274 22%, #7fa3c4 52%, #cfdeeb 74%, #eef4f9 100%); }
+[data-theme] body.ep-snow header { position:relative; z-index:7; background:rgba(10,24,40,.35); border-bottom:1px solid rgba(255,255,255,.18); color:#eef6ff; }
+[data-theme] body.ep-snow header::after { content:""; position:absolute; left:14px; right:14px; top:calc(100% + 7px); height:34px; pointer-events:none; background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27120%27%20height%3D%2726%27%20viewBox%3D%270%200%20120%2026%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23ffffff%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23b9dcf5%27%20stop-opacity%3D%27.9%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%27M0%200H120V5L115%205L112%2019L109%205L99%205L96%2012L93%205L81%205L77%2025L73%205L61%205L58%2010L55%205L45%205L41%2021L37%205L27%205L24%2014L21%205L11%205L8%2017L5%205L0%205Z%27%20fill%3D%27url%28%23g%29%27%20stroke%3D%27%239cc7e6%27%20stroke-width%3D%27.8%27%2F%3E%3C%2Fsvg%3E") repeat-x left top / 150px 34px; filter:drop-shadow(0 2px 2px rgba(30,60,90,.25)); }
+[data-theme] body.ep-snow .chip, [data-theme] body.ep-snow .icon-btn { background:rgba(8,20,34,.45); border-color:rgba(190,225,255,.5); color:#eef6ff; }
+[data-theme] body.ep-snow .chip .lbl { color:#b9d3ea; }
+[data-theme] body.ep-snow .brand small { color:#dbeaf7; }
+[data-theme] body.ep-snow .pie { box-shadow:0 0 0 3px #0e2033, 0 0 0 5px #9cc4e4; }
+[data-theme] body.ep-snow .pie::after { background:#f4f9fd; }
+[data-theme] body.ep-snow #work { border-radius:12px;
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27170%27%20height%3D%27150%27%20viewBox%3D%270%200%20170%20150%27%20opacity%3D%27.8%27%3E%3Cg%3E%3Cpath%20d%3D%27M160.0%200.0%20L158.5%201.2%20L157.0%202.4%20L155.5%203.6%20L154.0%204.8%20L152.5%206.0%20L151.0%207.2%20L149.5%208.4%20L148.0%209.6%20L146.5%2010.7%20L145.0%2011.9%20L143.5%2013.1%20L142.0%2014.3%20L140.5%2015.4%20L139.0%2016.6%20L137.5%2017.7%20L136.0%2018.9%20L134.5%2020.0%20L133.0%2021.1%20L131.5%2022.3%20L130.0%2023.4%20L128.5%2024.5%20L127.0%2025.6%20L125.5%2026.7%20L124.0%2027.7%20L122.5%2028.8%20L121.0%2029.9%20L119.5%2030.9%20L118.0%2031.9%20L116.5%2033.0%20L115.0%2034.0%20L113.5%2035.0%20L112.0%2036.0%20L110.5%2037.0%20L109.0%2038.0%20L107.5%2038.9%20L106.0%2039.9%20L104.5%2040.8%20L103.0%2041.8%20L101.5%2042.7%20L100.0%2043.6%20L98.5%2044.5%20L97.0%2045.5%20L95.5%2046.3%20L94.0%2047.2%20L92.5%2048.1%20L91.0%2049.0%20L89.5%2049.8%20L88.0%2050.7%20L86.5%2051.6%20L85.0%2052.4%20L83.5%2053.2%20L82.0%2054.1%20L80.5%2054.9%20L79.0%2055.7%20L77.5%2056.5%20L76.0%2057.3%20L74.5%2058.1%20L73.0%2059.0%20L71.5%2059.8%20L70.0%2060.6%20L68.5%2061.4%20L67.0%2062.2%20L65.5%2063.0%20L64.0%2063.8%20L62.5%2064.6%20L61.0%2065.4%20L59.5%2066.2%20L58.0%2067.0%20L56.5%2067.8%20L55.0%2068.6%20L53.5%2069.4%20L52.0%2070.2%20L50.5%2071.1%20L49.0%2071.9%20L47.5%2072.7%20L46.0%2073.6%20L44.5%2074.4%20L43.0%2075.2%20L41.5%2076.1%20L40.0%2077.0%20L38.5%2077.8%20L37.0%2078.7%20L35.5%2079.6%20L34.0%2080.5%20L32.5%2081.4%20L31.0%2082.3%20L29.5%2083.3%20L28.0%2084.2%20L26.5%2085.1%20L25.0%2086.1%20L23.5%2087.1%20L22.0%2088.0%20L20.5%2089.0%20L19.0%2090.0%20L17.5%2091.0%20L16.0%2092.0%20L14.5%2093.0%20L13.0%2094.1%20L11.5%2095.1%20L10.0%2096.2%20L8.5%2097.2%20L7.0%2098.3%20L5.5%2099.4%20L4.0%20100.5%20L2.5%20101.6%20L1.0%20102.7%20L-0.5%20103.8%20L-2.0%20104.9%20L-3.5%20106.0%27%20stroke%3D%27%236b4a2a%27%20stroke-width%3D%273%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M154.0%204.8%20L154.8%2022.4%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M154.0%204.8%20L139.4%201.1%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M149.5%208.4%20L146.4%2024.3%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M149.5%208.4%20L132.0%20-0.2%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M145.0%2011.9%20L141.7%2026.8%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M145.0%2011.9%20L126.1%208.0%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M140.5%2015.4%20L139.0%2034.1%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M140.5%2015.4%20L125.8%2011.7%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M136.0%2018.9%20L135.2%2037.4%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M136.0%2018.9%20L119.1%2012.3%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M131.5%2022.3%20L128.9%2042.0%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M131.5%2022.3%20L113.1%2013.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M127.0%2025.6%20L124.1%2042.5%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M127.0%2025.6%20L109.8%2020.6%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M122.5%2028.8%20L123.2%2043.3%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M122.5%2028.8%20L108.3%2024.5%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M118.0%2031.9%20L118.7%2045.9%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M118.0%2031.9%20L97.5%2025.1%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M113.5%2035.0%20L114.7%2056.0%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M113.5%2035.0%20L95.1%2029.8%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M109.0%2038.0%20L107.0%2055.6%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M109.0%2038.0%20L88.9%2029.1%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M104.5%2040.8%20L103.2%2057.3%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M104.5%2040.8%20L88.1%2037.6%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M100.0%2043.6%20L98.5%2063.1%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M100.0%2043.6%20L78.7%2040.0%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M95.5%2046.3%20L94.7%2065.9%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M95.5%2046.3%20L80.3%2040.1%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M91.0%2049.0%20L87.3%2068.2%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M91.0%2049.0%20L70.8%2042.3%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M86.5%2051.6%20L83.5%2069.6%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M86.5%2051.6%20L71.2%2047.5%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M82.0%2054.1%20L78.4%2074.3%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M82.0%2054.1%20L67.7%2047.9%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M77.5%2056.5%20L76.9%2070.7%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M77.5%2056.5%20L61.1%2049.6%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M73.0%2059.0%20L70.0%2080.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M73.0%2059.0%20L54.8%2051.2%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M68.5%2061.4%20L64.8%2077.9%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M68.5%2061.4%20L51.1%2058.0%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M64.0%2063.8%20L64.1%2082.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M64.0%2063.8%20L47.7%2056.6%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M59.5%2066.2%20L58.8%2085.3%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M59.5%2066.2%20L42.7%2062.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M55.0%2068.6%20L52.2%2086.2%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M55.0%2068.6%20L36.7%2063.1%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M50.5%2071.1%20L46.8%2092.5%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M50.5%2071.1%20L31.4%2065.1%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M46.0%2073.6%20L43.7%2088.7%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M46.0%2073.6%20L27.5%2070.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M41.5%2076.1%20L38.9%2091.0%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M41.5%2076.1%20L24.2%2067.6%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M37.0%2078.7%20L37.4%2097.1%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M37.0%2078.7%20L15.5%2075.1%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M32.5%2081.4%20L33.2%20101.4%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M32.5%2081.4%20L12.4%2075.4%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M28.0%2084.2%20L28.9%2099.9%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M28.0%2084.2%20L9.8%2079.9%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M23.5%2087.1%20L21.5%20107.6%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M23.5%2087.1%20L8.2%2080.0%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M19.0%2090.0%20L16.3%20110.3%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M19.0%2090.0%20L-1.5%2083.9%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M14.5%2093.0%20L14.9%20108.2%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M14.5%2093.0%20L-2.8%2090.1%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M10.0%2096.2%20L7.7%20116.2%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M10.0%2096.2%20L-7.4%2092.4%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M5.5%2099.4%20L6.0%20113.9%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M5.5%2099.4%20L-12.0%2093.6%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M1.0%20102.7%20L-1.8%20116.8%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M1.0%20102.7%20L-18.6%2097.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2778%27%20cy%3D%2766%27%20r%3D%270%27%20%2F%3E%3Cellipse%20cx%3D%2792%27%20cy%3D%2760%27%20rx%3D%2711%27%20ry%3D%276%27%20fill%3D%27%23fff%27%20opacity%3D%27.85%27%2F%3E%3Cellipse%20cx%3D%27126%27%20cy%3D%2734%27%20rx%3D%279%27%20ry%3D%275%27%20fill%3D%27%23fff%27%20opacity%3D%27.85%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") no-repeat right -18px top -14px / 170px auto, url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27170%27%20height%3D%27150%27%20viewBox%3D%270%200%20170%20150%27%20opacity%3D%27.8%27%3E%3Cg%20transform%3D%27translate%28170%2C170%29%20rotate%28180%29%27%3E%3Cpath%20d%3D%27M160.0%200.0%20L158.5%201.2%20L157.0%202.4%20L155.5%203.6%20L154.0%204.8%20L152.5%206.0%20L151.0%207.2%20L149.5%208.4%20L148.0%209.6%20L146.5%2010.7%20L145.0%2011.9%20L143.5%2013.1%20L142.0%2014.3%20L140.5%2015.4%20L139.0%2016.6%20L137.5%2017.7%20L136.0%2018.9%20L134.5%2020.0%20L133.0%2021.1%20L131.5%2022.3%20L130.0%2023.4%20L128.5%2024.5%20L127.0%2025.6%20L125.5%2026.7%20L124.0%2027.7%20L122.5%2028.8%20L121.0%2029.9%20L119.5%2030.9%20L118.0%2031.9%20L116.5%2033.0%20L115.0%2034.0%20L113.5%2035.0%20L112.0%2036.0%20L110.5%2037.0%20L109.0%2038.0%20L107.5%2038.9%20L106.0%2039.9%20L104.5%2040.8%20L103.0%2041.8%20L101.5%2042.7%20L100.0%2043.6%20L98.5%2044.5%20L97.0%2045.5%20L95.5%2046.3%20L94.0%2047.2%20L92.5%2048.1%20L91.0%2049.0%20L89.5%2049.8%20L88.0%2050.7%20L86.5%2051.6%20L85.0%2052.4%20L83.5%2053.2%20L82.0%2054.1%20L80.5%2054.9%20L79.0%2055.7%20L77.5%2056.5%20L76.0%2057.3%20L74.5%2058.1%20L73.0%2059.0%20L71.5%2059.8%20L70.0%2060.6%20L68.5%2061.4%20L67.0%2062.2%20L65.5%2063.0%20L64.0%2063.8%20L62.5%2064.6%20L61.0%2065.4%20L59.5%2066.2%20L58.0%2067.0%20L56.5%2067.8%20L55.0%2068.6%20L53.5%2069.4%20L52.0%2070.2%20L50.5%2071.1%20L49.0%2071.9%20L47.5%2072.7%20L46.0%2073.6%20L44.5%2074.4%20L43.0%2075.2%20L41.5%2076.1%20L40.0%2077.0%20L38.5%2077.8%20L37.0%2078.7%20L35.5%2079.6%20L34.0%2080.5%20L32.5%2081.4%20L31.0%2082.3%20L29.5%2083.3%20L28.0%2084.2%20L26.5%2085.1%20L25.0%2086.1%20L23.5%2087.1%20L22.0%2088.0%20L20.5%2089.0%20L19.0%2090.0%20L17.5%2091.0%20L16.0%2092.0%20L14.5%2093.0%20L13.0%2094.1%20L11.5%2095.1%20L10.0%2096.2%20L8.5%2097.2%20L7.0%2098.3%20L5.5%2099.4%20L4.0%20100.5%20L2.5%20101.6%20L1.0%20102.7%20L-0.5%20103.8%20L-2.0%20104.9%20L-3.5%20106.0%27%20stroke%3D%27%236b4a2a%27%20stroke-width%3D%273%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M154.0%204.8%20L153.0%2019.0%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M154.0%204.8%20L135.9%20-0.7%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M149.5%208.4%20L147.7%2023.9%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M149.5%208.4%20L132.0%203.0%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M145.0%2011.9%20L143.6%2027.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M145.0%2011.9%20L125.4%203.0%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M140.5%2015.4%20L136.1%2036.1%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M140.5%2015.4%20L126.7%209.3%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M136.0%2018.9%20L135.2%2035.4%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M136.0%2018.9%20L121.8%2015.5%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M131.5%2022.3%20L131.1%2037.2%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M131.5%2022.3%20L114.2%2014.0%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M127.0%2025.6%20L127.5%2046.6%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M127.0%2025.6%20L105.9%2020.7%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M122.5%2028.8%20L119.5%2043.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M122.5%2028.8%20L108.5%2022.7%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M118.0%2031.9%20L114.1%2048.7%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M118.0%2031.9%20L101.9%2028.3%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M113.5%2035.0%20L112.8%2051.7%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M113.5%2035.0%20L100.0%2030.9%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M109.0%2038.0%20L107.6%2054.3%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M109.0%2038.0%20L88.1%2033.8%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M104.5%2040.8%20L101.2%2055.3%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M104.5%2040.8%20L83.9%2035.7%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M100.0%2043.6%20L99.8%2058.7%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M100.0%2043.6%20L82.3%2035.8%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M95.5%2046.3%20L94.5%2064.6%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M95.5%2046.3%20L77.0%2039.9%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M91.0%2049.0%20L90.7%2069.4%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M91.0%2049.0%20L77.0%2044.8%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M86.5%2051.6%20L84.0%2071.8%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M86.5%2051.6%20L71.6%2046.2%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M82.0%2054.1%20L78.6%2071.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M82.0%2054.1%20L66.5%2046.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M77.5%2056.5%20L75.8%2070.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M77.5%2056.5%20L63.0%2053.1%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M73.0%2059.0%20L72.8%2074.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M73.0%2059.0%20L55.9%2052.7%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M68.5%2061.4%20L68.1%2079.4%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M68.5%2061.4%20L48.7%2056.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M64.0%2063.8%20L64.8%2077.9%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M64.0%2063.8%20L49.3%2058.8%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M59.5%2066.2%20L59.4%2083.7%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M59.5%2066.2%20L43.5%2059.3%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M55.0%2068.6%20L53.0%2089.6%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M55.0%2068.6%20L39.8%2064.6%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M50.5%2071.1%20L49.8%2091.7%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M50.5%2071.1%20L36.5%2065.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M46.0%2073.6%20L41.3%2093.7%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M46.0%2073.6%20L26.4%2069.9%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M41.5%2076.1%20L40.6%2090.5%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M41.5%2076.1%20L22.3%2067.7%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M37.0%2078.7%20L32.8%2097.0%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M37.0%2078.7%20L19.9%2074.4%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M32.5%2081.4%20L32.3%2095.4%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M32.5%2081.4%20L12.9%2071.9%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M28.0%2084.2%20L27.6%2098.5%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M28.0%2084.2%20L12.9%2080.7%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M23.5%2087.1%20L22.7%20104.8%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M23.5%2087.1%20L8.5%2081.4%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M19.0%2090.0%20L19.8%20110.5%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M19.0%2090.0%20L5.2%2086.0%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M14.5%2093.0%20L14.1%20112.1%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M14.5%2093.0%20L-2.7%2087.0%27%20stroke%3D%27%232c5e3f%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M10.0%2096.2%20L7.4%20115.7%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M10.0%2096.2%20L-6.0%2091.6%27%20stroke%3D%27%233b7650%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M5.5%2099.4%20L5.9%20119.2%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M5.5%2099.4%20L-14.7%2095.2%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M1.0%20102.7%20L-2.8%20121.3%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M1.0%20102.7%20L-15.8%2096.1%27%20stroke%3D%27%2324503a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2778%27%20cy%3D%2766%27%20r%3D%270%27%20%2F%3E%3Cellipse%20cx%3D%2792%27%20cy%3D%2760%27%20rx%3D%2711%27%20ry%3D%276%27%20fill%3D%27%23fff%27%20opacity%3D%27.85%27%2F%3E%3Cellipse%20cx%3D%27126%27%20cy%3D%2734%27%20rx%3D%279%27%20ry%3D%275%27%20fill%3D%27%23fff%27%20opacity%3D%27.85%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") no-repeat left -16px bottom -16px / 150px auto,
+    radial-gradient(ellipse at 50% 40%, #ffffff 0%, #f3f8fc 55%, #dde9f3 100%);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.95), inset 0 0 26px 8px rgba(196,222,244,.95), inset 0 0 60px rgba(120,165,205,.35), 0 0 0 3px #12263a, 0 0 0 6px #a9cbe6, 0 8px 20px rgba(0,0,0,.35); }
+[data-theme] body.ep-snow #prompt { background:linear-gradient(rgba(250,253,255,.96) 70%, rgba(250,253,255,0)); color:#1b2a3a; }
+[data-theme] body.ep-snow #prompt.warnmsg { color:#9a4a12; }
+[data-theme] body.ep-snow #prompt.badmsg { color:var(--bad); }
+[data-theme] body.ep-snow .cell { color:#14222f; }
+[data-theme] body.ep-snow .rule-line { background:#24384c; }
+[data-theme] body.ep-snow .key { background:radial-gradient(ellipse at 36% 28%, #ffffff 0%, #eaf3fb 55%, #bfd5e9 100%); border:1px solid #7f9fbd; color:#0f2236;
+  box-shadow:0 4px 0 #3d5a78, 0 6px 10px rgba(0,0,0,.22), inset 0 -3px 0 rgba(160,195,225,.6); }
+[data-theme] body.ep-snow .step, [data-theme] body.ep-snow .ctxb { background:linear-gradient(180deg, #44709a 0%, #2b4f73 55%, #1d3a58 100%); color:#ffffff; border:1px solid #10263b;
+  box-shadow:0 4px 0 #0c1d2e, 0 6px 10px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.35); text-shadow:0 1px 0 rgba(0,0,0,.45); }
+[data-theme] body.ep-snow .step::before, [data-theme] body.ep-snow .ctxb::before { content:""; position:absolute; left:8px; right:8px; top:-2px; height:7px; border-radius:6px 6px 10px 10px; background:#fff; opacity:.9; pointer-events:none; }
+[data-theme] body.ep-snow .step.active { background:linear-gradient(180deg, #3f9a6a, #23704a); border-color:#134a2e; }
+[data-theme] body.ep-snow .ctxb.cant { color:#ffd08a; border-color:#ffc06a; }
+[data-theme] body.ep-snow .cmpbar { background:#f4f8fc; border-color:#2b4f73; }
+[data-theme] body.ep-snow .cmpbar .cq { color:#1b2a3a; }
+[data-theme] body.ep-snow .card { background:radial-gradient(ellipse at 50% 30%, #ffffff, #e2edf6); border:3px solid #4d7091; box-shadow:0 0 0 3px #12263a, 0 20px 60px rgba(0,0,0,.5); }
+[data-theme] body.ep-snow .card h1, [data-theme] body.ep-snow .card h2 { color:#17324c; }
+[data-theme] body.ep-snow .card p { color:#3c5670; }
+
 </style>
 </head>
 <body>
@@ -603,7 +725,7 @@ function penalty(sel) {
 function good(kind) { streak++; (SFX[kind] || SFX.tick)(); haptic(12); }
 
 /* ================= per-problem countdown ================= */
-function timerRunning() { const P = G.P; return !!P && !G.overlay && G.started && P.phase !== "complete" && P.phase !== "over"; }
+function timerRunning() { const P = G.P, ov = G.overlay && G.overlay.type === "settings" ? G.overlay.prev : G.overlay; return !!P && !ov && G.started && P.phase !== "complete" && P.phase !== "over"; }
 let lastT = performance.now();
 function timerTick() {
   const now = performance.now(), dt = Math.max(0, (now - lastT) / 1000); lastT = now;
@@ -823,10 +945,10 @@ function overlayNext() {
     if (G.probIdx + 1 >= G.problems.length) { winLevel(); return; }
     G.probIdx++; startProblem(); return;
   }
-  if (o.type === "level") { beginLevel(G.episode, G.level + 1, true); return; }
-  if (o.type === "episode") { beginLevel(G.episode + 1, 0, true); return; }
+  if (o.type === "level") { beginLevel(G.episode, G.level + 1, true, { between: true }); return; }
+  if (o.type === "episode") { beginLevel(G.episode + 1, 0, true, { between: true }); return; }
   if (o.type === "all") { runTitle(); return; }
-  if (o.type === "over" || o.type === "timeup") { beginLevel(G.episode, 0, false, { replay: true }); return; }
+  if (o.type === "over" || o.type === "timeup") { Progress.lost(G.episode); beginLevel(G.episode, 0, false, { replay: true }); return; }
   if (o.type === "settings") { G.overlay = o.prev || null; render(); return; }
 }
 
@@ -898,6 +1020,7 @@ function layout() {
 function esc(s) { return String(s); }
 
 function render() {
+  document.body.classList.toggle("ep-snow", G.episode === 2);
   renderHeader(); renderInput(); renderOverlay();
   const P = G.P, board = $("#board");
   if (!P) { board.innerHTML = ""; $("#prompt").textContent = ""; fresh.clear(); return; }
@@ -1099,7 +1222,7 @@ function renderOverlay() {
   } else if (o.type === "episode") {
     const tot = G.stars.reduce((a, b) => a + (b || 0), 0), nx = EPISODES[G.episode + 1].secs / 60;
     h = '<div class="epbadge">🎉</div><h1>Episode ' + (G.episode + 1) + " complete!</h1><p>You escaped " + EP_INFO[G.episode].name.toLowerCase() + "! Level 4: " + tot + " of " + G.problems.length * 3 + " stars.</p>" + refillHtml(o) +
-      '<p class="epnext">Episode ' + (G.episode + 2) + ": " + EP_INFO[G.episode + 1].name + " — same four levels, but only <b>" + nx + ":00</b> per problem.</p>" + '<button class="big" data-act="next">Start Episode ' + (G.episode + 2) + ' ▶</button><div class="autonote">Starts automatically in a few seconds…</div>';
+      '<p class="epnext">Episode ' + (G.episode + 2) + ": " + EP_INFO[G.episode + 1].name + " — same four levels, but only <b>" + nx + ":00</b> per problem.</p>" + '<button class="big" data-act="next">On to Episode ' + (G.episode + 2) + ' ▶</button>';
   } else if (o.type === "timeup") {
     h = '<div class="epbadge">⏰</div><h2>Time\'s up!</h2><p>E' + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". You have " + fmtTime(EPISODES[G.episode].secs) + " per problem. Recharge to 100% and start the episode over from Level 1.</p>" + '<button class="big" data-act="next">Start over from Level 1</button>';
   } else if (o.type === "all") {
@@ -1112,7 +1235,7 @@ function renderOverlay() {
       '<button class="sel" data-format="remainders">Remainders</button><button data-format="fractions">Fractions<span class="soon">coming soon</span></button><button data-format="decimals">Decimals<span class="soon">coming soon</span></button></div></div>' +
       '<div class="set-row"><label>Look</label><div class="seg">' + THEMES.map(t => '<button data-theme-btn="' + t[0] + '" class="' + (settings.theme === t[0] ? "sel" : "") + '">' + t[1] + "</button>").join("") + "</div></div>" +
       '<div class="set-row"><label>Sound &amp; feel</label><div class="seg"><button data-toggle="sound" class="' + (settings.sound ? "sel" : "") + '">Sound ' + (settings.sound ? "on" : "off") + '</button><button data-toggle="music" class="' + (settings.music ? "sel" : "") + '">Music ' + (settings.music ? "on" : "off") + '</button><button data-toggle="haptics" class="' + (settings.haptics ? "sel" : "") + '">Vibration ' + (settings.haptics ? "on" : "off") + (canVibrate ? "" : '<span class="soon">not supported on this device</span>') + "</button></div></div>" +
-      '<div class="set-row"><label>Jump to episode &amp; level (restarts with 100% strength)</label>' + epSeg(o.jumpEp !== undefined ? o.jumpEp : G.episode, "jumpep") + '<div class="seg">' + LEVELS.map((L, i) => '<button data-jump="' + i + '" class="' + (G.level === i && (o.jumpEp === undefined || o.jumpEp === G.episode) ? "sel" : "") + '">Level ' + (i + 1) + "</button>").join("") + "</div></div>" +
+      '<div class="set-row"><label>Jump to episode &amp; level (restarts with 100% strength)</label>' + epSeg(o.jumpEp !== undefined ? o.jumpEp : G.episode, "jumpep") + '<div class="seg">' + LEVELS.map((L, i) => '<button data-jump="' + i + '"' + (Progress.canJump(o.jumpEp !== undefined ? o.jumpEp : G.episode, i) ? "" : " disabled") + ' class="' + (G.level === i && (o.jumpEp === undefined || o.jumpEp === G.episode) ? "sel" : "") + '">Level ' + (i + 1) + "</button>").join("") + "</div></div>" +
       '<button class="big" data-act="next">Close</button>';
   }
   root.innerHTML = '<div class="overlay"><div class="card">' + h + "</div></div>";
@@ -1151,7 +1274,14 @@ const KEYMAP = { "/": ["step", "divide"], "÷": ["step", "divide"], "*": ["step"
   "r": ["remainder"], "R": ["remainder"], "y": ["yes"], "Y": ["yes"], "n": ["no"], "N": ["no"], "c": ["cant"], "C": ["cant"] };
 document.addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   audio();
+  const md = document.querySelector(".mdl");
+  if (md) { if (e.key === "Enter" && md._ok) { e.preventDefault(); md._ok(); } else if (e.key === "Escape" && md._cancel) md._cancel(); return; }
+  if (Cine.visible) {
+    if (e.key === "Enter") { const b = Array.from(document.querySelectorAll("#cine .cprimary")).find(x => !x.closest(".mchoice:not(.show)") && (!x.classList.contains("again") || x.classList.contains("show"))); if (b) { e.preventDefault(); b.click(); } }
+    return;
+  }
   if (e.key === "Escape" && G.overlay && G.overlay.type === "settings") { act("next"); return; }
   if (/^[0-9]$/.test(e.key)) {
     if (G.overlay) return;
@@ -1367,8 +1497,8 @@ const ASSET = n => "assets/" + n;
 const DEV = /[?&]dev=1\b/.test(location.search);
 const EP_INFO = [
   { name: "The Jungle", filter: "", soon: "" },
-  { name: "The Savanna", filter: "", map: "map-savanna", pts: [[382, 925], [200, 800], [552, 515], [160, 272], [468, 248]], soon: "Levels 3–4 scenes coming soon", mapSoon: "Savanna scenes coming soon — jungle scenes for now" },
-  { name: "The Frozen Peaks", filter: "grayscale(.45) hue-rotate(165deg) saturate(.75) brightness(1.14)", soon: "Arctic scenes coming soon — jungle scenes for now" }
+  { name: "The Savanna", filter: "", map: "map-savanna", pts: [[382, 925], [200, 800], [552, 515], [160, 272], [468, 248]], soon: "" },
+  { name: "Mountain Crossing", filter: "", map: "map-mountain", pts: [[385, 935], [168, 722], [522, 560], [176, 466], [388, 252]], soon: "" }
 ];
 const LV_INFO = [
   { name: "Gator River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across Gator River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
@@ -1381,15 +1511,21 @@ const EP_LV = {
   1: [
     { name: "Hippo River", brief: "Solve 4 problems to pole past the hippos!", winCap: "Across Hippo River!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
     { name: "Tightrope Gorge", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2", win: "win-e2l2", lose: "lose-e2l2" },
-    Object.assign({ placeholder: true }, LV_INFO[2]),
-    Object.assign({ placeholder: true }, LV_INFO[3])
+    { name: "Lion Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "Lion Crossing conquered!", setup: "setup-e2l3", win: "win-e2l3", lose: "lose-e2l3" },
+    { name: "Buffalo Ravine", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4", win: "win-e2l4", lose: "lose-e2l4" }
+  ],
+  2: [
+    { name: "The Climb", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1", win: "win-e3l1", lose: "lose-e3l1" },
+    { name: "Avalanche Run", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2", win: "win-e3l2", lose: "lose-e3l2" },
+    { name: "Campfire Wolves", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3", win: "win-e3l3", lose: "lose-e3l3" },
+    { name: "Wolf Chase", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4", win: "win-e3l4", lose: "lose-e3l4" }
   ]
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
 const LVI = (ep, lv) => LVS(ep)[lv];
 const TUNE = { loseHold: 3800, clipStall: 6000, clipCap: 16000 };
 let flowTok = 0;
-const unlocked = () => Math.max(1, Math.min(3, store.get("unlocked", 1)));
+const unlocked = () => Math.max(1, Math.min(3, (typeof Progress !== "undefined" && Progress.cur) ? (Progress.cur.unlocked || 1) : store.get("unlocked", 1)));
 const vcache = new Map();
 function getVideo(name) {
   let v = vcache.get(name);
@@ -1420,11 +1556,12 @@ const Cine = (() => {
   function title() {
     return new Promise(res => {
       const un = unlocked();
-      const btns = un < 2 ? '<button class="tstart" data-cine="ep" data-epi="0">▶&nbsp; Start the expedition</button>'
+      const btns = un < 2 ? '<button class="tstart cprimary" data-cine="ep" data-epi="0">▶&nbsp; Start the expedition</button>'
         : '<div class="tpick">Choose your episode</div>' + EP_INFO.slice(0, un).map((E, i) => '<button class="tep" data-cine="ep" data-epi="' + i + '"><b>Episode ' + (i + 1) + ": " + E.name + "</b><span>" + (EPISODES[i].secs / 60) + ":00 per problem" + (E.soon ? " · " + E.soon : "") + "</span></button>").join("");
-      show('<div class="cscreen title"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo">MAN <span>vs.</span> MATH</div><div class="tsub">Surviving Long Division</div><div class="tbtns">' + btns + '</div><div class="tnote">Best with sound on 🔊</div></div></div>');
+      show('<div class="cscreen title"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo">MAN <span>vs.</span> MATH</div><div class="tsub">Surviving Long Division</div>' + (Progress.cur ? '<div class="tplayer">Playing as <b>' + escH(Progress.cur.name) + '</b> <button data-cine="switch">Switch player</button></div>' : "") + '<div class="tbtns">' + btns + '</div><div class="tnote">Best with sound on 🔊</div></div></div>');
       let go = false;
       onBtn = (k, b) => {
+        if (k === "switch" && !go) { go = true; res("switch"); return; }
         if (k !== "ep" || go) return; go = true;
         const ep = +b.dataset.epi; unlockAudio(); Music.play("theme"); haptic(15);
         const sc = root.querySelector(".cscreen"); if (sc) sc.classList.add("go");
@@ -1438,8 +1575,9 @@ const Cine = (() => {
     for (let i = 1; i < n; i++) { const t = i / n, u = 1 - t; pts.push([u * u * x1 + 2 * u * t * cx + t * t * x2, u * u * y1 + 2 * u * t * cy + t * t * y2]); }
     return pts;
   }
-  function map(ep, lv) {
+  function map(ep, lv, mo) {
     return new Promise(res => {
+      const choice = !!(mo && mo.choice);
       const E = EP_INFO[ep] || EP_INFO[0], L = LVI(ep, lv), MAP_PTS = E.pts || JUNGLE_PTS, mapImg = E.map || "map-jungle";
       const soon = E.mapSoon !== undefined ? (L.placeholder ? E.mapSoon : "") : E.soon;
       let svg = "";
@@ -1452,14 +1590,17 @@ const Cine = (() => {
       }
       show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 768 1024" preserveAspectRatio="none">' + svg +
         '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + L.name + "</div></div>" +
-        (soon ? '<div class="msoon">' + soon + "</div>" : "") + "</div></div>");
-      const dots = Array.from(root.querySelectorAll(".dot.nd")); let i = 0, fin = false, timers = [];
-      const finish = () => { if (fin) return; fin = true; timers.forEach(clearTimeout); res(); };
-      const arrive = () => { const m = root.querySelector(".mk.cur"); if (m) m.classList.add("arrived"); SFX.place(); timers.push(setTimeout(finish, 1500 * Math.max(ANIM, 0.05))); };
+        (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Leaderboard">🏆</button>' +
+        (choice ? '<div class="mchoice"><button class="mcbtn cprimary" data-cine="mcont">Continue ▶</button><button class="mcbtn sec" data-cine="msave">Save for Later</button></div>' : "") + "</div></div>");
+      const dots = Array.from(root.querySelectorAll(".dot.nd")); let i = 0, fin = false, arrived = false, timers = [];
+      const done = v => { if (fin) return; fin = true; timers.forEach(clearTimeout); res(v || "continue"); };
+      const finish = () => { if (fin) return; if (choice) { const c = root.querySelector(".mchoice"); if (c) c.classList.add("show"); } else done(); };
+      const arrive = () => { if (arrived) return; arrived = true; const m = root.querySelector(".mk.cur"); if (m) m.classList.add("arrived"); SFX.place(); timers.push(setTimeout(finish, (choice ? 500 : 1500) * Math.max(ANIM, 0.05))); };
       const step = () => { if (i < dots.length) { dots[i++].classList.add("on"); SFX.dot(i); timers.push(setTimeout(step, 170 * ANIM)); } else arrive(); };
       timers.push(setTimeout(step, 1100 * ANIM));
       onTap = () => { if (fin) return; if (i < dots.length) { timers.forEach(clearTimeout); timers = []; dots.forEach(d => d.classList.add("on")); i = dots.length; arrive(); } else finish(); };
-      onSkip = finish;
+      onSkip = () => done("continue");
+      onBtn = k => { if (k === "lb") { openBoard(); return; } if (k === "mcont") { SFX.step(); done("continue"); } if (k === "msave") { SFX.step(); done("save"); } };
     });
   }
   function clip(name, opts) {
@@ -1490,7 +1631,7 @@ const Cine = (() => {
     return new Promise(res => {
       const src = ASSET(LVI(G.episode, lv).lose + ".jpg");
       show('<div class="cscreen lose"><div class="cbg" style="background-image:url(\'' + src + '\')"></div><div class="vwrap"><img class="cv" src="' + src + '" alt=""></div>' +
-        '<div class="ylose">YOU LOSE</div><div class="lreason">' + (reason === "time" ? "Out of time!" : "Out of strength!") + '</div><button class="again" data-cine="again">↻ Play again</button></div>');
+        '<div class="ylose">YOU LOSE</div><div class="lreason">' + (reason === "time" ? "Out of time!" : "Out of strength!") + '</div><button class="again cprimary" data-cine="again">↻ Play again</button></div>');
       const b = root.querySelector(".again"); let ready = false;
       setTimeout(() => { ready = true; b.classList.add("show"); }, TUNE.loseHold);
       onBtn = k => { if (k === "again" && ready) { SFX.step(); res(); } };
@@ -1505,7 +1646,10 @@ async function beginLevel(ep, lv, keep, opts) {
   opts = opts || {};
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; G.episode = ep; G.level = lv; render();
-  if (!opts.noMap) { Music.play("theme"); await Cine.map(ep, lv); if (tok !== flowTok) return; }
+  if (!opts.noMap) {
+    Music.play("theme"); const ch = await Cine.map(ep, lv, { choice: !!opts.between }); if (tok !== flowTok) return;
+    if (ch === "save") { const who = Progress.cur ? Progress.cur.name : ""; await Progress.saveLater(ep, lv, G.strength); Progress.logout(); alertToast("Saved! See you next time" + (who ? ", " + who : "") + "."); runTitle(); return; }
+  }
   const L = LVI(ep, lv);
   Music.play("suspense");
   await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay });
@@ -1520,7 +1664,8 @@ async function winLevel() {
   const from = G.strength; G.strength = Math.min(100, G.strength + 30);
   const lastLevel = G.level + 1 >= LEVELS.length, lastEp = G.episode + 1 >= EPISODES.length;
   const type = !lastLevel ? "level" : lastEp ? "all" : "episode";
-  if (lastLevel) store.set("unlocked", Math.max(unlocked(), Math.min(3, G.episode + 2)));
+  if (lastLevel && !Progress.cur) store.set("unlocked", Math.max(unlocked(), Math.min(3, G.episode + 2)));
+  Progress.levelPassed(G.episode, G.level, G.strength);
   G.overlay = { type: "cine" }; render();
   Music.play("win");
   const WL = LVI(G.episode, G.level);
@@ -1530,7 +1675,6 @@ async function winLevel() {
   G.overlay = { type, from, to: G.strength }; render();
   if (lastLevel) { SFX.episode(); setTimeout(() => confetti(innerWidth * 0.25, innerHeight / 3, 70), 350 * ANIM); setTimeout(() => confetti(innerWidth * 0.75, innerHeight / 3, 70), 700 * ANIM); } else SFX.level();
   confetti(innerWidth / 2, innerHeight / 3, 90); animateRefill(from, G.strength);
-  if (type === "episode") setTimeout(() => { if (tok === flowTok && G.overlay && G.overlay.type === "episode") overlayNext(); }, 9000);
 }
 async function loseFlow(reason) {
   const tok = ++flowTok;
@@ -1538,14 +1682,316 @@ async function loseFlow(reason) {
   Music.play("lose");
   await Cine.lose(G.level, reason);
   if (tok !== flowTok) return;
+  Progress.lost(G.episode);
   beginLevel(G.episode, 0, false, { replay: true });
 }
 async function runTitle() {
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; render(); Music.stop();
-  const ep = await Cine.title();
-  if (tok !== flowTok) return;
-  beginLevel(ep, 0, false);
+  while (tok === flowTok) {
+    if (!Progress.cur) {
+      const r = await loginScreen(); if (tok !== flowTok) return;
+      if (r.teacher) { await teacherFlow(); continue; }
+      const { rec, isNew } = await Progress.login(r.name); if (tok !== flowTok) return;
+      if (!isNew && hasProgress(rec)) {
+        const c = await resumeScreen(rec); if (tok !== flowTok) return;
+        if (c === "switch") { Progress.logout(); continue; }
+        if (c === "continue") { G.strength = rec.strength; beginLevel(rec.episode, rec.level, true, { resume: true }); return; }
+      }
+    }
+    const ep = await Cine.title(); if (tok !== flowTok) return;
+    if (ep === "switch") { Progress.logout(); continue; }
+    beginLevel(ep, 0, false); return;
+  }
+}
+
+/* ================= students, progress, leaderboard, teacher ================= */
+// To share progress across devices, paste your Firebase web-app config here (see FIREBASE_SETUP.md).
+// Leave it empty to keep everything on this device (localStorage).
+const FIREBASE_CONFIG = {
+  // apiKey: "", authDomain: "", databaseURL: "https://YOUR-PROJECT-default-rtdb.firebaseio.com", projectId: "", appId: ""
+};
+// auth:false = no sign-in (test-mode or simple rules). auth:true = students sign in anonymously, the teacher signs in with Google (strict rules).
+const FIREBASE_OPTIONS = { auth: false };
+const FB_VER = "10.12.2";
+const fbOn = () => !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.databaseURL);
+const escH = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+function normName(raw) {
+  const s = String(raw || "").replace(/[^A-Za-z\u00C0-\u024F' .-]/g, " ").replace(/\s+/g, " ").trim();
+  const parts = s.split(" ").map(p => p.replace(/^[.'-]+|[.'-]+$/g, "")).filter(Boolean);
+  if (parts.length < 2) return null;
+  const last = parts.pop().replace(/[^A-Za-z\u00C0-\u024F]/g, "");
+  const cap = w => w.split(/([-'])/).map(p => /^[-']$/.test(p) ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join("");
+  const first = parts.map(cap).join(" ").slice(0, 24);
+  if (!first || !last) return null;
+  return first + " " + last.charAt(0).toUpperCase() + ".";
+}
+function newRec(name) { const now = Date.now(); return { id: "p" + now.toString(36) + Math.random().toString(36).slice(2, 6), name, episode: 0, level: 0, strength: 100, unlocked: 1, passed: {}, done: false, ts: now, created: now }; }
+const passedCount = r => Object.keys((r && r.passed) || {}).length;
+const highestEp = r => { let h = r.episode || 0; Object.keys(r.passed || {}).forEach(k => { h = Math.max(h, +k.split("-")[0]); }); return h + 1; };
+const hasProgress = r => !!r && (r.done || passedCount(r) > 0 || r.episode > 0 || r.level > 0);
+const evId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+/* ---- storage adapter: localStorage (default) ---- */
+const LK = { players: "mvm.players.v1", events: "mvm.events.v1", pin: "mvm.teacherPin.v1" };
+const lget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const lset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const LocalDB = {
+  kind: "local", subs: [],
+  async init() {},
+  async players() { return lget(LK.players, {}); },
+  async savePlayer(r) { const all = lget(LK.players, {}); all[r.id] = r; lset(LK.players, all); },
+  async removePlayer(id) { const all = lget(LK.players, {}); delete all[id]; lset(LK.players, all); lset(LK.events, lget(LK.events, []).filter(e => e.pid !== id)); },
+  async resetAll() { localStorage.removeItem(LK.players); localStorage.removeItem(LK.events); },
+  async pushEvent(ev) { const a = lget(LK.events, []); a.push(ev); while (a.length > 300) a.shift(); lset(LK.events, a); LocalDB.emit(ev); },
+  async clearEvents() { localStorage.removeItem(LK.events); },
+  async events() { return lget(LK.events, []); },
+  emit(ev) { LocalDB.subs.slice().forEach(s => { if (ev.ts > s.since) s.cb(ev); }); },
+  onEvent(since, cb) { const s = { since, cb }; LocalDB.subs.push(s); return () => { LocalDB.subs = LocalDB.subs.filter(x => x !== s); }; },
+  async getPin() { return lget(LK.pin, null); },
+  async setPin(v) { if (v) lset(LK.pin, v); else localStorage.removeItem(LK.pin); }
+};
+window.addEventListener("storage", e => { // other tabs on this device
+  if (e.key !== LK.events || !e.newValue) return;
+  let old = []; try { old = JSON.parse(e.oldValue || "[]"); } catch (x) {}
+  const seen = new Set(old.map(v => v.id)); try { JSON.parse(e.newValue).filter(v => !seen.has(v.id)).forEach(v => LocalDB.emit(v)); } catch (x) {}
+});
+/* ---- storage adapter: Firebase Realtime Database (when FIREBASE_CONFIG is filled in) ---- */
+function FirebaseDB() {
+  let db, M, A, auth; const base = "https://www.gstatic.com/firebasejs/" + FB_VER + "/";
+  const R = p => M.ref(db, p);
+  const F = {
+    kind: "firebase",
+    async init() {
+      const app = await import(base + "firebase-app.js"); M = await import(base + "firebase-database.js");
+      const fa = app.initializeApp(FIREBASE_CONFIG); db = M.getDatabase(fa);
+      if (FIREBASE_OPTIONS.auth) { A = await import(base + "firebase-auth.js"); auth = A.getAuth(fa); await new Promise(r => { const u = A.onAuthStateChanged(auth, () => { u(); r(); }); }); if (!auth.currentUser) await A.signInAnonymously(auth); }
+    },
+    uid() { return auth && auth.currentUser ? auth.currentUser.uid : null; },
+    authOn: () => !!FIREBASE_OPTIONS.auth,
+    isAdmin() { return !!(auth && auth.currentUser && !auth.currentUser.isAnonymous); },
+    adminEmail() { return auth && auth.currentUser ? auth.currentUser.email : ""; },
+    async adminSignIn() { await A.signInWithPopup(auth, new A.GoogleAuthProvider()); },
+    async players() { return (await M.get(R("players"))).val() || {}; },
+    async savePlayer(r) { const u = F.uid(); if (u && !r.uid && !F.isAdmin()) r.uid = u; await M.set(R("players/" + r.id), r); },
+    async removePlayer(id) {
+      await M.remove(R("players/" + id));
+      const s = await M.get(M.query(R("events"), M.orderByChild("pid"), M.equalTo(id))); const up = {};
+      s.forEach(c => { up[c.key] = null; }); if (Object.keys(up).length) await M.update(R("events"), up);
+    },
+    async resetAll() { await M.remove(R("players")); await M.remove(R("events")); },
+    async pushEvent(ev) { await M.set(M.push(R("events")), ev); },
+    async clearEvents() { await M.remove(R("events")); },
+    async events() { return Object.values((await M.get(R("events"))).val() || {}); },
+    onEvent(since, cb) { return M.onChildAdded(M.query(R("events"), M.orderByChild("ts"), M.startAt(since + 1)), s => { const v = s.val(); if (v && v.ts > since) cb(v); }); },
+    async getPin() { return (await M.get(R("config/teacherPinHash"))).val(); },
+    async setPin(v) { await M.set(R("config/teacherPinHash"), v || null); }
+  };
+  return F;
+}
+let DB = LocalDB;
+const dbReady = (async () => {
+  if (!fbOn()) return;
+  try { const f = FirebaseDB(); await f.init(); DB = f; } catch (e) { console.warn("Firebase unavailable — saving on this device only.", e); }
+})();
+
+/* ---- the logged-in student ---- */
+const Progress = {
+  cur: null, since: 0, unsub: null,
+  async login(name) {
+    await dbReady;
+    const all = await DB.players().catch(() => ({}));
+    let r = Object.values(all).find(p => p && p.name && p.name.toLowerCase() === name.toLowerCase());
+    const isNew = !r; if (!r) { r = newRec(name); await DB.savePlayer(r).catch(() => {}); }
+    r.passed = r.passed || {};
+    this.cur = r; this.since = Date.now();
+    if (this.unsub) { try { this.unsub(); } catch (e) {} }
+    this.unsub = DB.onEvent(this.since, ev => alertToast(ev.name + " passed Level " + (ev.lv + 1) + " of Episode " + (ev.ep + 1) + "."));
+    return { rec: r, isNew };
+  },
+  logout() { if (this.unsub) { try { this.unsub(); } catch (e) {} } this.unsub = null; this.cur = null; },
+  async save(patch) {
+    if (!this.cur) return;
+    Object.assign(this.cur, patch, { ts: Date.now() });
+    try { await DB.savePlayer(this.cur); } catch (e) { console.warn("save failed", e); alertToast("Couldn't save — check the connection."); }
+  },
+  async levelPassed(ep, lv, strength) {
+    const r = this.cur; if (!r) return;
+    const lastLv = lv + 1 >= LEVELS.length, lastEp = ep + 1 >= EPISODES.length;
+    r.passed = r.passed || {}; r.passed[ep + "-" + lv] = Date.now();
+    const nx = !lastLv ? [ep, lv + 1] : !lastEp ? [ep + 1, 0] : [ep, lv];
+    await this.save({ episode: nx[0], level: nx[1], strength, done: !!r.done || (lastLv && lastEp),
+      unlocked: Math.max(r.unlocked || 1, Math.min(EPISODES.length, lastLv ? ep + 2 : ep + 1)) });
+    try { await DB.pushEvent({ id: evId(), pid: r.id, name: r.name, ep, lv, ts: Date.now() }); } catch (e) {}
+  },
+  async saveLater(ep, lv, strength) { await this.save({ episode: ep, level: lv, strength }); },
+  async lost(ep) { await this.save({ episode: ep, level: 0, strength: 100 }); },
+  canJump(ep, lv) { const r = this.cur; if (!r || DEV) return true; if (lv === 0 || (r.passed || {})[ep + "-" + (lv - 1)]) return true; return ep < r.episode || (ep === r.episode && lv <= r.level) || !!r.done; }
+};
+
+/* ---- small UI helpers ---- */
+function alertToast(msg) {
+  let box = document.getElementById("atoasts"); if (!box) { box = document.createElement("div"); box.id = "atoasts"; document.body.appendChild(box); }
+  const t = document.createElement("div"); t.className = "atoast"; t.textContent = msg; box.appendChild(t);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 400); }, 4500);
+}
+function modal(inner, cls) {
+  const el = document.createElement("div"); el.className = "mdl"; el.innerHTML = '<div class="mdcard ' + (cls || "") + '" role="dialog">' + inner + "</div>";
+  document.body.appendChild(el); return { el, close: () => el.remove() };
+}
+function ask(o) {
+  return new Promise(res => {
+    const inp = o.input === "pin" ? '<input class="mdin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" placeholder="' + escH(o.placeholder || "PIN") + '">'
+      : o.input ? '<input class="mdin" type="text" maxlength="30" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="' + escH(o.placeholder || "") + '" value="' + escH(o.value || "") + '">' : "";
+    const m = modal("<h2>" + escH(o.title) + "</h2>" + (o.text ? "<p>" + escH(o.text) + "</p>" : "") + inp + '<div class="mderr"></div><div class="mdbtns">' +
+      (o.cancel === null ? "" : '<button data-md="cancel" class="mdsec">' + escH(o.cancel || "Cancel") + "</button>") + '<button data-md="ok" class="mdok' + (o.danger ? " danger" : "") + '">' + escH(o.ok || "OK") + "</button></div>");
+    const input = m.el.querySelector(".mdin"), err = m.el.querySelector(".mderr"); let busy = false;
+    const ok = async () => {
+      if (busy) return; busy = true; const v = input ? input.value.trim() : true;
+      const e = o.check ? await o.check(v) : null; busy = false;
+      if (e) { err.textContent = e; if (input) { input.focus(); input.select(); } return; }
+      m.close(); res(v);
+    };
+    const cancel = () => { if (o.cancel === null) return; m.close(); res(false); };
+    m.el.addEventListener("click", e => { const b = e.target.closest("[data-md]"); if (!b) return; if (b.dataset.md === "ok") ok(); else cancel(); });
+    m.el.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); ok(); } else if (e.key === "Escape") cancel(); });
+    m.el._ok = ok; m.el._cancel = cancel;
+    if (input) setTimeout(() => input.focus(), 30);
+  });
+}
+async function sha256(s) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, "0")).join(""); }
+function randHex(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, x => x.toString(16).padStart(2, "0")).join(""); }
+const fmtWhen = ts => { try { return ts ? new Date(ts).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"; } catch (e) { return "—"; } };
+const reachTxt = r => r.done ? "All 3 episodes 🏆" : "Episode " + ((r.episode || 0) + 1) + " · Level " + ((r.level || 0) + 1);
+
+/* ---- leaderboard ---- */
+function lbHtml(players, view) {
+  const list = Object.values(players || {}).filter(p => p && p.name);
+  const tabs = '<div class="lbtabs">' + [["all", "All levels"], ["0", "Episode 1"], ["1", "Episode 2"], ["2", "Episode 3"]].map(t => '<button data-pg="lbtab" data-v="' + t[0] + '" class="' + (view === t[0] ? "sel" : "") + '">' + t[1] + "</button>").join("") + "</div>";
+  if (!list.length) return '<h2>🏆 Leaderboard</h2>' + tabs + '<div class="lbempty">No explorers yet — be the first!</div>';
+  let body;
+  if (view === "all") {
+    list.sort((a, b) => passedCount(b) - passedCount(a) || highestEp(b) - highestEp(a) || a.name.localeCompare(b.name));
+    body = '<table class="lbt"><thead><tr><th>#</th><th>Explorer</th><th>Levels cleared</th><th>Furthest</th></tr></thead><tbody>' +
+      list.map((p, i) => '<tr><td class="rk">' + (i + 1) + "</td><td>" + escH(p.name) + "</td><td>" + passedCount(p) + " / 12</td><td>" + (p.done ? "Champion 🏆" : "Episode " + highestEp(p)) + "</td></tr>").join("") + "</tbody></table>";
+  } else {
+    const ep = +view, cnt = p => [0, 1, 2, 3].filter(l => (p.passed || {})[ep + "-" + l]).length;
+    const rows = list.filter(p => cnt(p) > 0 || (p.episode || 0) === ep).sort((a, b) => cnt(b) - cnt(a) || a.name.localeCompare(b.name));
+    body = rows.length ? '<table class="lbt"><thead><tr><th>#</th><th>Explorer</th>' + [0, 1, 2, 3].map(l => "<th>" + escH(LVI(ep, l).name) + "</th>").join("") + "</tr></thead><tbody>" +
+      rows.map((p, i) => '<tr><td class="rk">' + (i + 1) + "</td><td>" + escH(p.name) + "</td>" + [0, 1, 2, 3].map(l => (p.passed || {})[ep + "-" + l] ? '<td class="ck">✔</td>' : '<td class="no">·</td>').join("") + "</tr>").join("") + "</tbody></table>"
+      : '<div class="lbempty">Nobody has reached Episode ' + (ep + 1) + " yet.</div>";
+  }
+  return '<h2>🏆 Leaderboard</h2>' + tabs + '<div class="lbscroll">' + body + "</div>";
+}
+async function openBoard() {
+  await dbReady;
+  const players = await DB.players().catch(() => ({})); let view = "all";
+  const m = modal('<div class="mdlb"></div><div class="mdbtns"><button class="mdok" data-md="close">Close</button></div>', "wide lbmodal");
+  const draw = () => { m.el.querySelector(".mdlb").innerHTML = lbHtml(players, view); }; draw();
+  m.el.addEventListener("click", e => { const t = e.target.closest('[data-pg="lbtab"]'); if (t) { view = t.dataset.v; draw(); return; } if (e.target.closest('[data-md="close"]') || e.target === m.el) m.close(); });
+  m.el._ok = m.el._cancel = m.close;
+}
+
+/* ---- login, resume and teacher screens (drawn inside #cine) ---- */
+let pgHandler = null;
+document.getElementById("cine").addEventListener("click", e => { const b = e.target.closest("[data-pg]"); if (b && pgHandler) pgHandler(b.dataset.pg, b, e); });
+async function loginScreen() {
+  await dbReady;
+  const players = await DB.players().catch(() => ({}));
+  const names = Object.values(players).filter(p => p && p.name).sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(p => p.name);
+  return new Promise(res => {
+    let view = "all";
+    Cine.show('<div class="cscreen login"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="lgwrap">' +
+      '<div class="lghead"><div class="tlogo sm">MAN <span>vs.</span> MATH</div><div class="tsub">Surviving Long Division</div></div>' +
+      '<div class="lgcols"><div class="lgcard"><h2>Who\'s playing?</h2><div class="lghint">Type your first name and last initial, like <b>Sam T.</b></div><form id="lgform" autocomplete="off"><input id="lgname" maxlength="30" placeholder="First name + last initial" autocapitalize="words" autocomplete="off" spellcheck="false" aria-label="Your first name and last initial"><button class="lgbtn" type="submit">Start ▶</button></form><div class="lgmsg" id="lgmsg"></div>' +
+      (names.length ? '<div class="lgsub">Already played here? Tap your name:</div><div class="lgnames">' + names.map(n => '<button data-pg="pick" data-name="' + escH(n) + '">' + escH(n) + "</button>").join("") + "</div>" : "") +
+      '<div class="lgnote">' + (DB.kind === "firebase" ? "Progress is shared online with your class." : "Progress is saved on this device.") + "</div></div>" +
+      '<div class="lgcard lb" id="lbbox">' + lbHtml(players, view) + "</div></div></div>" +
+      '<button class="lgteach" data-pg="teacher">Teacher</button></div>');
+    const inp = document.getElementById("lgname"), msg = document.getElementById("lgmsg");
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); document.getElementById("lgform").requestSubmit ? document.getElementById("lgform").requestSubmit() : document.getElementById("lgform").dispatchEvent(new Event("submit", { cancelable: true })); } });
+    inp.addEventListener("input", () => { const n = normName(inp.value); msg.className = "lgmsg" + (n ? " ok" : ""); msg.textContent = n ? "You'll play as " + n : ""; });
+    document.getElementById("lgform").addEventListener("submit", e => {
+      e.preventDefault(); const n = normName(inp.value);
+      if (!n) { msg.className = "lgmsg bad"; msg.textContent = "Type your first name and last initial, like Sam T."; inp.focus(); return; }
+      pgHandler = null; res({ name: n });
+    });
+    pgHandler = (k, b) => {
+      if (k === "pick") { pgHandler = null; res({ name: b.dataset.name }); }
+      if (k === "teacher") { pgHandler = null; res({ teacher: true }); }
+      if (k === "lbtab") { view = b.dataset.v; document.getElementById("lbbox").innerHTML = lbHtml(players, view); }
+    };
+  });
+}
+function resumeScreen(r) {
+  return new Promise(res => {
+    const L = LVI(r.episode, r.level), E = EP_INFO[r.episode] || EP_INFO[0];
+    const line = r.done ? "Welcome back, " + r.name + ": all three episodes complete!" : "Welcome back, " + r.name + ": Episode " + (r.episode + 1) + ", Level " + (r.level + 1) + " next, Strength " + Math.round(r.strength) + "%";
+    Cine.show('<div class="cscreen resume"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="lgwrap"><div class="lgcard rscard">' +
+      "<h1>Welcome back, " + escH(r.name) + '!</h1><div class="rsline" id="rsline">' + escH(line) + "</div>" +
+      (r.done ? '<div class="rsdet">' + passedCount(r) + " of 12 levels cleared. Pick any episode to play again.</div>" : '<div class="rsdet">Episode ' + (r.episode + 1) + " · " + escH(E.name) + " — Level " + (r.level + 1) + ": " + escH(L.name) + " · " + passedCount(r) + " of 12 levels cleared</div>" +
+        '<div class="rsmeter"><div class="meterbar"><div class="fillbar" style="width:' + r.strength + "%;background:" + meterColor(r.strength) + '"></div></div><span>' + Math.round(r.strength) + "% strength</span></div>") +
+      '<div class="rsbtns">' + (r.done ? "" : '<button class="tstart cprimary" data-pg="continue">▶&nbsp; Continue</button>') +
+      '<button class="rsalt' + (r.done ? " cprimary" : "") + '" data-pg="choose">Choose an episode</button><button class="rsalt" data-pg="board">🏆 Leaderboard</button><button class="rsalt" data-pg="switch">Not ' + escH(r.name) + "? Switch player</button></div></div></div></div>");
+    pgHandler = k => { if (k === "board") { openBoard(); return; } pgHandler = null; res(k); };
+  });
+}
+async function teacherFlow() {
+  await dbReady;
+  if (!window.crypto || !crypto.subtle) { await ask({ title: "Teacher", text: "Teacher tools need the secure (https) game page.", cancel: null }); return; }
+  let rec = await DB.getPin().catch(() => null);
+  if (!rec) {
+    const p1 = await ask({ title: "Create a teacher PIN", text: "First time here: choose a 4–8 digit PIN. Only a salted hash of it is stored.", input: "pin", placeholder: "New PIN", ok: "Next", check: v => /^\d{4,8}$/.test(v) ? null : "Use 4 to 8 digits." });
+    if (p1 === false) return;
+    const p2 = await ask({ title: "Confirm the PIN", text: "Type the same PIN again.", input: "pin", placeholder: "Same PIN again", ok: "Save PIN", check: v => v === p1 ? null : "The PINs don't match — try again." });
+    if (p2 === false) return;
+    const salt = randHex(16); rec = { salt, hash: await sha256(salt + ":" + p1), v: 1, ts: Date.now() };
+    try { await DB.setPin(rec); } catch (e) { await ask({ title: "Couldn't save the PIN", text: String((e && e.message) || e), cancel: null }); return; }
+    alertToast("Teacher PIN created.");
+  } else {
+    const ok = await ask({ title: "Teacher", text: "Enter the teacher PIN.", input: "pin", ok: "Unlock", check: async v => (await sha256(rec.salt + ":" + v)) === rec.hash ? null : "That PIN isn't right." });
+    if (ok === false) return;
+  }
+  await teacherScreen();
+}
+function rosterCsv(players) {
+  const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const rows = Object.values(players || {}).filter(p => p && p.name).sort((a, b) => a.name.localeCompare(b.name));
+  return ["Student,Episode,Next level,Levels passed,Strength %,Last played,Passed (episode-level)"].concat(rows.map(r => [q(r.name), r.done ? "done" : (r.episode || 0) + 1, r.done ? "" : (r.level || 0) + 1, passedCount(r), Math.round(r.strength), q(r.ts ? new Date(r.ts).toISOString() : ""),
+    q(Object.keys(r.passed || {}).sort().map(k => "E" + (+k.split("-")[0] + 1) + "L" + (+k.split("-")[1] + 1)).join(" "))].join(","))).join("\n") + "\n";
+}
+function teacherScreen() {
+  return new Promise(res => {
+    let players = {};
+    const load = async () => { players = await DB.players().catch(() => ({})); draw(); };
+    const draw = () => {
+      const rows = Object.values(players).filter(p => p && p.name).sort((a, b) => a.name.localeCompare(b.name));
+      const fbAuth = DB.kind === "firebase" && DB.authOn && DB.authOn();
+      Cine.show('<div class="cscreen teacher"><div class="tchwrap"><div class="tchhead"><h1>Teacher</h1><div class="tchsub">' + rows.length + " student" + (rows.length === 1 ? "" : "s") + " · " + (DB.kind === "firebase" ? "shared online (Firebase)" : "saved on this device") + "</div>" +
+        '<button data-pg="t-close" class="tbtn sec">Done</button></div>' +
+        (fbAuth ? '<div class="tchauth">' + (DB.isAdmin() ? "Signed in as " + escH(DB.adminEmail()) : '<button data-pg="t-google" class="tbtn sec">Sign in with Google (needed to remove or reset)</button>') + "</div>" : "") +
+        '<div class="tchact"><button data-pg="t-add" class="tbtn">＋ Add student</button><button data-pg="t-csv" class="tbtn">⬇ Export CSV</button><button data-pg="t-alerts" class="tbtn sec">Clear alerts</button><button data-pg="t-reset" class="tbtn danger">Reset scoreboard &amp; all student data</button></div>' +
+        '<div class="tchtable"><table><thead><tr><th>Student</th><th>Reached</th><th>Levels passed</th><th>Strength</th><th>Last played</th><th></th></tr></thead><tbody>' +
+        (rows.length ? rows.map(r => "<tr><td><b>" + escH(r.name) + "</b></td><td>" + escH(reachTxt(r)) + "</td><td>" + passedCount(r) + " / 12</td><td>" + Math.round(r.strength) + "%</td><td>" + escH(fmtWhen(r.ts)) + '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + r.id + '">Rename</button><button data-pg="t-del" data-id="' + r.id + '" class="danger">Remove</button></td></tr>').join("")
+          : '<tr><td colspan="6" class="empty">No students yet. Students appear here after they log in, or add them ahead of time.</td></tr>') + "</tbody></table></div></div></div>");
+    };
+    const dupe = (n, id) => Object.values(players).some(p => p && p.name && p.id !== id && p.name.toLowerCase() === n.toLowerCase());
+    const nameCheck = id => v => { const n = normName(v); return !n ? "Use a first name and last initial, like Sam T." : dupe(n, id) ? n + " is already on the roster." : null; };
+    const guard = async fn => { try { await fn(); } catch (e) { await ask({ title: "That didn't work", text: String((e && e.message) || e), cancel: null }); } await load(); };
+    pgHandler = async (k, b) => {
+      const r = b.dataset.id && players[b.dataset.id];
+      if (k === "t-close") { pgHandler = null; res(); return; }
+      if (k === "t-google") return guard(() => DB.adminSignIn());
+      if (k === "t-add") { const v = await ask({ title: "Add a student", text: "First name and last initial.", input: "text", placeholder: "e.g. Sam T.", ok: "Add", check: nameCheck(null) }); if (v !== false) await guard(() => DB.savePlayer(newRec(normName(v)))); return; }
+      if (k === "t-ren" && r) { const v = await ask({ title: "Rename " + r.name, text: "First name and last initial.", input: "text", value: r.name, ok: "Rename", check: nameCheck(r.id) }); if (v !== false) await guard(() => DB.savePlayer(Object.assign({}, r, { name: normName(v) }))); return; }
+      if (k === "t-del" && r) { const v = await ask({ title: "Remove " + r.name + "?", text: "This deletes " + r.name + "'s saved game, progress and alerts. It can't be undone.", ok: "Remove", danger: true }); if (v !== false) await guard(() => DB.removePlayer(r.id)); return; }
+      if (k === "t-alerts") { const v = await ask({ title: "Clear alerts?", text: "Removes the history of “passed a level” alerts. Student progress stays.", ok: "Clear alerts" }); if (v !== false) await guard(() => DB.clearEvents()); if (v !== false) alertToast("Alerts cleared."); return; }
+      if (k === "t-reset") { const v = await ask({ title: "Reset everything?", text: "This deletes every student, every saved game, the scoreboard and all alerts. Type RESET to confirm.", input: "text", placeholder: "RESET", ok: "Reset everything", danger: true, check: v => v === "RESET" ? null : "Type RESET in capital letters." }); if (v !== false) { await guard(() => DB.resetAll()); alertToast("Scoreboard and student data reset."); } return; }
+      if (k === "t-csv") { const csv = rosterCsv(players); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "man-vs-math-roster-" + new Date().toISOString().slice(0, 10) + ".csv"; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__lastCsv = csv; return; }
+    };
+    load();
+  });
 }
 
 /* ================= dev tools (?dev=1) ================= */
@@ -1576,7 +2022,7 @@ async function devSolve() {
 if (DEV) {
   const d = document.createElement("div"); d.id = "devp";
   d.innerHTML = 'DEV <select id="dv-ep"><option value="0">E1</option><option value="1">E2</option><option value="2">E3</option></select><select id="dv-lv"><option value="0">L1</option><option value="1">L2</option><option value="2">L3</option><option value="3">L4</option></select>' +
-    '<button data-dev="go">Go (map+clip)</button><button data-dev="direct">Go (no clips)</button><button data-dev="skip">Skip clip</button><button data-dev="solve">Solve</button><button data-dev="win">Win level</button><button data-dev="lose">Lose</button><button data-dev="time">Time→12s</button><button data-dev="unlock">Unlock all</button><button data-dev="reset">Reset unlock</button><button data-dev="hide">×</button>';
+    '<button data-dev="go">Go (map+clip)</button><button data-dev="direct">Go (no clips)</button><button data-dev="skip">Skip clip</button><button data-dev="solve">Solve</button><button data-dev="win">Win level</button><button data-dev="lose">Lose</button><button data-dev="time">Time→12s</button><button data-dev="unlock">Unlock all</button><button data-dev="reset">Reset unlock</button><button data-dev="logout">Log out</button><button data-dev="clearpin">Clear teacher PIN</button><button data-dev="hide">×</button>';
   document.body.appendChild(d);
   d.addEventListener("click", e => {
     e.stopPropagation(); audio();
@@ -1591,6 +2037,8 @@ if (DEV) {
     if (k === "time") { if (G.P) G.timeLeft = 12; }
     if (k === "unlock") { store.set("unlocked", 3); toast("All episodes unlocked"); }
     if (k === "reset") { store.set("unlocked", 1); toast("Unlocks reset"); }
+    if (k === "logout") { Progress.logout(); runTitle(); }
+    if (k === "clearpin") { dbReady.then(() => DB.setPin(null)).then(() => toast("Teacher PIN cleared — the next Teacher visit creates a new one"), e => toast("Couldn't clear the PIN: " + e)); }
     if (k === "hide") d.remove();
   });
 }
@@ -1601,7 +2049,7 @@ runTitle();
 getVideo("setup-l1"); getVideo("win-l1");
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
-window.__MVM = { G, Cine, Music, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, unlocked, setAnim: v => { ANIM = v; } };
+window.__MVM = { G, Cine, Music, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
 window.__DD = { G, EPISODES, render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
