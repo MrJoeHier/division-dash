@@ -2464,8 +2464,9 @@ const reachTxt = r => r.done ? "All 3 episodes 🏆" : "Episode " + ((r.episode 
 
 /* ---- leaderboard ---- */
 function lbHtml(players, view) {
+  view = "all"; // one unified board, no episode tabs
   const list = Object.values(players || {}).filter(p => p && p.name);
-  const tabs = '<div class="lbtabs">' + [["all", "All levels"], ["0", "Episode 1"], ["1", "Episode 2"], ["2", "Episode 3"]].map(t => '<button data-pg="lbtab" data-v="' + t[0] + '" class="' + (view === t[0] ? "sel" : "") + '">' + t[1] + "</button>").join("") + "</div>";
+  const tabs = "";
   if (!list.length) return '<h2>🏆 Leaderboard</h2>' + tabs + '<div class="lbempty">No explorers yet — be the first!</div>';
   let body;
   if (view === "all") {
