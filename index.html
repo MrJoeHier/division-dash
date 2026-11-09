@@ -300,20 +300,48 @@ svg.bracket .vleaf, svg.bracket .vtex, svg.bracket .vcurl { display:none; }
 .cv { width:100%; height:100%; object-fit:contain; display:block; background:transparent; }
 img.cv.kb { animation:kb 9s ease-out forwards; }
 @keyframes kb { from { transform:scale(1); } to { transform:scale(1.14) translateY(-1%); } }
+.vload, .vtap { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:2; pointer-events:none; }
+.vtap { pointer-events:auto; cursor:pointer; background:rgba(0,0,0,.28); }
+.vload .spin { width:54px; height:54px; border-radius:50%; border:4px solid rgba(255,255,255,.25); border-top-color:#f3c65a; animation:vspin .8s linear infinite; }
+.vtap .playbtn { width:92px; height:92px; border-radius:50%; border:3px solid rgba(255,255,255,.85); background:rgba(0,0,0,.55); color:#fff; font-size:2.4rem; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 28px rgba(0,0,0,.5); }
+.vtap .playlab { color:#fff; font-weight:800; font-size:1.15rem; letter-spacing:.04em; text-shadow:0 2px 8px rgba(0,0,0,.8); }
+@keyframes vspin { to { transform:rotate(360deg); } }
 .ccap { position:absolute; left:0; right:0; bottom:calc(22px + env(safe-area-inset-bottom)); text-align:center; font-family:"Cinzel MVM", Georgia, serif; font-weight:900;
   font-size:clamp(1.1rem, 2.6vw, 1.8rem); letter-spacing:.05em; text-shadow:0 2px 10px #000, 0 0 3px #000; padding:0 24px; pointer-events:none; animation:fadeUp .8s .4s both; }
 .ccap small { display:block; font-family:-apple-system, system-ui, sans-serif; font-weight:700; font-size:.6em; letter-spacing:.02em; margin-top:4px; color:#f3d79a; }
 .cskip { position:absolute; right:16px; top:calc(16px + env(safe-area-inset-top)); padding:12px 18px; border-radius:999px; border:1px solid rgba(255,255,255,.45); background:rgba(0,0,0,.5); color:#fff; font-weight:800; font-size:1rem; z-index:3; }
 @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
 /* title */
-.cscreen.title img.hero { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:68% 50%; animation:heroZoom 22s ease-out forwards; }
-@keyframes heroZoom { from { transform:scale(1.08); } to { transform:scale(1); } }
+.cscreen.title img.hero {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:60% 30%;
+  transform-origin:center center;
+  animation:heroZoom 22s ease-out forwards;
+}
+@keyframes heroZoom { from { transform:scale(1.24) translateX(6%); } to { transform:scale(1.12) translateX(6%); } }
+@keyframes heroZoomPortrait { from { transform:scale(1.26) translateX(4%); } to { transform:scale(1.14) translateX(4%); } }
+@keyframes heroZoomWide { from { transform:scale(1.18) translateX(4%); } to { transform:scale(1.08) translateX(4%); } }
 .tgrad { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.12) 38%, rgba(0,0,0,.1) 58%, rgba(10,6,2,.88) 100%); }
 .tbox { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; padding:calc(7vh + env(safe-area-inset-top)) 20px calc(6vh + env(safe-area-inset-bottom)); text-align:center; }
-.tlogo { font-family:"Cinzel MVM", "Copperplate", Georgia, serif; font-weight:900; font-size:clamp(3rem, 10vw, 8rem); line-height:.95; letter-spacing:.04em; white-space:nowrap;
+.tlogo, .tsub, .tplayer { align-self:flex-start; text-align:left; margin-left:clamp(6px, 2.4vw, 36px); margin-right:auto; }
+.tbtns, .tnote { align-self:center; text-align:center; }
+.tlogo { font-family:"Cinzel MVM", "Copperplate", Georgia, serif; font-weight:900; font-size:clamp(3rem, 10vw, 8rem); line-height:.95; letter-spacing:.04em;
+  display:flex; flex-direction:row; flex-wrap:nowrap; align-items:baseline; gap:.12em;
   background:linear-gradient(180deg, #fff7d6 0%, #f3c65a 42%, #b6721c 68%, #f8da7e 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
   filter:drop-shadow(0 4px 0 #3a2208) drop-shadow(0 12px 20px rgba(0,0,0,.75)); animation:logoIn 1.2s cubic-bezier(.2,1.4,.4,1) both; }
-.tlogo span { font-size:.48em; vertical-align:.35em; }
+.tlogo .tl1, .tlogo .tl2 { white-space:nowrap; }
+.tlogo .tl1 > span, .tlogo > span:not(.tl1):not(.tl2) { font-size:.48em; vertical-align:.35em; }
+/* Mid / portrait: stack title so face on the right stays clear; same font size */
+@media (max-width: 1499px), (max-aspect-ratio: 1/1) {
+  .cscreen.title .tlogo { flex-direction:column; align-items:flex-start; line-height:.9; gap:0; }
+}
+@media (max-aspect-ratio: 1/1) {
+  .cscreen.title img.hero { object-position:52% 26%; animation-name:heroZoomPortrait; }
+  .tlogo, .tsub, .tplayer { margin-left:clamp(10px, 3.5vw, 28px); }
+}
+@media (min-aspect-ratio: 16/10) and (min-width: 1500px) {
+  .cscreen.title img.hero { object-position:64% 34%; animation-name:heroZoomWide; }
+}
 @keyframes logoIn { from { opacity:0; transform:scale(.6) translateY(-20px); letter-spacing:.4em; } to { opacity:1; transform:none; } }
 .tsub { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(1.05rem, 2.9vw, 2.1rem); letter-spacing:.2em; text-transform:uppercase; color:#fbeccb; text-shadow:0 2px 8px #000; margin-top:12px; animation:fadeUp .9s .6s both; }
 .tbtns { margin-top:auto; display:flex; flex-direction:column; gap:12px; width:min(540px, 92vw); animation:fadeUp .9s 1s both; }
@@ -331,8 +359,21 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 @keyframes logoGo { 0% { transform:none; } 30% { transform:scale(1.1); filter:drop-shadow(0 0 30px #f3c65a) drop-shadow(0 12px 20px rgba(0,0,0,.75)); } 100% { transform:scale(1.04); } }
 /* map */
 .cscreen.map { background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%27.9%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20values%3D%270%200%200%200%20.1%20%200%200%200%200%20.06%20%200%200%200%200%20.02%20%200%200%200%20.55%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27160%27%20height%3D%27160%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E"), radial-gradient(ellipse at center, #4a3018, #120b05); }
-.mapbox { position:relative; width:min(100vw, 75vh); height:min(100vh, 133.333vw); width:min(100vw, 75dvh); height:min(100dvh, 133.333vw); animation:mapIn .8s cubic-bezier(.2,1,.3,1) both; }
+.mapbox { position:relative; width:min(100vw, calc(100vh * 16 / 9)); height:min(100vh, calc(100vw * 9 / 16)); width:min(100vw, calc(100dvh * 16 / 9)); height:min(100dvh, calc(100vw * 9 / 16)); animation:mapIn .8s cubic-bezier(.2,1,.3,1) both; }
+.mapbox .mban { top:1.2%; padding:0.7vh 2vh 0.9vh; }
+.mapbox .mep { font-size:clamp(0.7rem, 2.4vh, 1.15rem); }
+.mapbox .mlv { font-size:clamp(1.6rem, 6.5vh, 3.6rem); }
+.mapbox .mname { font-size:clamp(0.95rem, 3vh, 1.55rem); }
+.mapbox .mchoice { bottom:7%; }
+.mapbox .mlb { right:2%; bottom:2.2%; min-width:50px; height:50px; font-size:1.25rem; }
 @keyframes mapIn { from { opacity:0; transform:scale(1.08) rotate(-1.5deg); } to { opacity:1; transform:none; } }
+.trail-outline { fill:none; stroke:#2a1608; stroke-width:14; stroke-linecap:round; stroke-linejoin:round; opacity:.55; }
+.trail-path { fill:none; stroke:#e8c48a; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; opacity:.92; }
+.mlab rect { fill:rgba(20,12,4,.78); stroke:#f3c65a; stroke-width:2; rx:10; }
+.mlab text { fill:#fff3d0; font:800 22px "Cinzel MVM", Georgia, serif; text-anchor:middle; dominant-baseline:central; }
+.mlab.cur rect { fill:rgba(140,30,18,.88); stroke:#ffd43b; }
+.mlab.done rect { fill:rgba(40,90,40,.82); }
+.mlab.todo { opacity:.88; }
 .mapbox > img { position:absolute; inset:0; width:100%; height:100%; display:block; }
 .mapbox > svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
 .dot { fill:#e01b1b; stroke:#fff1cc; stroke-width:2.5; opacity:0; transform-box:fill-box; transform-origin:center; }
@@ -684,6 +725,52 @@ const SFX = {
   over() { [392, 349, 311, 262].forEach((f, i) => tone(f, i * 0.16, 0.3, "triangle", 0.14)); },
   dot(i) { tone(1046 + (i % 6) * 60, 0, 0.07, "sine", 0.05); noise(0, 0.03, 0.025, 2400); }
 };
+const Ambience = (() => {
+  let nodes = [], g = null, ep = -1, iv = null;
+  function stop(fade) {
+    if (iv) { clearInterval(iv); iv = null; }
+    const ac = AC, f = fade || 0.4;
+    if (g && ac) { const n = ac.currentTime; try { g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0.0001, n + f); } catch (e) {} }
+    setTimeout(() => { nodes.forEach(x => { try { x.stop(); } catch (e) {} try { x.disconnect(); } catch (e) {} }); nodes = []; try { g && g.disconnect(); } catch (e) {} g = null; ep = -1; }, (f + 0.15) * 1000);
+  }
+  function chirp(t, f0) {
+    const ac = AC; if (!ac || !g) return;
+    const o = ac.createOscillator(), gg = ac.createGain(), f = ac.createBiquadFilter();
+    o.type = "sine"; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 1.35, t + 0.08); o.frequency.exponentialRampToValueAtTime(f0 * 0.9, t + 0.18);
+    f.type = "bandpass"; f.frequency.value = f0; f.Q.value = 4;
+    gg.gain.setValueAtTime(0.0001, t); gg.gain.exponentialRampToValueAtTime(0.045, t + 0.02); gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+    o.connect(f); f.connect(gg); gg.connect(g); o.start(t); o.stop(t + 0.22); nodes.push(o);
+  }
+  function wind(ac) {
+    const len = ac.sampleRate * 2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = ep === 2 ? 500 : ep === 1 ? 700 : 1200; f.Q.value = 0.6;
+    const gg = ac.createGain(); gg.gain.value = ep === 0 ? 0.018 : 0.028;
+    src.connect(f); f.connect(gg); gg.connect(g); src.start(); nodes.push(src);
+  }
+  function start(episode) {
+    if (!settings.sound) return;
+    const ac = audio(); if (!ac) return;
+    stop(0.2);
+    ep = episode | 0;
+    g = ac.createGain(); g.gain.value = 0.0001; g.connect(master);
+    const n = ac.currentTime; g.gain.linearRampToValueAtTime(1, n + 0.8);
+    wind(ac);
+    iv = setInterval(() => {
+      if (!g || !AC || !settings.sound) return;
+      const t = AC.currentTime + 0.02;
+      if (ep === 0) { chirp(t, 1800 + Math.random() * 1400); if (Math.random() < 0.45) chirp(t + 0.12, 2200 + Math.random() * 900); noise(0, 0.08, 0.02, 4000); }
+      else if (ep === 1) { if (Math.random() < 0.55) chirp(t, 1400 + Math.random() * 800); noise(0, 0.12, 0.025, 1800); }
+      else { noise(0, 0.18, 0.03, 900); if (Math.random() < 0.25) chirp(t, 900 + Math.random() * 400); }
+    }, 900 + Math.random() * 500);
+  }
+  function step() {
+    if (!settings.sound) return;
+    noise(0, 0.06, 0.07, 600); tone(120 + Math.random() * 40, 0, 0.07, "triangle", 0.05);
+  }
+  return { start, stop, step };
+})();
 const canVibrate = typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
 function haptic(p) { if (settings.haptics && canVibrate) { try { navigator.vibrate(p); } catch (e) {} } }
 
@@ -1496,9 +1583,12 @@ document.addEventListener("visibilitychange", () => { if (!AC) return; try { if 
 const ASSET = n => "assets/" + n;
 const DEV = /[?&]dev=1\b/.test(location.search);
 const EP_INFO = [
-  { name: "The Jungle", filter: "", soon: "" },
-  { name: "The Savanna", filter: "", map: "map-savanna", pts: [[382, 925], [200, 800], [552, 515], [160, 272], [468, 248]], soon: "" },
-  { name: "Mountain Crossing", filter: "", map: "map-mountain", pts: [[385, 935], [168, 722], [522, 560], [176, 466], [388, 252]], soon: "" }
+  { name: "The Jungle", filter: "", soon: "", map: "map-jungle-wide", pts: [[768, 790], [450, 690], [1040, 430], [400, 300], [780, 220]],
+    lab: [[0, 55], [-90, 40], [70, 50], [-100, 30], [0, 55]] },
+  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", pts: [[768, 800], [390, 690], [1120, 430], [390, 255], [920, 175]],
+    lab: [[0, 55], [-80, 45], [70, 50], [-95, 40], [0, 55]] },
+  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", pts: [[768, 790], [450, 580], [1100, 340], [470, 300], [780, 130]],
+    lab: [[0, 55], [-90, 40], [70, 50], [-100, 40], [0, 55]] }
 ];
 const LV_INFO = [
   { name: "Gator River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across Gator River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
@@ -1506,7 +1596,7 @@ const LV_INFO = [
   { name: "Jaguar Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
   { name: "The Great Escape", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
 ];
-const JUNGLE_PTS = [[385, 905], [190, 790], [575, 520], [172, 345], [400, 292]];
+const JUNGLE_PTS = EP_INFO[0].pts;
 const EP_LV = {
   1: [
     { name: "Hippo River", brief: "Solve 4 problems to pole past the hippos!", winCap: "Across Hippo River!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
@@ -1523,24 +1613,59 @@ const EP_LV = {
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
 const LVI = (ep, lv) => LVS(ep)[lv];
-const TUNE = { loseHold: 3800, clipStall: 6000, clipCap: 30000 };
+const TUNE = { loseHold: 3800, clipStall: 10000, clipCap: 30000 };
 let flowTok = 0;
 const unlocked = () => Math.max(1, Math.min(3, (typeof Progress !== "undefined" && Progress.cur) ? (Progress.cur.unlocked || 1) : store.get("unlocked", 1)));
 const vcache = new Map();
-function getVideo(name) {
+function primeVideoEl(v) {
+  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.autoplay = false;
+  v.setAttribute("playsinline", ""); v.setAttribute("webkit-playsinline", ""); v.setAttribute("muted", "");
+  v.setAttribute("disablepictureinpicture", ""); v.setAttribute("preload", "auto");
+  v.preload = "auto";
+}
+function videoUrl(name, bust) {
+  return ASSET(name + ".mp4") + (bust ? ("?r=" + bust) : "");
+}
+function wireVideoSrc(v, name, bust) {
+  const src = videoUrl(name, bust);
+  while (v.firstChild) v.removeChild(v.firstChild);
+  const s = document.createElement("source"); s.src = src; s.type = "video/mp4";
+  v.appendChild(s); v.src = src; try { delete v.dataset.bad; } catch (e) {}
+  try { v.load(); } catch (e) {}
+}
+function getVideo(name, bust) {
   let v = vcache.get(name);
+  if (v && (v.error || v.dataset.bad === "1")) {
+    try { v.removeAttribute("src"); v.load(); } catch (e) {}
+    vcache.delete(name); v = null;
+  }
   if (!v) {
     v = document.createElement("video");
-    v.muted = true; v.defaultMuted = true; v.playsInline = true;
-    v.setAttribute("playsinline", ""); v.setAttribute("webkit-playsinline", ""); v.setAttribute("muted", ""); v.setAttribute("disablepictureinpicture", "");
-    v.preload = "auto"; v.src = ASSET(name + ".mp4"); vcache.set(name, v);
+    primeVideoEl(v);
+    wireVideoSrc(v, name, bust);
+    vcache.set(name, v);
+  } else {
+    primeVideoEl(v);
+    if (bust) wireVideoSrc(v, name, bust);
+    else if (!v.src && !v.currentSrc) wireVideoSrc(v, name);
   }
   return v;
 }
+function unlockMedia() {
+  unlockAudio();
+  try {
+    const v = getVideo("setup-l1");
+    const p = v.play();
+    if (p && p.then) p.then(() => { try { v.pause(); v.currentTime = 0; } catch (e) {} }).catch(() => {});
+  } catch (e) {}
+}
 function preloadLevel(lv) {
   const L = LVI(G.episode, lv); if (!L) return;
-  getVideo(L.win); const im = new Image(); im.src = ASSET(L.lose + ".jpg");
-  const nx = LVI(G.episode, lv + 1); if (nx) getVideo(nx.setup);
+  getVideo(L.setup); getVideo(L.win); const im = new Image(); im.src = ASSET(L.lose + ".jpg");
+  const nx = LVI(G.episode, lv + 1); if (nx) { getVideo(nx.setup); getVideo(nx.win); }
+}
+function preloadBoot() {
+  try { preloadBoot(); } catch (e) {}
 }
 const Cine = (() => {
   const root = document.getElementById("cine");
@@ -1558,12 +1683,12 @@ const Cine = (() => {
       const un = unlocked();
       const btns = un < 2 ? '<button class="tstart cprimary" data-cine="ep" data-epi="0">▶&nbsp; Start the expedition</button>'
         : '<div class="tpick">Choose your episode</div>' + EP_INFO.slice(0, un).map((E, i) => '<button class="tep" data-cine="ep" data-epi="' + i + '"><b>Episode ' + (i + 1) + ": " + E.name + "</b><span>" + (EPISODES[i].secs / 60) + ":00 per problem" + (E.soon ? " · " + E.soon : "") + "</span></button>").join("");
-      show('<div class="cscreen title"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo">MAN <span>vs.</span> MATH</div><div class="tsub">Surviving Long Division</div>' + (Progress.cur ? '<div class="tplayer">Playing as <b>' + escH(Progress.cur.name) + '</b> <button data-cine="switch">Switch player</button></div>' : "") + '<div class="tbtns">' + btns + '</div><div class="tnote">Best with sound on 🔊</div></div></div>');
+      show('<div class="cscreen title"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo"><span class="tl1">MAN <span>vs.</span></span><span class="tl2">MATH</span></div><div class="tsub">Surviving Long Division</div>' + (Progress.cur ? '<div class="tplayer">Playing as <b>' + escH(Progress.cur.name) + '</b> <button data-cine="switch">Switch player</button></div>' : "") + '<div class="tbtns">' + btns + '</div><div class="tnote">Best with sound on 🔊</div></div></div>');
       let go = false;
       onBtn = (k, b) => {
         if (k === "switch" && !go) { go = true; res("switch"); return; }
         if (k !== "ep" || go) return; go = true;
-        const ep = +b.dataset.epi; unlockAudio(); Music.play("theme"); haptic(15);
+        const ep = +b.dataset.epi; unlockMedia(); Music.play("theme"); haptic(15);
         const sc = root.querySelector(".cscreen"); if (sc) sc.classList.add("go");
         setTimeout(() => res(ep), 1800 * Math.max(ANIM, 0.05));
       };
@@ -1578,26 +1703,77 @@ const Cine = (() => {
   function map(ep, lv, mo) {
     return new Promise(res => {
       const choice = !!(mo && mo.choice);
-      const E = EP_INFO[ep] || EP_INFO[0], L = LVI(ep, lv), MAP_PTS = E.pts || JUNGLE_PTS, mapImg = E.map || "map-jungle";
+      const showSave = !!(mo && mo.showSave);
+      const E = EP_INFO[ep] || EP_INFO[0], L = LVI(ep, lv);
+      const MAP_PTS = E.pts || JUNGLE_PTS, mapImg = E.map || "map-jungle-wide", labs = E.lab || [];
+      const levels = LVS(ep);
       const soon = E.mapSoon !== undefined ? (L.placeholder ? E.mapSoon : "") : E.soon;
-      let svg = "";
-      for (let k = 0; k < lv; k++) segDots(MAP_PTS[k], MAP_PTS[k + 1], k).forEach(p => { svg += '<circle class="dot old" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="6"/>'; });
-      segDots(MAP_PTS[lv], MAP_PTS[lv + 1], lv).forEach(p => { svg += '<circle class="dot nd" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="8"/>'; });
-      svg += '<g class="mk start" transform="translate(' + MAP_PTS[0][0] + "," + MAP_PTS[0][1] + ')"><circle class="ring" r="17"/><text style="font-size:18px">★</text></g>';
-      for (let i = 1; i <= 4; i++) {
-        const st = i <= lv ? "done" : i === lv + 1 ? "cur" : "todo";
-        svg += '<g class="mk ' + st + '" transform="translate(' + MAP_PTS[i][0] + "," + MAP_PTS[i][1] + ')">' + (st === "cur" ? '<circle class="pulse" r="24"/>' : "") + '<circle class="ring" r="23"/><text>' + (st === "done" ? "✓" : i) + "</text></g>";
-      }
-      show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 768 1024" preserveAspectRatio="none">' + svg +
-        '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + L.name + "</div></div>" +
-        (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Leaderboard">🏆</button>' +
-        (choice ? '<div class="mchoice"><button class="mcbtn cprimary" data-cine="mcont">Continue ▶</button><button class="mcbtn sec" data-cine="msave">Save for Later</button></div>' : "") + "</div></div>");
-      const dots = Array.from(root.querySelectorAll(".dot.nd")); let i = 0, fin = false, arrived = false, timers = [];
-      const done = v => { if (fin) return; fin = true; timers.forEach(clearTimeout); res(v || "continue"); };
+      let fin = false, arrived = false, timers = [], dots = [], i = 0, resizeT = 0;
+      const done = v => {
+        if (fin) return; fin = true; timers.forEach(clearTimeout); clearTimeout(resizeT);
+        window.removeEventListener("resize", onResize); window.removeEventListener("orientationchange", onResize);
+        Ambience.stop(0.45); res(v || "continue");
+      };
       const finish = () => { if (fin) return; if (choice) { const c = root.querySelector(".mchoice"); if (c) c.classList.add("show"); } else done(); };
-      const arrive = () => { if (arrived) return; arrived = true; const m = root.querySelector(".mk.cur"); if (m) m.classList.add("arrived"); SFX.place(); timers.push(setTimeout(finish, (choice ? 500 : 1500) * Math.max(ANIM, 0.05))); };
-      const step = () => { if (i < dots.length) { dots[i++].classList.add("on"); SFX.dot(i); timers.push(setTimeout(step, 170 * ANIM)); } else arrive(); };
-      timers.push(setTimeout(step, 1100 * ANIM));
+      const arrive = () => { if (arrived) return; arrived = true; const m = root.querySelector(".mk.cur"); if (m) m.classList.add("arrived"); SFX.place(); timers.push(setTimeout(finish, (choice ? 450 : 1200) * Math.max(ANIM, 0.05))); };
+      const step = () => {
+        if (i < dots.length) { dots[i++].classList.add("on"); SFX.dot(i); Ambience.step(); timers.push(setTimeout(step, 170 * ANIM)); }
+        else arrive();
+      };
+      function curvePath(pts) {
+        let d = "M " + pts[0][0] + " " + pts[0][1];
+        for (let k = 0; k < pts.length - 1; k++) {
+          const a = pts[k], b = pts[k + 1], dx = b[0] - a[0], dy = b[1] - a[1], s = (k % 2 ? 1 : -1) * 0.22;
+          d += " Q " + ((a[0] + b[0]) / 2 - dy * s).toFixed(1) + " " + ((a[1] + b[1]) / 2 + dx * s).toFixed(1) + " " + b[0] + " " + b[1];
+        }
+        return d;
+      }
+      function buildSvg() {
+        const full = MAP_PTS.slice(0, 5);
+        const trailD = curvePath(full);
+        let svg = '<path class="trail-outline" d="' + trailD + '"/><path class="trail-path" d="' + trailD + '"/>';
+        for (let k = 0; k < lv; k++) segDots(MAP_PTS[k], MAP_PTS[k + 1], k).forEach(p => { svg += '<circle class="dot old" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="6"/>'; });
+        segDots(MAP_PTS[lv], MAP_PTS[lv + 1], lv).forEach(p => { svg += '<circle class="dot nd" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="8"/>'; });
+        svg += '<g class="mk start" transform="translate(' + MAP_PTS[0][0] + "," + MAP_PTS[0][1] + ')"><circle class="ring" r="17"/><text style="font-size:18px">★</text></g>';
+        for (let n = 1; n <= 4; n++) {
+          const st = n <= lv ? "done" : n === lv + 1 ? "cur" : "todo";
+          svg += '<g class="mk ' + st + '" transform="translate(' + MAP_PTS[n][0] + "," + MAP_PTS[n][1] + ')">' + (st === "cur" ? '<circle class="pulse" r="24"/>' : "") + '<circle class="ring" r="23"/><text>' + (st === "done" ? "✓" : n) + "</text></g>";
+        }
+        for (let n = 1; n <= 4; n++) {
+          const nm = (levels[n - 1] && levels[n - 1].name) || ("Level " + n);
+          const st = n <= lv ? "done" : n === lv + 1 ? "cur" : "todo";
+          const off = labs[n] || [0, 55];
+          const lx = MAP_PTS[n][0] + off[0], ly = MAP_PTS[n][1] + off[1];
+          const tw = Math.max(110, nm.length * 13 + 28);
+          svg += '<g class="mlab ' + st + '" transform="translate(' + lx + "," + ly + ')"><rect x="' + (-tw / 2) + '" y="-18" width="' + tw + '" height="36"/><text>' + nm.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text></g>";
+        }
+        // start label
+        const soff = labs[0] || [0, 55];
+        svg += '<g class="mlab done" transform="translate(' + (MAP_PTS[0][0] + soff[0]) + "," + (MAP_PTS[0][1] + soff[1]) + ')"><rect x="-52" y="-18" width="104" height="36"/><text>Start</text></g>';
+        return svg;
+      }
+      function render(keepProgress) {
+        timers.forEach(clearTimeout); timers = [];
+        const prevI = i, prevArrived = arrived, hadProgress = keepProgress;
+        show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 1536 864" preserveAspectRatio="none">' + buildSvg() +
+          '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + L.name + "</div></div>" +
+          (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Leaderboard">🏆</button>' +
+          (choice ? '<div class="mchoice"><button class="mcbtn cprimary" data-cine="mcont">Continue ▶</button>' + (showSave ? '<button class="mcbtn sec" data-cine="msave">Save for Later</button>' : "") + "</div>" : "") + "</div></div>");
+        dots = Array.from(root.querySelectorAll(".dot.nd"));
+        if (hadProgress) {
+          if (prevArrived || prevI >= dots.length) { dots.forEach(d => d.classList.add("on")); i = dots.length; arrive(); }
+          else { i = Math.min(prevI, dots.length); arrived = false; for (let k = 0; k < i; k++) dots[k].classList.add("on"); step(); }
+        } else {
+          i = 0; arrived = false;
+          timers.push(setTimeout(step, 900 * ANIM));
+        }
+      }
+      const onResize = () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!fin) render(true); }, 140); };
+      window.addEventListener("resize", onResize);
+      window.addEventListener("orientationchange", onResize);
+      try { Music.stop(0.85); } catch (e) {}
+      Ambience.start(ep);
+      render(false);
       onTap = () => { if (fin) return; if (i < dots.length) { timers.forEach(clearTimeout); timers = []; dots.forEach(d => d.classList.add("on")); i = dots.length; arrive(); } else finish(); };
       onSkip = () => done("continue");
       onBtn = k => { if (k === "lb") { openBoard(); return; } if (k === "mcont") { SFX.step(); done("continue"); } if (k === "msave") { SFX.step(); done("save"); } };
@@ -1609,20 +1785,94 @@ const Cine = (() => {
       const poster = ASSET(name + "-poster.jpg");
       show('<div class="cscreen vid ' + (opts.kind || "") + '"><div class="cbg" style="background-image:url(\'' + poster + '\')"></div><div class="vwrap"></div>' +
         (opts.cap ? '<div class="ccap">' + opts.cap + "</div>" : "") + (opts.skippable || DEV ? '<button class="cskip" data-cine="skip">Skip ▸</button>' : "") + "</div>");
-      const wrap = root.querySelector(".vwrap"), v = getVideo(name);
-      v.className = "cv"; v.poster = poster; wrap.appendChild(v);
-      let fin = false, started = false, fell = false; const timers = [];
-      const finish = () => { if (fin) return; fin = true; timers.forEach(clearTimeout); v.onended = v.onerror = v.onplaying = null; try { v.pause(); } catch (e) {} res(); };
-      const fallback = () => {
+      let v = getVideo(name);
+      const wrap = root.querySelector(".vwrap");
+      v.className = "cv"; v.poster = poster; v.style.opacity = "0"; wrap.appendChild(v);
+      const loadEl = document.createElement("div"); loadEl.className = "vload"; loadEl.innerHTML = '<div class="spin" aria-hidden="true"></div>';
+      wrap.appendChild(loadEl);
+      let fin = false, started = false, fell = false, waitingTap = false, ready = false, retried = false; const timers = [];
+      const clearUI = () => { if (loadEl.parentNode) loadEl.remove(); const t = wrap.querySelector(".vtap"); if (t) t.remove(); };
+      const showSpinner = () => { if (!loadEl.parentNode) wrap.appendChild(loadEl); const t = wrap.querySelector(".vtap"); if (t) t.remove(); waitingTap = false; };
+      const finish = () => {
+        if (fin) return; fin = true; timers.forEach(clearTimeout); clearUI();
+        v.onended = v.onerror = v.onplaying = v.oncanplay = v.oncanplaythrough = v.onloadeddata = null;
+        try { v.pause(); } catch (e) {} res();
+      };
+      const hardFallback = () => {
         if (fin || fell) return; fell = true; try { v.pause(); } catch (e) {}
+        try { v.dataset.bad = "1"; } catch (e) {}
+        clearUI();
         wrap.innerHTML = '<img class="cv kb" src="' + poster + '" alt="">';
         timers.push(setTimeout(finish, opts.kind === "win" ? 7000 : 4500));
       };
-      v.onended = finish; v.onerror = fallback; v.onplaying = () => { started = true; };
-      try { v.currentTime = 0; } catch (e) {}
-      if (v.error) fallback();
-      else { let p; try { p = v.play(); } catch (e) { fallback(); } if (p && p.catch) p.catch(() => { if (!started) fallback(); }); }
-      timers.push(setTimeout(() => { if (!started) fallback(); }, TUNE.clipStall));
+      const showTap = () => {
+        if (fin || fell || started || waitingTap) return; waitingTap = true;
+        if (loadEl.parentNode) loadEl.remove();
+        const tap = document.createElement("div"); tap.className = "vtap"; tap.setAttribute("role", "button"); tap.setAttribute("aria-label", "Tap to play");
+        tap.innerHTML = '<div class="playbtn">▶</div><div class="playlab">Tap to play</div>';
+        const tryPlay = e => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          unlockAudio(); showSpinner();
+          const go = () => { const p = v.play(); if (p && p.catch) p.catch(() => { if (!started) showTap(); }); };
+          if (v.readyState >= 2) go(); else {
+            const once = () => { v.removeEventListener("canplay", once); go(); };
+            v.addEventListener("canplay", once); try { v.load(); } catch (err) {}
+          }
+        };
+        tap.addEventListener("click", tryPlay); tap.addEventListener("touchend", tryPlay, { passive: false });
+        wrap.appendChild(tap); onTap = tryPlay;
+      };
+      const markPlaying = () => {
+        if (started) return; started = true; waitingTap = false; clearUI(); onTap = null;
+        v.style.opacity = "1";
+      };
+      const attemptPlay = () => {
+        if (fin || fell || started || waitingTap) return;
+        if (v.error) { onDecodeError(); return; }
+        let p; try { p = v.play(); } catch (e) { showTap(); return; }
+        if (p && p.catch) p.catch(err => {
+          if (started || fin || fell) return;
+          const en = (err && err.name) || "";
+          if (en === "NotAllowedError" || /interact|user|gesture|autoplay/i.test(String(err && err.message || err))) showTap();
+          else if (en === "AbortError") { /* ignore transient abort while seeking/loading */ }
+          else onDecodeError();
+        });
+      };
+      const onReady = () => {
+        if (fin || fell || started) return;
+        ready = true;
+        attemptPlay();
+      };
+      const onDecodeError = () => {
+        if (fin || fell || started) return;
+        if (!retried) {
+          retried = true; ready = false; showSpinner();
+          try { v.onended = v.onerror = v.onplaying = v.oncanplay = v.oncanplaythrough = v.onloadeddata = null; } catch (e) {}
+          vcache.delete(name);
+          v = getVideo(name, Date.now());
+          v.className = "cv"; v.poster = poster; v.style.opacity = "0";
+          wrap.innerHTML = ""; wrap.appendChild(v); wrap.appendChild(loadEl);
+          bind(); trySeek();
+          return;
+        }
+        hardFallback();
+      };
+      const bind = () => {
+        v.onended = finish;
+        v.onerror = () => { if (!started) onDecodeError(); };
+        v.onplaying = markPlaying;
+        v.oncanplaythrough = onReady;
+        v.oncanplay = () => { if (v.readyState >= 3) onReady(); };
+        v.onloadeddata = () => { if (v.readyState >= 3) onReady(); };
+      };
+      const trySeek = () => { try { if (v.currentTime > 0.05) v.currentTime = 0; } catch (e) {} };
+      bind(); trySeek();
+      if (v.readyState >= 3) onReady();
+      else showSpinner();
+      // Slow load: keep spinner (never Ken Burns). After stall, offer Tap to play so a gesture can resume.
+      timers.push(setTimeout(() => { if (!started && !waitingTap && !fell) { if (ready || v.readyState >= 2) showTap(); } }, TUNE.clipStall));
+      // Still waiting long after that: keep offering tap, do NOT still-frame.
+      timers.push(setTimeout(() => { if (!started && !fell && !waitingTap) showTap(); }, TUNE.clipStall + 15000));
       timers.push(setTimeout(finish, TUNE.clipCap));
       onSkip = finish;
     });
@@ -1646,8 +1896,10 @@ async function beginLevel(ep, lv, keep, opts) {
   opts = opts || {};
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; G.episode = ep; G.level = lv; render();
+  try { const pre = LVI(ep, lv); if (pre) getVideo(pre.setup); } catch (e) {}
   if (!opts.noMap) {
-    Music.play("theme"); const ch = await Cine.map(ep, lv, { choice: !!opts.between }); if (tok !== flowTok) return;
+    const showSave = !(ep === 0 && lv === 0);
+    const ch = await Cine.map(ep, lv, { choice: true, showSave: showSave }); if (tok !== flowTok) return;
     if (ch === "save") { const who = Progress.cur ? Progress.cur.name : ""; await Progress.saveLater(ep, lv, G.strength); Progress.logout(); alertToast("Saved! See you next time" + (who ? ", " + who : "") + "."); runTitle(); return; }
   }
   const L = LVI(ep, lv);
@@ -1661,6 +1913,7 @@ async function beginLevel(ep, lv, keep, opts) {
 }
 async function winLevel() {
   const tok = ++flowTok;
+  try { preloadLevel(G.level); const nx = LVI(G.episode, G.level + 1); if (nx) { getVideo(nx.setup); getVideo(nx.win); } } catch (e) {}
   const from = G.strength; G.strength = Math.min(100, G.strength + 30);
   const lastLevel = G.level + 1 >= LEVELS.length, lastEp = G.episode + 1 >= EPISODES.length;
   const type = !lastLevel ? "level" : lastEp ? "all" : "episode";
@@ -1898,6 +2151,7 @@ let pgHandler = null;
 document.getElementById("cine").addEventListener("click", e => { const b = e.target.closest("[data-pg]"); if (b && pgHandler) pgHandler(b.dataset.pg, b, e); });
 async function loginScreen() {
   await dbReady;
+  preloadBoot();
   const players = await DB.players().catch(() => ({}));
   const names = Object.values(players).filter(p => p && p.name).sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(p => p.name);
   return new Promise(res => {
@@ -1915,10 +2169,10 @@ async function loginScreen() {
     document.getElementById("lgform").addEventListener("submit", e => {
       e.preventDefault(); const n = normName(inp.value);
       if (!n) { msg.className = "lgmsg bad"; msg.textContent = "Type your first name and last initial, like Sam T."; inp.focus(); return; }
-      pgHandler = null; res({ name: n });
+      unlockMedia(); pgHandler = null; res({ name: n });
     });
     pgHandler = (k, b) => {
-      if (k === "pick") { pgHandler = null; res({ name: b.dataset.name }); }
+      if (k === "pick") { unlockMedia(); pgHandler = null; res({ name: b.dataset.name }); }
       if (k === "teacher") { pgHandler = null; res({ teacher: true }); }
       if (k === "lbtab") { view = b.dataset.v; document.getElementById("lbbox").innerHTML = lbHtml(players, view); }
     };
@@ -1934,7 +2188,7 @@ function resumeScreen(r) {
         '<div class="rsmeter"><div class="meterbar"><div class="fillbar" style="width:' + r.strength + "%;background:" + meterColor(r.strength) + '"></div></div><span>' + Math.round(r.strength) + "% strength</span></div>") +
       '<div class="rsbtns">' + (r.done ? "" : '<button class="tstart cprimary" data-pg="continue">▶&nbsp; Continue</button>') +
       '<button class="rsalt' + (r.done ? " cprimary" : "") + '" data-pg="choose">Choose an episode</button><button class="rsalt" data-pg="board">🏆 Leaderboard</button><button class="rsalt" data-pg="switch">Not ' + escH(r.name) + "? Switch player</button></div></div></div></div>");
-    pgHandler = k => { if (k === "board") { openBoard(); return; } pgHandler = null; res(k); };
+    pgHandler = k => { if (k === "board") { openBoard(); return; } if (k === "continue" || k === "choose") unlockMedia(); pgHandler = null; res(k); };
   });
 }
 async function teacherFlow() {
@@ -2020,6 +2274,14 @@ async function devSolve() {
   return "solved " + P.D + "/" + P.d;
 }
 if (DEV) {
+  const mapQ = new URLSearchParams(location.search).get("map");
+  if (mapQ != null) {
+    const parts = mapQ.split(/[,:]/).map(n => +n || 0);
+    const ep = Math.max(0, Math.min(2, parts[0])), lv = Math.max(0, Math.min(3, parts[1] || 0));
+    try { ANIM = 0.001; } catch (e) {}
+    setTimeout(() => { try { window.__MVM && window.__MVM.setAnim && window.__MVM.setAnim(0.001); } catch (e) {}
+      Cine.map(ep, lv, { choice: true, showSave: !(ep === 0 && lv === 0) }); }, 200);
+  }
   const d = document.createElement("div"); d.id = "devp";
   d.innerHTML = 'DEV <select id="dv-ep"><option value="0">E1</option><option value="1">E2</option><option value="2">E3</option></select><select id="dv-lv"><option value="0">L1</option><option value="1">L2</option><option value="2">L3</option><option value="3">L4</option></select>' +
     '<button data-dev="go">Go (map+clip)</button><button data-dev="direct">Go (no clips)</button><button data-dev="skip">Skip clip</button><button data-dev="solve">Solve</button><button data-dev="win">Win level</button><button data-dev="lose">Lose</button><button data-dev="time">Time→12s</button><button data-dev="unlock">Unlock all</button><button data-dev="reset">Reset unlock</button><button data-dev="logout">Log out</button><button data-dev="clearpin">Clear teacher PIN</button><button data-dev="hide">×</button>';
