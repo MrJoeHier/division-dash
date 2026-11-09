@@ -826,7 +826,7 @@ function overlayNext() {
   if (o.type === "level") { beginLevel(G.episode, G.level + 1, true); return; }
   if (o.type === "episode") { beginLevel(G.episode + 1, 0, true); return; }
   if (o.type === "all") { runTitle(); return; }
-  if (o.type === "over" || o.type === "timeup") { beginLevel(G.episode, G.level, false, { noMap: true, replay: true }); return; }
+  if (o.type === "over" || o.type === "timeup") { beginLevel(G.episode, 0, false, { replay: true }); return; }
   if (o.type === "settings") { G.overlay = o.prev || null; render(); return; }
 }
 
@@ -1101,11 +1101,11 @@ function renderOverlay() {
     h = '<div class="epbadge">🎉</div><h1>Episode ' + (G.episode + 1) + " complete!</h1><p>You escaped " + EP_INFO[G.episode].name.toLowerCase() + "! Level 4: " + tot + " of " + G.problems.length * 3 + " stars.</p>" + refillHtml(o) +
       '<p class="epnext">Episode ' + (G.episode + 2) + ": " + EP_INFO[G.episode + 1].name + " — same four levels, but only <b>" + nx + ":00</b> per problem.</p>" + '<button class="big" data-act="next">Start Episode ' + (G.episode + 2) + ' ▶</button><div class="autonote">Starts automatically in a few seconds…</div>';
   } else if (o.type === "timeup") {
-    h = '<div class="epbadge">⏰</div><h2>Time\'s up!</h2><p>E' + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". You have " + fmtTime(EPISODES[G.episode].secs) + " per problem. Recharge to 100% and try again with fresh problems.</p>" + '<button class="big" data-act="next">Retry level ' + (G.level + 1) + "</button>";
+    h = '<div class="epbadge">⏰</div><h2>Time\'s up!</h2><p>E' + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". You have " + fmtTime(EPISODES[G.episode].secs) + " per problem. Recharge to 100% and start the episode over from Level 1.</p>" + '<button class="big" data-act="next">Start over from Level 1</button>';
   } else if (o.type === "all") {
     h = '<div class="epbadge">🏆</div><h1>Man vs. Math Champion!</h1><p>You survived all three episodes — every level, against the clock.</p>' + refillHtml(o) + '<button class="big" data-act="next">Back to the title</button>';
   } else if (o.type === "over") {
-    h = "<h2>Out of strength</h2>" + '<div class="refill"><div class="meterbar"><div class="fillbar" style="width:0%"></div></div><div class="pct">0%</div></div>' + "<p>E" + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". Recharge to 100% and try again with fresh problems.</p>" + '<button class="big" data-act="next">Retry level ' + (G.level + 1) + "</button>";
+    h = "<h2>Out of strength</h2>" + '<div class="refill"><div class="meterbar"><div class="fillbar" style="width:0%"></div></div><div class="pct">0%</div></div>' + "<p>E" + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". Recharge to 100% and start the episode over from Level 1.</p>" + '<button class="big" data-act="next">Start over from Level 1</button>';
   } else if (o.type === "settings") {
     h = "<h2>Settings</h2>" +
       '<div class="set-row"><label>Answer format</label><div class="seg">' +
@@ -1526,7 +1526,7 @@ async function loseFlow(reason) {
   Music.play("lose");
   await Cine.lose(G.level, reason);
   if (tok !== flowTok) return;
-  beginLevel(G.episode, G.level, false, { noMap: true, replay: true });
+  beginLevel(G.episode, 0, false, { replay: true });
 }
 async function runTitle() {
   const tok = ++flowTok;
