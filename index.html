@@ -301,25 +301,35 @@ svg.bracket .vleaf, svg.bracket .vtex, svg.bracket .vcurl { display:none; }
 img.cv.kb { animation:kb 9s ease-out forwards; }
 @keyframes kb { from { transform:scale(1); } to { transform:scale(1.14) translateY(-1%); } }
 /* strength power-up banner (map / header) */
-.strboost { position:fixed; left:50%; top:max(18px, env(safe-area-inset-top)); transform:translateX(-50%); z-index:120; width:min(420px, 92vw); pointer-events:none;
-  display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 18px 16px; border-radius:18px;
-  background:linear-gradient(180deg, rgba(18,10,4,.92), rgba(40,22,8,.88)); border:2px solid #f3c65a; box-shadow:0 12px 40px rgba(0,0,0,.55), 0 0 28px rgba(243,198,90,.35);
+.strboost { position:fixed; left:max(14px, 2vw); right:auto; bottom:max(118px, calc(14vh + env(safe-area-inset-bottom))); top:auto; transform:none; z-index:120; width:min(340px, 42vw); pointer-events:none; overflow:visible;
+  display:flex; flex-direction:column; align-items:center; gap:8px; padding:28px 18px 14px; border-radius:18px;
+  background:linear-gradient(180deg, rgba(18,10,4,.94), rgba(40,22,8,.9)); border:2px solid #f3c65a; box-shadow:0 12px 40px rgba(0,0,0,.55), 0 0 28px rgba(243,198,90,.35);
   animation:strIn .45s cubic-bezier(.2,1.4,.4,1) both; }
 .strboost.go { animation:strOut .5s ease-in forwards; }
-@keyframes strIn { from { opacity:0; transform:translateX(-50%) translateY(-18px) scale(.92); } to { opacity:1; transform:translateX(-50%) translateY(0) scale(1); } }
-@keyframes strOut { to { opacity:0; transform:translateX(-50%) translateY(-12px) scale(.96); } }
+@keyframes strIn { from { opacity:0; transform:translateY(18px) scale(.92); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes strOut { to { opacity:0; transform:translateY(14px) scale(.96); } }
 .strboost .sblbl { font-weight:900; letter-spacing:.06em; color:#fff3d0; font-size:0.95rem; text-transform:uppercase; }
-.strboost .sbbar { position:relative; width:100%; height:28px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden; box-shadow:inset 0 2px 6px rgba(0,0,0,.45); }
+.strboost .sbbar { position:relative; width:100%; height:28px; border-radius:999px; background:rgba(255,255,255,.12); overflow:visible; box-shadow:inset 0 2px 6px rgba(0,0,0,.45); margin-top:10px; }
 .strboost .sbbar .sbfill { height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg, #2f9a5a, #f3c65a 70%, #ffe9a0);
-  box-shadow:0 0 16px rgba(243,198,90,.75), 0 0 8px rgba(47,154,90,.6); transition:none; }
+  box-shadow:0 0 16px rgba(243,198,90,.75), 0 0 8px rgba(47,154,90,.6); transition:none; overflow:hidden; }
 .strboost .sbbar.pulse .sbfill { animation:sbPulse 1.1s ease-in-out infinite; }
 @keyframes sbPulse { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.25); } }
 .strboost .sbpct { font-weight:900; font-size:1.55rem; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 2px 8px rgba(0,0,0,.6); }
-.strboost .sbbadge { position:absolute; right:10px; top:-18px; padding:6px 12px; border-radius:999px; font-weight:900; font-size:1.05rem;
-  background:linear-gradient(180deg,#ffe9a0,#f3c65a); color:#3a2208; box-shadow:0 6px 16px rgba(0,0,0,.4); animation:badgePop .55s cubic-bezier(.2,1.6,.4,1) both; }
+.strboost .sbbadge { position:absolute; right:8px; top:-22px; padding:6px 12px; border-radius:999px; font-weight:900; font-size:1.05rem;
+  background:linear-gradient(180deg,#ffe9a0,#f3c65a); color:#3a2208; box-shadow:0 6px 16px rgba(0,0,0,.4); animation:badgePop .55s cubic-bezier(.2,1.6,.4,1) both; z-index:2; }
 @keyframes badgePop { 0% { opacity:0; transform:translateY(10px) scale(.4); } 60% { transform:translateY(-6px) scale(1.12); } 100% { opacity:1; transform:translateY(0) scale(1); } }
 .strboost .sbbadge.float { animation:badgeFloat 2.2s ease-out forwards; }
-@keyframes badgeFloat { to { transform:translateY(-28px); opacity:0; } }
+@keyframes badgeFloat { to { transform:translateY(-36px); opacity:0; } }
+/* When the map is up, keep the boost clear of the title banner and the bottom-right Continue stack */
+.cscreen.map ~ * .strboost, body:has(#cine:not([hidden]) .cscreen.map) .strboost {
+  left:max(18px, 2.2vw); right:auto; bottom:max(150px, calc(18vh + env(safe-area-inset-bottom)));
+  width:min(320px, 38vw); transform:none; overflow:visible;
+}
+@media (max-aspect-ratio: 3/4) {
+  .cscreen.map ~ * .strboost, body:has(#cine:not([hidden]) .cscreen.map) .strboost {
+    left:50%; transform:translateX(-50%); width:min(340px, 86vw); bottom:max(160px, calc(20vh + env(safe-area-inset-bottom)));
+  }
+}
 
 .vload, .vtap { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:2; pointer-events:none; }
 .vtap { pointer-events:auto; cursor:pointer; background:rgba(0,0,0,.28); }
@@ -386,8 +396,8 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .mapbox .mname { font-size:clamp(0.8rem, 2.3vh, 1.15rem); }
 .mapbox .mlb { right:2%; bottom:2%; min-width:48px; height:48px; font-size:1.2rem; }
 @keyframes mapIn { from { opacity:0; transform:scale(1.08) rotate(-1.5deg); } to { opacity:1; transform:none; } }
-.trail-outline { fill:none; stroke:#2a1608; stroke-width:16; stroke-linecap:round; stroke-linejoin:round; opacity:.62; }
-.trail-path { fill:none; stroke:#e8c48a; stroke-width:9; stroke-linecap:round; stroke-linejoin:round; opacity:.95; }
+.trail-outline { fill:none; stroke:#3a2410; stroke-width:11; stroke-linecap:round; stroke-linejoin:round; opacity:.42; }
+.trail-path { fill:none; stroke:#d2a86a; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; opacity:.72; }
 .mlab rect { fill:rgba(20,12,4,.78); stroke:#f3c65a; stroke-width:2; rx:10; }
 .mlab text { fill:#fff3d0; font:800 20px "Cinzel MVM", Georgia, serif; text-anchor:middle; dominant-baseline:central; }
 .mlab.cur rect { fill:rgba(140,30,18,.88); stroke:#ffd43b; }
@@ -1737,53 +1747,53 @@ document.addEventListener("visibilitychange", () => { if (!AC) return; try { if 
 const ASSET = n => "assets/" + n;
 const DEV = /[?&]dev=1\b/.test(location.search);
 const EP_INFO = [
-  { name: "The Jungle", filter: "", soon: "", map: "map-jungle-wide", rendezvous: "Seaplane Rendezvous",
-    pts: [[768, 805], [455, 705], [1035, 435], [405, 305], [775, 245]],
-    lab: [[110, 10], [-105, 35], [85, 45], [-115, 25], [0, 58]],
+  { name: "The Jungle", filter: "", soon: "", map: "map-jungle-wide", rendezvous: "The Lagoon",
+    pts: [[768, 820], [690, 700], [1100, 470], [380, 340], [790, 235]],
+    lab: [[125, -5], [50, 55], [75, 40], [-115, 25], [10, 55]],
     path: [
-      [768,805],[740,795],[700,785],[650,775],[600,760],[550,745],[500,725],[470,715],[455,705],
-      [470,680],[510,650],[560,620],[620,590],[680,560],[740,530],[800,505],[860,480],[920,460],[980,445],[1035,435],
-      [1000,415],[940,395],[870,375],[790,355],[710,340],[620,325],[530,315],[460,310],[405,305],
-      [450,290],[520,275],[590,265],[660,255],[720,250],[775,245]
+      [768,820],[750,805],[735,785],[720,760],[705,735],[695,715],[690,700],
+      [710,685],[760,670],[820,655],[880,635],[940,610],[990,580],[1040,545],[1075,510],[1100,470],
+      [1070,455],[1010,445],[940,435],[860,420],[780,405],[700,390],[620,375],[540,360],[460,350],[380,340],
+      [420,325],[490,310],[570,295],[650,280],[720,260],[760,245],[790,235]
     ] },
-  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", rendezvous: "Safari Truck",
-    pts: [[770, 810], [395, 700], [1125, 440], [385, 260], [910, 195]],
-    lab: [[115, 5], [-95, 40], [80, 48], [-110, 35], [20, 58]],
+  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", rendezvous: "The Ravine",
+    pts: [[760, 845], [735, 705], [1140, 490], [290, 275], [830, 205]],
+    lab: [[125, -5], [45, 52], [70, 42], [-105, 30], [15, 55]],
     path: [
-      [770,810],[720,795],[650,780],[560,760],[480,740],[420,720],[395,700],
-      [430,670],[500,640],[580,610],[670,580],[760,550],[860,520],[960,490],[1050,465],[1125,440],
-      [1060,410],[980,380],[880,350],[760,320],[640,295],[520,275],[440,265],[385,260],
-      [450,245],[540,230],[640,215],[740,205],[830,198],[910,195]
+      [760,845],[755,820],[748,790],[742,755],[738,730],[735,705],
+      [780,685],[850,660],[920,630],[990,595],[1050,555],[1100,520],[1140,490],
+      [1080,470],[1000,450],[900,425],[780,400],[650,370],[520,340],[400,310],[330,290],[290,275],
+      [350,260],[450,245],[560,230],[680,218],[760,210],[830,205]
     ] },
-  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", rendezvous: "Helicopter Rendezvous",
-    pts: [[768, 800], [430, 600], [1120, 420], [450, 340], [780, 230]],
-    lab: [[115, 5], [-100, 40], [75, 48], [-115, 35], [0, 58]],
+  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", rendezvous: "The Summit",
+    pts: [[768, 815], [420, 605], [1120, 430], [390, 345], [780, 225]],
+    lab: [[125, -5], [-105, 38], [70, 42], [-115, 32], [5, 55]],
     path: [
-      [768,800],[720,780],[650,750],[560,710],[490,660],[450,630],[430,600],
-      [480,575],[560,555],[660,530],[760,505],[870,480],[980,455],[1060,435],[1120,420],
-      [1050,400],[960,380],[850,365],[730,355],[600,348],[520,344],[450,340],
-      [500,320],[580,300],[660,280],[720,255],[780,230]
+      [768,815],[730,790],[670,755],[590,710],[510,660],[455,630],[420,605],
+      [470,585],[560,560],[670,535],[800,505],[940,470],[1040,450],[1120,430],
+      [1040,415],[920,395],[780,375],[620,360],[500,350],[390,345],
+      [460,320],[560,290],[660,265],[730,245],[780,225]
     ] }
 ];
 const LV_INFO = [
-  { name: "Gator River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across Gator River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
-  { name: "Boa Drop", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2", win: "win-l2", lose: "lose-l2" },
-  { name: "Jaguar Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
-  { name: "The Great Escape", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
+  { name: "Gator River", mapLabel: "The River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across Gator River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
+  { name: "Boa Drop", mapLabel: "Rocky Drop", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2", win: "win-l2", lose: "lose-l2" },
+  { name: "Jaguar Ridge", mapLabel: "The Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
+  { name: "The Great Escape", mapLabel: "The Lagoon", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
 ];
 const JUNGLE_PTS = EP_INFO[0].pts;
 const EP_LV = {
   1: [
-    { name: "Hippo River", brief: "Solve 4 problems to pole past the hippos!", winCap: "Across Hippo River!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
-    { name: "Tightrope Gorge", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2", win: "win-e2l2", lose: "lose-e2l2" },
-    { name: "Lion Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "Lion Crossing conquered!", setup: "setup-e2l3", win: "win-e2l3", lose: "lose-e2l3" },
-    { name: "Buffalo Ravine", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4", win: "win-e2l4", lose: "lose-e2l4" }
+    { name: "Hippo River", mapLabel: "The River", brief: "Solve 4 problems to pole past the hippos!", winCap: "Across Hippo River!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
+    { name: "Tightrope Gorge", mapLabel: "The Gorge", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2", win: "win-e2l2", lose: "lose-e2l2" },
+    { name: "Lion Crossing", mapLabel: "The Trail", brief: "Solve 4 problems to face down the lion!", winCap: "Lion Crossing conquered!", setup: "setup-e2l3", win: "win-e2l3", lose: "lose-e2l3" },
+    { name: "Buffalo Ravine", mapLabel: "The Ravine", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4", win: "win-e2l4", lose: "lose-e2l4" }
   ],
   2: [
-    { name: "The Climb", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1", win: "win-e3l1", lose: "lose-e3l1" },
-    { name: "Avalanche Run", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2", win: "win-e3l2", lose: "lose-e3l2" },
-    { name: "Campfire Wolves", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3", win: "win-e3l3", lose: "lose-e3l3" },
-    { name: "Wolf Chase", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4", win: "win-e3l4", lose: "lose-e3l4" }
+    { name: "The Climb", mapLabel: "The Climb", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1", win: "win-e3l1", lose: "lose-e3l1" },
+    { name: "Avalanche Run", mapLabel: "The Slope", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2", win: "win-e3l2", lose: "lose-e3l2" },
+    { name: "Campfire Wolves", mapLabel: "Campsite", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3", win: "win-e3l3", lose: "lose-e3l3" },
+    { name: "Wolf Chase", mapLabel: "The Summit", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4", win: "win-e3l4", lose: "lose-e3l4" }
   ]
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
@@ -1946,7 +1956,8 @@ const Cine = (() => {
         svg += '<g class="mlab done" transform="translate(' + (MAP_PTS[0][0] + soff[0]) + "," + (MAP_PTS[0][1] + soff[1]) + ')"><rect x="-48" y="-16" width="96" height="32"/><text style="font-size:18px">Start</text></g>';
         for (let n = 1; n <= 4; n++) {
           const isRv = n === 4;
-          const nm = isRv ? (E.rendezvous || ((levels[n - 1] && levels[n - 1].name) || ("Level " + n))) : ((levels[n - 1] && levels[n - 1].name) || ("Level " + n));
+          const Lv = levels[n - 1] || {};
+          const nm = isRv ? (E.rendezvous || Lv.mapLabel || Lv.name || ("Level " + n)) : (Lv.mapLabel || Lv.name || ("Level " + n));
           const st = n <= lv ? "done" : n === lv + 1 ? "cur" : "todo";
           const off = labs[n] || [0, 55];
           const lx = MAP_PTS[n][0] + off[0], ly = MAP_PTS[n][1] + off[1];
@@ -2491,9 +2502,16 @@ if (DEV) {
   if (mapQ != null) {
     const parts = mapQ.split(/[,:]/).map(n => +n || 0);
     const ep = Math.max(0, Math.min(2, parts[0])), lv = Math.max(0, Math.min(3, parts[1] || 0));
-    try { ANIM = 0.001; } catch (e) {}
-    setTimeout(() => { try { window.__MVM && window.__MVM.setAnim && window.__MVM.setAnim(0.001); } catch (e) {}
-      Cine.map(ep, lv, { choice: true, showSave: !(ep === 0 && lv === 0) }); }, 200);
+    const boostQ = new URLSearchParams(location.search).get("boost");
+    try { ANIM = boostQ ? 1 : 0.001; } catch (e) {}
+    setTimeout(() => { try { window.__MVM && window.__MVM.setAnim && window.__MVM.setAnim(boostQ ? 1 : 0.001); } catch (e) {}
+      Cine.map(ep, lv, { choice: true, showSave: !(ep === 0 && lv === 0) });
+      if (boostQ) {
+        const bp = boostQ.split(/[,:]/).map(n => +n);
+        const from = Number.isFinite(bp[0]) ? bp[0] : 40, to = Number.isFinite(bp[1]) ? bp[1] : 70;
+        setTimeout(() => { try { showStrengthBoost(from, to, { dur: 900, hold: 20000 }); } catch (e) {} }, 350);
+      }
+    }, 200);
   }
   const d = document.createElement("div"); d.id = "devp";
   d.innerHTML = 'DEV <select id="dv-ep"><option value="0">E1</option><option value="1">E2</option><option value="2">E3</option></select><select id="dv-lv"><option value="0">L1</option><option value="1">L2</option><option value="2">L3</option><option value="3">L4</option></select>' +
@@ -2524,6 +2542,7 @@ runTitle();
 preloadBoot();
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
+window.showStrengthBoost = showStrengthBoost;
 window.__MVM = { G, Cine, Music, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
 window.__DD = { G, EPISODES, render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
