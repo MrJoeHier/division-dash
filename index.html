@@ -1665,7 +1665,7 @@ function preloadLevel(lv) {
   const nx = LVI(G.episode, lv + 1); if (nx) { getVideo(nx.setup); getVideo(nx.win); }
 }
 function preloadBoot() {
-  try { preloadBoot(); } catch (e) {}
+  try { getVideo("setup-l1"); getVideo("win-l1"); } catch (e) {}
 }
 const Cine = (() => {
   const root = document.getElementById("cine");
@@ -2308,7 +2308,7 @@ if (DEV) {
 /* ================= boot ================= */
 G.problems = genLevel(0); startProblem(); G.overlay = { type: "cine" }; render();
 runTitle();
-getVideo("setup-l1"); getVideo("win-l1");
+preloadBoot();
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
 window.__MVM = { G, Cine, Music, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
