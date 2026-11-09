@@ -318,9 +318,9 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
   transform-origin:center center;
   animation:heroZoom 22s ease-out forwards;
 }
-@keyframes heroZoom { from { transform:scale(1.24) translateX(6%); } to { transform:scale(1.12) translateX(6%); } }
-@keyframes heroZoomPortrait { from { transform:scale(1.26) translateX(4%); } to { transform:scale(1.14) translateX(4%); } }
-@keyframes heroZoomWide { from { transform:scale(1.18) translateX(4%); } to { transform:scale(1.08) translateX(4%); } }
+@keyframes heroZoom { from { transform:scale(1.22) translateX(5%); } to { transform:scale(1.1) translateX(5%); } }
+@keyframes heroZoomPortrait { from { transform:scale(1.18) translateX(2%); } to { transform:scale(1.08) translateX(2%); } }
+@keyframes heroZoomWide { from { transform:scale(1.16) translateX(4%); } to { transform:scale(1.06) translateX(4%); } }
 .tgrad { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.12) 38%, rgba(0,0,0,.1) 58%, rgba(10,6,2,.88) 100%); }
 .tbox { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; padding:calc(7vh + env(safe-area-inset-top)) 20px calc(6vh + env(safe-area-inset-bottom)); text-align:center; }
 .tlogo, .tsub, .tplayer { align-self:flex-start; text-align:left; margin-left:clamp(6px, 2.4vw, 36px); margin-right:auto; }
@@ -331,15 +331,14 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
   filter:drop-shadow(0 4px 0 #3a2208) drop-shadow(0 12px 20px rgba(0,0,0,.75)); animation:logoIn 1.2s cubic-bezier(.2,1.4,.4,1) both; }
 .tlogo .tl1, .tlogo .tl2 { white-space:nowrap; }
 .tlogo .tl1 > span, .tlogo > span:not(.tl1):not(.tl2) { font-size:.48em; vertical-align:.35em; }
-/* Mid / portrait: stack title so face on the right stays clear; same font size */
-@media (max-width: 1499px), (max-aspect-ratio: 1/1) {
-  .cscreen.title .tlogo { flex-direction:column; align-items:flex-start; line-height:.9; gap:0; }
-}
+/* Stack title at every size (same font size) so the face on the right stays clear */
+.cscreen.title .tlogo { flex-direction:column; align-items:flex-start; line-height:.9; gap:0; }
+.cscreen.title .tsub { max-width:min(92vw, 12.5em); white-space:normal; line-height:1.2; }
 @media (max-aspect-ratio: 1/1) {
-  .cscreen.title img.hero { object-position:52% 26%; animation-name:heroZoomPortrait; }
+  .cscreen.title img.hero { object-position:58% 28%; animation-name:heroZoomPortrait; }
   .tlogo, .tsub, .tplayer { margin-left:clamp(10px, 3.5vw, 28px); }
 }
-@media (min-aspect-ratio: 16/10) and (min-width: 1500px) {
+@media (min-aspect-ratio: 16/10) {
   .cscreen.title img.hero { object-position:64% 34%; animation-name:heroZoomWide; }
 }
 @keyframes logoIn { from { opacity:0; transform:scale(.6) translateY(-20px); letter-spacing:.4em; } to { opacity:1; transform:none; } }
