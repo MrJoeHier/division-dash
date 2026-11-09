@@ -1523,7 +1523,7 @@ const EP_LV = {
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
 const LVI = (ep, lv) => LVS(ep)[lv];
-const TUNE = { loseHold: 3800, clipStall: 6000, clipCap: 16000 };
+const TUNE = { loseHold: 3800, clipStall: 6000, clipCap: 30000 };
 let flowTok = 0;
 const unlocked = () => Math.max(1, Math.min(3, (typeof Progress !== "undefined" && Progress.cur) ? (Progress.cur.unlocked || 1) : store.get("unlocked", 1)));
 const vcache = new Map();
