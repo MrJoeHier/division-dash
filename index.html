@@ -741,8 +741,9 @@ let AC = null, master = null;
 function audio() {
   if (!settings.sound) return null;
   try {
-    if (!AC) { try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); master = AC.createGain(); master.gain.value = 0.55; master.connect(AC.destination); }
-    if (AC.state === "suspended") AC.resume();
+    if (AC && AC.state === "closed") { AC = null; master = null; }
+    if (!AC) { try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); master = AC.createGain(); master.gain.value = 0.55; master.connect(AC.destination); watchAC(AC); }
+    if (AC.state === "suspended" || AC.state === "interrupted") { const p = AC.resume(); if (p && p.catch) p.catch(() => {}); }
   } catch (e) { return null; }
   return AC;
 }
@@ -752,7 +753,7 @@ function tone(f, t0, dur, type, g, f2) {
   o.type = type || "sine"; o.frequency.setValueAtTime(f, t);
   if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
   gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(g || 0.2, t + 0.012); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(gn); gn.connect(master); o.start(t); o.stop(t + dur + 0.05);
+  o.connect(gn); gn.connect(master); o.onended = () => { try { gn.disconnect(); } catch (e) {} }; o.start(t); o.stop(t + dur + 0.05);
 }
 function noise(t0, dur, g, freq) {
   const ac = audio(); if (!ac) return;
@@ -760,7 +761,7 @@ function noise(t0, dur, g, freq) {
   for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
   const src = ac.createBufferSource(), bp = ac.createBiquadFilter(), gn = ac.createGain();
   src.buffer = buf; bp.type = "bandpass"; bp.frequency.value = freq || 2500; bp.Q.value = 0.8; gn.gain.value = g || 0.1;
-  src.connect(bp); bp.connect(gn); gn.connect(master); src.start(ac.currentTime + t0);
+  src.connect(bp); bp.connect(gn); gn.connect(master); src.onended = () => { try { bp.disconnect(); gn.disconnect(); } catch (e) {} }; src.start(ac.currentTime + t0);
 }
 let streak = 0;
 const SCALE = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7, 1318.5, 1568, 1760];
@@ -804,6 +805,15 @@ const Ambience = (() => {
     if (ac.state === "suspended") { try { ac.resume(); } catch (e) {} }
     return ac;
   }
+  /* one-shot voices drop out of `nodes` (and the graph) as soon as they finish, so the list can't grow on the map */
+  function own(src, parts) {
+    nodes.push(src);
+    src.onended = () => { const i = nodes.indexOf(src); if (i >= 0) nodes.splice(i, 1); (parts || []).forEach(n => { try { n.disconnect(); } catch (e) {} }); try { src.disconnect(); } catch (e) {} };
+  }
+  function reboot() {
+    const e = ep; if (iv) { clearInterval(iv); iv = null; } g = null; nodes = []; ep = -1; gen++;
+    if (e >= 0) start(e);
+  }
   function noiseBed(ac, dest, type, freq, q, vol) {
     const len = ac.sampleRate * 2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
@@ -820,7 +830,7 @@ const Ambience = (() => {
     o.type = "sine"; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 1.4, t + 0.07); o.frequency.exponentialRampToValueAtTime(f0 * 0.85, t + 0.2);
     f.type = "bandpass"; f.frequency.value = f0; f.Q.value = 5;
     gg.gain.setValueAtTime(0.0001, t); gg.gain.exponentialRampToValueAtTime(v, t + 0.015); gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-    o.connect(f); f.connect(gg); gg.connect(g); o.start(t); o.stop(t + 0.25); nodes.push(o);
+    o.connect(f); f.connect(gg); gg.connect(g); o.start(t); o.stop(t + 0.25); own(o, [f, gg]);
   }
   function twitter(t) {
     const ac = AC; if (!ac || !g) return;
@@ -832,7 +842,7 @@ const Ambience = (() => {
     const o = ac.createOscillator(), gg = ac.createGain();
     o.type = "sine"; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 0.7, t + dur);
     gg.gain.setValueAtTime(0.0001, t); gg.gain.exponentialRampToValueAtTime(vol || 0.28, t + 0.08); gg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(gg); gg.connect(g); o.start(t); o.stop(t + dur + 0.05); nodes.push(o);
+    o.connect(gg); gg.connect(g); o.start(t); o.stop(t + dur + 0.05); own(o, [gg]);
   }
   function howl(t) {
     const ac = AC; if (!ac || !g) return;
@@ -842,7 +852,7 @@ const Ambience = (() => {
     o2.frequency.setValueAtTime(210, t); o2.frequency.linearRampToValueAtTime(310, t + 0.55); o2.frequency.linearRampToValueAtTime(190, t + 1.4);
     f.type = "lowpass"; f.frequency.value = 900;
     gg.gain.setValueAtTime(0.0001, t); gg.gain.exponentialRampToValueAtTime(0.2, t + 0.12); gg.gain.setValueAtTime(0.16, t + 0.9); gg.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
-    o.connect(f); o2.connect(f); f.connect(gg); gg.connect(g); o.start(t); o2.start(t); o.stop(t + 1.55); o2.stop(t + 1.55); nodes.push(o, o2);
+    o.connect(f); o2.connect(f); f.connect(gg); gg.connect(g); o.start(t); o2.start(t); o.stop(t + 1.55); o2.stop(t + 1.55); own(o); own(o2, [f, gg]);
   }
   function water(t) {
     if (!settings.sound) return;
@@ -901,7 +911,7 @@ const Ambience = (() => {
     tone(95 + Math.random() * 35, 0, 0.09, "triangle", 0.12);
     tone(180 + Math.random() * 40, 0.02, 0.06, "sine", 0.05);
   }
-  return { start, stop, step, ensureAC, get live() { return !!(g && nodes.length); }, get gain() { return g ? g.gain.value : 0; }, get nodeCount() { return nodes.length; } };
+  return { start, stop, step, ensureAC, reboot, get live() { return !!(g && nodes.length); }, get gain() { return g ? g.gain.value : 0; }, get nodeCount() { return nodes.length; } };
 })();
 const canVibrate = typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
 function haptic(p) { if (settings.haptics && canVibrate) { try { navigator.vibrate(p); } catch (e) {} } }
@@ -1558,39 +1568,47 @@ let lastTouch = 0;
 document.addEventListener("touchend", e => { const now = Date.now(); if (now - lastTouch < 320 && e.target.closest("button, .tap")) { e.preventDefault(); e.target.click && e.target.closest("button, .tap").click(); } lastTouch = now; }, { passive: false });
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (G.P) render(); }, 80); });
 
-/* ================= orchestral music (original, synthesized live with WebAudio) ================= */
+/* ================= orchestral music (original, synthesized with WebAudio, pre-rendered per cue) ================= */
 const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 const Music = (() => {
-  let bus = null, send = null, nbuf = null, cur = null, iv = null;
+  /* Each cue is pre-rendered ONCE (same instruments, reverb and compressor) into an AudioBuffer with an
+     OfflineAudioContext, then played through a single AudioBufferSourceNode. Synthesizing ~100 voices live
+     (plus a 3 s convolver) overloaded the iPad audio thread mid-game: the music stuttered, then Safari's
+     AudioContext died and took every sound effect with it. */
+  let X = null, nbuf = null, cur = null;
+  const bufs = {}, pending = {}, queue = [];
+  let busy = false;
   function impulse(ac, secs, decay) {
     const len = Math.floor(ac.sampleRate * secs), b = ac.createBuffer(2, len, ac.sampleRate), pre = Math.floor(ac.sampleRate * 0.015);
     for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < len; i++) { d[i] = i < pre ? 0 : (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay) * (i < pre * 3 ? (i - pre) / (pre * 2) : 1); } }
     return b;
   }
-  function init(ac) {
-    if (bus) return;
+  /* the original live mix chain, rebuilt inside the offline context: cue gain -> (dry bus + reverb send) -> compressor */
+  function chain(ac, cueGain) {
     const comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 3.5; comp.attack.value = 0.008; comp.release.value = 0.3;
-    comp.connect(master);
-    bus = ac.createGain(); bus.gain.value = 0.9; bus.connect(comp);
+    comp.connect(ac.destination);
+    const bus = ac.createGain(); bus.gain.value = 0.9; bus.connect(comp);
     const rev = ac.createConvolver(); rev.buffer = impulse(ac, 3.0, 2.4);
     const rlp = ac.createBiquadFilter(); rlp.type = "lowpass"; rlp.frequency.value = 5200;
-    send = ac.createGain(); send.gain.value = 0.42; send.connect(rlp); rlp.connect(rev); rev.connect(comp);
-    nbuf = ac.createBuffer(1, ac.sampleRate * 3, ac.sampleRate); const d = nbuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const send = ac.createGain(); send.gain.value = 0.42; send.connect(rlp); rlp.connect(rev); rev.connect(comp);
+    const g = ac.createGain(); g.gain.value = cueGain; g.connect(bus); g.connect(send);
+    const nb = ac.createBuffer(1, ac.sampleRate * 3, ac.sampleRate); const d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return { g, nb };
   }
   /* ---- instruments ---- */
   function nz(o, t, dur, v, type, freq, q) {
-    const ac = AC, s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    const ac = X, s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
     s.buffer = nbuf; f.type = type; f.frequency.value = freq; f.Q.value = q || 0.7;
     g.gain.setValueAtTime(Math.max(0.0002, v), t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     s.connect(f); f.connect(g); g.connect(o); s.start(t, Math.random() * 0.4); s.stop(t + dur + 0.05);
   }
   function vib(t, end, depth, rate, delay) {
-    const ac = AC, l = ac.createOscillator(), g = ac.createGain();
+    const ac = X, l = ac.createOscillator(), g = ac.createGain();
     l.frequency.value = rate || 5.4; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(depth, t + (delay || 0.4)); l.connect(g); l.start(t); l.stop(end); return g;
   }
   const I = {
     brass(o, t, m, dur, v) {
-      const ac = AC, f = mtof(m), lp = ac.createBiquadFilter(), g = ac.createGain(), hold = Math.max(t + 0.3, t + dur), end = hold + 0.32;
+      const ac = X, f = mtof(m), lp = ac.createBiquadFilter(), g = ac.createGain(), hold = Math.max(t + 0.3, t + dur), end = hold + 0.32;
       lp.type = "lowpass"; lp.Q.value = 1.3;
       lp.frequency.setValueAtTime(320, t); lp.frequency.linearRampToValueAtTime(900 + 2700 * v, t + 0.06); lp.frequency.exponentialRampToValueAtTime(700 + 1500 * v, t + 0.42);
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.11 * v, t + 0.045); g.gain.exponentialRampToValueAtTime(0.078 * v, t + 0.3);
@@ -1600,7 +1618,7 @@ const Music = (() => {
       lp.connect(g); g.connect(o);
     },
     strings(o, t, m, dur, v, att, trem) {
-      const ac = AC, f = mtof(m), lp = ac.createBiquadFilter(), g = ac.createGain(), a = att || 0.3, hold = t + Math.max(dur, a), end = hold + 0.7;
+      const ac = X, f = mtof(m), lp = ac.createBiquadFilter(), g = ac.createGain(), a = att || 0.3, hold = t + Math.max(dur, a), end = hold + 0.7;
       lp.type = "lowpass"; lp.frequency.value = 1300 + 1600 * v; lp.Q.value = 0.5;
       g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.042 * v, t + a); g.gain.setValueAtTime(0.042 * v, hold); g.gain.linearRampToValueAtTime(0.0001, end);
       const vg = vib(t, end, 7, 5.7, 0.5);
@@ -1610,7 +1628,7 @@ const Music = (() => {
       lp.connect(dst); g.connect(o);
     },
     timp(o, t, m, v) {
-      const ac = AC, f = mtof(m), x = ac.createOscillator(), g = ac.createGain(), x2 = ac.createOscillator(), g2 = ac.createGain();
+      const ac = X, f = mtof(m), x = ac.createOscillator(), g = ac.createGain(), x2 = ac.createOscillator(), g2 = ac.createGain();
       x.type = "sine"; x.frequency.setValueAtTime(f * 1.22, t); x.frequency.exponentialRampToValueAtTime(f, t + 0.07);
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5 * v, t + 0.007); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
       x2.type = "sine"; x2.frequency.value = f * 1.504; g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(0.16 * v, t + 0.007); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
@@ -1619,25 +1637,25 @@ const Music = (() => {
     },
     snare(o, t, v) {
       nz(o, t, 0.17, 0.2 * v, "highpass", 1500);
-      const ac = AC, x = ac.createOscillator(), g = ac.createGain(); x.type = "triangle"; x.frequency.setValueAtTime(205, t); x.frequency.exponentialRampToValueAtTime(160, t + 0.08);
+      const ac = X, x = ac.createOscillator(), g = ac.createGain(); x.type = "triangle"; x.frequency.setValueAtTime(205, t); x.frequency.exponentialRampToValueAtTime(160, t + 0.08);
       g.gain.setValueAtTime(0.14 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1); x.connect(g); g.connect(o); x.start(t); x.stop(t + 0.12);
     },
     crash(o, t, v) { nz(o, t, 2.6, 0.15 * v, "highpass", 5200); nz(o, t, 1.3, 0.07 * v, "bandpass", 3200, 0.5); },
     tom(o, t, f, v) {
-      const ac = AC, x = ac.createOscillator(), g = ac.createGain();
+      const ac = X, x = ac.createOscillator(), g = ac.createGain();
       x.type = "sine"; x.frequency.setValueAtTime(f * 1.7, t); x.frequency.exponentialRampToValueAtTime(f, t + 0.11);
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.42 * v, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
       x.connect(g); g.connect(o); x.start(t); x.stop(t + 0.6); nz(o, t, 0.05, 0.12 * v, "lowpass", 900);
     },
     pluck(o, t, m, v) {
-      const ac = AC, f = mtof(m), x = ac.createOscillator(), y = ac.createOscillator(), g = ac.createGain(), h = ac.createGain();
+      const ac = X, f = mtof(m), x = ac.createOscillator(), y = ac.createOscillator(), g = ac.createGain(), h = ac.createGain();
       x.type = "sine"; x.frequency.value = f; y.type = "triangle"; y.frequency.value = f * 2;
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.11 * v, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
       h.gain.setValueAtTime(0.0001, t); h.gain.exponentialRampToValueAtTime(0.035 * v, t + 0.004); h.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
       x.connect(g); y.connect(h); g.connect(o); h.connect(o); x.start(t); y.start(t); x.stop(t + 1.35); y.stop(t + 0.4);
     },
     sq(o, t, m, dur, v, bend) {
-      const ac = AC, f = mtof(m), x = ac.createOscillator(), x2 = ac.createOscillator(), lp = ac.createBiquadFilter(), g = ac.createGain(), end = t + dur;
+      const ac = X, f = mtof(m), x = ac.createOscillator(), x2 = ac.createOscillator(), lp = ac.createBiquadFilter(), g = ac.createGain(), end = t + dur;
       x.type = "square"; x2.type = "sawtooth"; x.frequency.setValueAtTime(f, t); x2.frequency.setValueAtTime(f / 2, t);
       if (bend) { x.frequency.setValueAtTime(f, end - Math.min(0.12, dur * 0.4)); x.frequency.exponentialRampToValueAtTime(f * bend, end); x2.frequency.setValueAtTime(f / 2, end - Math.min(0.12, dur * 0.4)); x2.frequency.exponentialRampToValueAtTime(f * bend / 2, end); }
       if (dur > 0.6) { const vg = vib(t, end + 0.1, 45, 6.5, 0.25); vg.connect(x.detune); vg.connect(x2.detune); }
@@ -1728,44 +1746,134 @@ const Music = (() => {
       [[0, .3, 67], [.34, .3, 66], [.68, .3, 65], [1.02, 1.05, 64]].forEach(([s, d, m], i) => { at(s, (o, t) => I.sq(o, t, m, d, 1, i < 3 ? 0.95 : 0.84)); at(s, (o, t) => I.brass(o, t, m - 12, d * 0.95, 0.45)); at(s, (o, t) => I.tom(o, t, 130 - i * 14, 0.6)); });
       at(1.02, (o, t) => I.tom(o, t, 82, 0.5)); at(1.2, (o, t) => I.tom(o, t, 82, 0.45));
       at(2.15, (o, t) => { I.timp(o, t, 38, 1); nz(o, t, 0.6, 0.06, "bandpass", 700, 1.5); });
-      at(2.3, (o, t) => { const ac = AC, x = ac.createOscillator(), g = ac.createGain(); x.type = "square"; x.frequency.setValueAtTime(660, t); x.frequency.exponentialRampToValueAtTime(70, t + 0.55); g.gain.setValueAtTime(0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); x.connect(g); g.connect(o); x.start(t); x.stop(t + 0.62); });
+      at(2.3, (o, t) => { const ac = X, x = ac.createOscillator(), g = ac.createGain(); x.type = "square"; x.frequency.setValueAtTime(660, t); x.frequency.exponentialRampToValueAtTime(70, t + 0.55); g.gain.setValueAtTime(0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); x.connect(g); g.connect(o); x.start(t); x.stop(t + 0.62); });
     })
   };
-  function pump() {
-    if (!cur || !AC) return;
-    const ac = AC, c = cur, ev = c.cue.events, horizon = ac.currentTime + 0.9;
-    for (let guard = 0; guard < 600; guard++) {
-      if (c.idx >= ev.length) { if (c.cue.loop) { c.idx = 0; c.iter++; } else return; }
-      const e = ev[c.idx], T = c.t0 + c.iter * c.cue.len + e[0];
-      if (T > horizon) return;
-      if (T > ac.currentTime - 0.12) { try { e[1](c.g, Math.max(T, ac.currentTime + 0.004)); } catch (x) {} }
-      c.idx++;
-    }
+  const TAIL = 5; /* seconds of note release + reverb after the last event */
+  function renderCue(name) {
+    const cue = CUES[name], O = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!cue || !O) return Promise.reject(new Error("no offline audio"));
+    const sr = AC ? AC.sampleRate : 48000, total = Math.ceil((cue.len + TAIL) * sr);
+    const oc = new O(2, total, sr), ch = chain(oc, cue.gain), ev = cue.events;
+    let i = 0;
+    const feed = upTo => { X = oc; nbuf = ch.nb; try { while (i < ev.length && ev[i][0] < upTo) { try { ev[i][1](ch.g, ev[i][0] + 0.004); } catch (e) {} i++; } } finally { X = null; nbuf = null; } };
+    /* schedule events in 1 s windows (keeps the offline graph small and fast); one shot if suspend() is missing */
+    const W = 1;
+    if (typeof oc.suspend === "function") {
+      feed(2 * W);
+      for (let t = W; t < cue.len + 0.001; t += W) { const tt = t; try { oc.suspend(tt).then(() => { feed(tt + 2 * W); oc.resume(); }); } catch (e) { feed(Infinity); break; } }
+    } else feed(Infinity);
+    return new Promise((res, rej) => {
+      let done = false; const ok = b => { if (!done) { done = true; res(b); } };
+      oc.oncomplete = e => ok(e.renderedBuffer);
+      try { const pr = oc.startRendering(); if (pr && pr.then) pr.then(ok, rej); } catch (e) { rej(e); }
+    }).then(r => {
+      if (!cue.loop) return { buf: r, loop: false };
+      /* loop buffer = [clean first pass][pass with the previous pass's tail wrapped in]; we loop the second half,
+         so the very first start has no stray tail and every loop seam carries the real reverb tail. */
+      const Ls = Math.round(cue.len * sr), out = oc.createBuffer(2, Ls * 2, sr);
+      for (let c = 0; c < 2; c++) {
+        const src = r.getChannelData(c), dst = out.getChannelData(c);
+        dst.set(src.subarray(0, Ls), 0); dst.set(src.subarray(0, Ls), Ls);
+        for (let k = Ls; k < src.length; k += Ls) { const n = Math.min(Ls, src.length - k); for (let j = 0; j < n; j++) dst[Ls + j] += src[k + j]; }
+      }
+      return { buf: out, loop: true, loopStart: Ls / sr, loopEnd: 2 * Ls / sr };
+    });
+  }
+  /* one render at a time (theme first), so pre-rendering never competes with itself */
+  function pumpQueue() {
+    if (busy) return;
+    while (queue.length && bufs[queue[0]]) queue.shift();
+    const name = queue.shift(); if (!name) return;
+    busy = true;
+    renderCue(name).then(b => { bufs[name] = b; }, e => { try { console.warn("music render failed", name, e); } catch (x) {} })
+      .then(() => { busy = false; const w = pending[name]; delete pending[name]; if (w) w.forEach(f => { try { f(); } catch (e) {} }); pumpQueue(); });
+  }
+  function want(name, cb) {
+    if (bufs[name]) { cb(); return; }
+    (pending[name] = pending[name] || []).push(cb);
+    const k = queue.indexOf(name); if (k >= 0) queue.splice(k, 1);
+    queue.unshift(name); pumpQueue();
+  }
+  function prerender() { ["theme", "bed", "suspense", "win", "lose"].forEach(n => { if (!bufs[n] && queue.indexOf(n) < 0) queue.push(n); }); pumpQueue(); }
+  function startSrc(c) {
+    if (cur !== c || c.src || !AC || c.ac !== AC) return;
+    const b = bufs[c.name]; if (!b) return;
+    try {
+      const s = AC.createBufferSource(); s.buffer = b.buf;
+      if (b.loop) { s.loop = true; s.loopStart = b.loopStart; s.loopEnd = b.loopEnd; }
+      s.connect(c.g); s.onended = () => { if (c.src === s) { c.done = true; try { s.disconnect(); } catch (e) {} } };
+      s.start(Math.max(AC.currentTime + 0.02, c.t0)); c.src = s;
+    } catch (e) {}
+  }
+  function kill(c, f) {
+    const ac = c.ac;
+    try { const n = ac.currentTime; c.g.gain.cancelScheduledValues(n); c.g.gain.setValueAtTime(Math.max(0.0001, c.g.gain.value), n); c.g.gain.linearRampToValueAtTime(0.0001, n + f); } catch (e) {}
+    setTimeout(() => { try { c.src && c.src.stop(); } catch (e) {} try { c.src && c.src.disconnect(); } catch (e) {} try { c.g.disconnect(); } catch (e) {} }, (f + 0.1) * 1000);
   }
   function stop(fade) {
-    if (!cur) return; const c = cur; cur = null; const f = fade || 0.45;
-    if (AC) { const n = AC.currentTime; try { c.g.gain.cancelScheduledValues(n); c.g.gain.setValueAtTime(c.g.gain.value, n); c.g.gain.linearRampToValueAtTime(0.0001, n + f); } catch (e) {} }
-    setTimeout(() => { try { c.g.disconnect(); } catch (e) {} }, (f + 3.5) * 1000);
+    if (!cur) return; const c = cur; cur = null;
+    kill(c, fade || 0.45);
   }
   function play(name) {
     const cue = CUES[name]; if (!cue) return;
     if (!settings.music) { stop(); return; }
     const ac = audio(); if (!ac) { stop(); return; }
-    init(ac);
-    if (cur && cur.name === name && cue.loop) return;
+    if (cur && cur.name === name && cue.loop && cur.ac === ac) return;
     stop(name === "lose" || name === "win" ? 0.25 : 0.7);
-    const g = ac.createGain(); g.gain.value = cue.gain; g.connect(bus); g.connect(send);
-    cur = { name, cue, g, t0: ac.currentTime + 0.08, iter: 0, idx: 0 };
-    pump(); if (!iv) iv = setInterval(pump, 120);
+    const g = ac.createGain(); g.gain.value = 1; g.connect(master);
+    const c = cur = { name, g, ac, src: null, done: false, t0: ac.currentTime + 0.08 };
+    want(name, () => startSrc(c));
+    prerender();
   }
-  return { play, stop, get current() { return cur ? cur.name : null; }, CUES };
+  /* AudioContext was rebuilt: drop nodes from the dead context and restart the current cue on the new one */
+  function reboot() {
+    const c = cur; cur = null; if (!c) return;
+    try { c.src && c.src.stop(); } catch (e) {} try { c.g.disconnect(); } catch (e) {}
+    if (!c.done || CUES[c.name].loop) play(c.name);
+  }
+  return { play, stop, prerender, reboot, get current() { return cur ? cur.name : null; }, get playing() { return !!(cur && cur.src && !cur.done); }, get ready() { return Object.keys(bufs); }, CUES, _bufs: bufs };
 })();
 function unlockAudio() {
+  kickAudio();
   const ac = audio(); if (!ac) return;
   try { const b = ac.createBuffer(1, 1, 22050), s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0); } catch (e) {}
 }
+/* ---- audio recovery: resume a suspended/interrupted context on the next tap; rebuild it if it is closed,
+   resume fails or hangs, or its clock has frozen (iOS can leave a context "running" but dead). ---- */
+let acStalled = false, acLastT = -1, acStallN = 0, acHidden = false, acKickBusy = false;
+function rebuildAudio() {
+  const old = AC; AC = null; master = null; acStalled = false; acStallN = 0; acLastT = -1;
+  try { if (old && old.state !== "closed") old.close(); } catch (e) {}
+  if (!audio()) return;
+  try { Ambience.reboot(); } catch (e) {}
+  try { Music.reboot(); } catch (e) {}
+}
+function kickAudio() {
+  if (!settings.sound || !AC) return;
+  const ac = AC;
+  if (ac.state === "closed" || acStalled) { rebuildAudio(); return; }
+  if (ac.state === "running" || acKickBusy) return;
+  acKickBusy = true;
+  let settled = false;
+  const fail = () => { if (settled) return; settled = true; acKickBusy = false; if (AC === ac && ac.state !== "running" && !document.hidden) rebuildAudio(); };
+  const to = setTimeout(fail, 1500);
+  try {
+    const p = ac.resume();
+    if (p && p.then) p.then(() => { if (settled) return; settled = true; clearTimeout(to); acKickBusy = false; if (AC === ac && ac.state !== "running" && !document.hidden) rebuildAudio(); }, () => { clearTimeout(to); fail(); });
+  } catch (e) { clearTimeout(to); fail(); }
+}
+function watchAC(ac) {
+  try { ac.addEventListener("statechange", () => { if (AC !== ac) return; if (ac.state !== "running" && ac.state !== "closed" && !acHidden && !document.hidden) { try { ac.resume().catch(() => {}); } catch (e) {} } }); } catch (e) {}
+}
+setInterval(() => {
+  const ac = AC; if (!ac || document.hidden || ac.state !== "running") { acStallN = 0; acLastT = -1; return; }
+  const t = ac.currentTime;
+  if (t === acLastT) { if (++acStallN >= 4) acStalled = true; } else { acStallN = 0; acStalled = false; }
+  acLastT = t;
+}, 1000);
 ["touchend", "pointerup", "keydown"].forEach(ev => document.addEventListener(ev, unlockAudio, { capture: true, passive: true }));
-document.addEventListener("visibilitychange", () => { if (!AC) return; try { if (document.hidden) AC.suspend(); else AC.resume(); } catch (e) {} });
+document.addEventListener("visibilitychange", () => { acHidden = document.hidden; if (!AC) return; try { if (document.hidden) AC.suspend(); else AC.resume(); } catch (e) {} });
 
 /* ================= cinematics: title, map, clips, lose screen ================= */
 const ASSET = n => "assets/" + n;
@@ -2694,6 +2802,7 @@ if (DEV) {
 G.problems = genLevel(0); startProblem(); G.overlay = { type: "cine" }; render();
 runTitle();
 preloadBoot();
+setTimeout(() => { try { Music.prerender(); } catch (e) {} }, 400);
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
 window.showStrengthBoost = showStrengthBoost;
