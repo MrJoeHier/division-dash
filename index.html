@@ -437,8 +437,9 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .cscreen.lose::before { content:''; position:absolute; left:0; right:0; top:0; height:34vh; z-index:1; pointer-events:none; background:linear-gradient(rgba(0,0,0,.72), rgba(0,0,0,.35) 60%, transparent); }
 .cscreen.lose::after { content:''; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
 .ylose { position:absolute; z-index:2; top:calc(6vh + env(safe-area-inset-top)); left:0; right:0; text-align:center; font-family:"Arcade MVM", "Courier New", monospace; font-size:clamp(2.6rem, 8.6vw, 6.4rem); line-height:1.1;
-  color:#ffd43b; text-shadow:4px 4px 0 #c1121f, 8px 8px 0 #3a0a06, 0 0 34px rgba(0,0,0,.8); letter-spacing:.04em; animation:yloseIn .45s .25s cubic-bezier(.2,.9,.3,1) both; }
-@keyframes yloseIn { from { opacity:0; transform:scale(2.2); } to { opacity:1; transform:none; } }
+  color:#ffd43b; text-shadow:4px 4px 0 #c1121f, 8px 8px 0 #3a0a06, 0 0 34px rgba(0,0,0,.8); letter-spacing:.04em; animation:yloseIn .7s .25s cubic-bezier(.2,1.8,.4,1) both, yloseWob 1.4s 1.1s ease-in-out infinite; }
+@keyframes yloseIn { from { opacity:0; transform:scale(3) rotate(-8deg); } to { opacity:1; transform:none; } }
+@keyframes yloseWob { 0%,100% { transform:rotate(-2deg) scale(1); } 50% { transform:rotate(2deg) scale(1.04); } }
 .lreason { position:absolute; z-index:2; top:calc(6vh + clamp(2.6rem, 8.6vw, 6.4rem) * 1.25 + 2vh + env(safe-area-inset-top)); left:0; right:0; text-align:center; font-family:"Arcade MVM", "Courier New", monospace;
   font-size:clamp(.9rem, 1.9vw, 1.35rem); color:#fff; text-shadow:3px 3px 0 #000; animation:fadeUp .5s .8s both; }
 .again { position:absolute; z-index:2; bottom:calc(5vh + env(safe-area-inset-bottom)); left:50%; min-height:78px; padding:0 44px; border-radius:20px; border:3px solid #ffd43b; background:linear-gradient(#e0342a, #9b1410); color:#fff;
