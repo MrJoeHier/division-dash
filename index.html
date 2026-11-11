@@ -345,13 +345,13 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 /* title */
 .cscreen.title img.hero {
   position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; object-position:60% 30%;
-  transform-origin:center center;
+  object-fit:cover; object-position:68% 18%;
+  transform-origin:70% 80%;
   animation:heroZoom 22s ease-out forwards;
 }
-@keyframes heroZoom { from { transform:scale(1.22) translateX(5%); } to { transform:scale(1.1) translateX(5%); } }
-@keyframes heroZoomPortrait { from { transform:scale(1.18) translateX(2%); } to { transform:scale(1.08) translateX(2%); } }
-@keyframes heroZoomWide { from { transform:scale(1.16) translateX(4%); } to { transform:scale(1.06) translateX(4%); } }
+@keyframes heroZoom { from { transform:scale(1.06) translateX(1%); } to { transform:scale(1.03) translateX(0%); } }
+@keyframes heroZoomPortrait { from { transform:scale(1.04) translateX(0); } to { transform:scale(1.02) translateX(0); } }
+@keyframes heroZoomWide { from { transform:scale(1.05) translateX(1%); } to { transform:scale(1.02) translateX(0); } }
 .tgrad { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.12) 38%, rgba(0,0,0,.1) 58%, rgba(10,6,2,.88) 100%); }
 .tbox { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; padding:calc(7vh + env(safe-area-inset-top)) 20px calc(6vh + env(safe-area-inset-bottom)); text-align:center; }
 .tlogo, .tsub, .tplayer { align-self:flex-start; text-align:left; margin-left:clamp(6px, 2.4vw, 36px); margin-right:auto; }
@@ -366,11 +366,18 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .cscreen.title .tlogo { flex-direction:column; align-items:flex-start; line-height:.9; gap:0; }
 .cscreen.title .tsub { max-width:min(92vw, 12.5em); white-space:normal; line-height:1.2; }
 @media (max-aspect-ratio: 1/1) {
-  .cscreen.title img.hero { object-position:58% 28%; animation-name:heroZoomPortrait; }
+  .cscreen.title img.hero { object-position:88% 10%; animation-name:heroZoomPortrait; }
   .tlogo, .tsub, .tplayer { margin-left:clamp(10px, 3.5vw, 28px); }
 }
+@media (max-width: 600px) and (max-aspect-ratio: 1/1) {
+  .cscreen.title img.hero { object-position:80% 10%; }
+  .cscreen.title .tbox { padding-top: calc(2.2vh + env(safe-area-inset-top)); }
+  .cscreen.title .tlogo { font-size:1.85rem; line-height:.88; }
+  .cscreen.title .tsub { font-size:.72rem; }
+  .cscreen.title .tlogo, .cscreen.title .tsub, .cscreen.title .tplayer { max-width:58vw; }
+}
 @media (min-aspect-ratio: 16/10) {
-  .cscreen.title img.hero { object-position:64% 34%; animation-name:heroZoomWide; }
+  .cscreen.title img.hero { object-position:70% 16%; animation-name:heroZoomWide; }
 }
 @keyframes logoIn { from { opacity:0; transform:scale(.6) translateY(-20px); letter-spacing:.4em; } to { opacity:1; transform:none; } }
 .tsub { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(1.05rem, 2.9vw, 2.1rem); letter-spacing:.2em; text-transform:uppercase; color:#fbeccb; text-shadow:0 2px 8px #000; margin-top:12px; animation:fadeUp .9s .6s both; }
@@ -394,7 +401,7 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .mapbox .mep { font-size:clamp(0.65rem, 1.9vh, 0.95rem); letter-spacing:.18em; }
 .mapbox .mlv { font-size:clamp(1.15rem, 4.2vh, 2.35rem); margin:.15vh 0; }
 .mapbox .mname { font-size:clamp(0.8rem, 2.3vh, 1.15rem); }
-.mapbox .mlb { right:2%; bottom:2%; min-width:48px; height:48px; font-size:1.2rem; }
+.mapbox .mlb { left:2%; right:auto; bottom:2.2%; min-width:48px; height:48px; font-size:1.2rem; }
 @keyframes mapIn { from { opacity:0; transform:scale(1.08) rotate(-1.5deg); } to { opacity:1; transform:none; } }
 .trail-outline, .trail-path { display:none; }
 .mlab rect { fill:rgba(20,12,4,.78); stroke:#f3c65a; stroke-width:2; rx:10; }
@@ -404,9 +411,22 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .mlab.todo { opacity:.88; }
 .mlab.rv text { fill:#ffe9a8; }
 .mk.rv .ring { fill:#7a1d12; stroke:#ffd43b; }
-.mchoice { position:absolute; left:auto; right:3%; bottom:11%; width:min(260px, 34%); display:flex; flex-direction:column; gap:10px; justify-content:flex-end; align-items:stretch; z-index:3; opacity:0; transform:translateY(16px); pointer-events:none; transition:opacity .35s, transform .35s cubic-bezier(.2,1.4,.4,1); }
+.mchoice { position:absolute; left:auto; right:1%; bottom:1.5%; width:auto; display:flex; flex-direction:column; align-items:center; z-index:4; opacity:0; transform:translateY(16px); pointer-events:none; transition:opacity .35s, transform .35s cubic-bezier(.2,1.4,.4,1); }
 .mchoice.show { opacity:1; transform:none; pointer-events:auto; }
-.mchoice .mcbtn { flex:0 0 auto; max-width:none; width:100%; min-height:58px; font-size:clamp(0.95rem, 2vh, 1.2rem); }
+.mcompass { position:relative; width:min(32vmin, 230px); height:min(32vmin, 230px); filter:drop-shadow(0 8px 18px rgba(0,0,0,.55)); }
+.mcompass-rose { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.mcompass-go { position:absolute; left:50%; top:50%; width:46%; height:46%; min-width:76px; min-height:76px; max-width:none; padding:6px 8px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:clamp(0.72rem, 2.1vmin, 1.02rem); letter-spacing:.04em; line-height:1.15; text-align:center; box-shadow:0 3px 0 #1f1208, 0 8px 16px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25); transform:translate(-50%,-50%); }
+.mcompass-go:active { transform:translate(-50%,-50%) translateY(3px); box-shadow:0 1px 0 #1f1208, 0 4px 10px rgba(0,0,0,.4); }
+.mcompass-save { position:absolute; left:50%; bottom:9%; transform:translateX(-50%); width:max-content; max-width:72%; min-height:28px; padding:4px 10px; border-radius:999px; font-size:clamp(0.58rem, 1.6vmin, 0.78rem); letter-spacing:.02em; box-shadow:0 3px 0 #1f1208, 0 6px 12px rgba(0,0,0,.4); }
+.mcompass-save:active { transform:translateX(-50%) translateY(2px); box-shadow:0 1px 0 #1f1208; }
+/* Phone portrait: keep the rose on the map's lower right, overflow into the letterbox for a larger tap target. Do not cover the map. */
+@media (max-width: 600px) and (max-aspect-ratio: 3/4) {
+  .mchoice { right:1%; left:auto; bottom:-36%; top:auto; transform:none; }
+  .mchoice.show { transform:none; }
+  .mcompass { width:min(38vw, 150px); height:min(38vw, 150px); }
+  .mcompass-go { min-width:64px; min-height:64px; }
+}
+
 .mapbox > img { position:absolute; inset:0; width:100%; height:100%; display:block; }
 .mapbox > svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
 .dot { fill:#e01b1b; stroke:#fff1cc; stroke-width:2.5; opacity:0; transform-box:fill-box; transform-origin:center; }
@@ -554,7 +574,7 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .atoast.out { opacity:0; transform:translateY(-10px); }
 @keyframes atIn { from { opacity:0; transform:translateY(-20px) scale(.9); } to { opacity:1; transform:none; } }
 /* map: leaderboard button + continue / save for later */
-.mlb { position:absolute; right:3%; bottom:3%; z-index:3; min-width:56px; height:56px; padding:0 14px; border-radius:999px; border:2px solid #f3c65a; background:rgba(20,12,4,.78); color:#fff3d0; font-size:1.4rem; box-shadow:0 6px 16px rgba(0,0,0,.5); }
+.mlb { position:absolute; left:2.2%; right:auto; bottom:2.4%; z-index:4; min-width:56px; height:56px; padding:0 14px; border-radius:999px; border:2px solid #f3c65a; background:rgba(20,12,4,.78); color:#fff3d0; font-size:1.4rem; box-shadow:0 6px 16px rgba(0,0,0,.5); }
 /* mchoice rules live with map styles */
 
 .mcbtn { flex:1; max-width:300px; min-height:74px; border-radius:18px; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(1.05rem, 2.3vh, 1.4rem); letter-spacing:.03em; border:2px solid #f3c65a; background:linear-gradient(#4f8a3c, #2f6b2a); color:#fff; box-shadow:0 6px 0 #1f1208, 0 12px 28px rgba(0,0,0,.6); }
@@ -598,6 +618,113 @@ body.ep-snow { background:#16293d;
 [data-theme] body.ep-snow .card { background:radial-gradient(ellipse at 50% 30%, #ffffff, #e2edf6); border:3px solid #4d7091; box-shadow:0 0 0 3px #12263a, 0 20px 60px rgba(0,0,0,.5); }
 [data-theme] body.ep-snow .card h1, [data-theme] body.ep-snow .card h2 { color:#17324c; }
 [data-theme] body.ep-snow .card p { color:#3c5670; }
+
+
+/* ===== map / workspace review additions (worktree only; not live until Joe approves) ===== */
+[data-theme="journal"] body.ep-savanna .cell.quo {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='w' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f6e4b8'/%3E%3Cstop offset='.55' stop-color='%23d2a45a'/%3E%3Cstop offset='1' stop-color='%239a6a28'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='10' y='10' width='80' height='80' rx='16' fill='url(%23w)' stroke='%235a3a10' stroke-width='4'/%3E%3Cpath d='M22 24 C40 16 62 16 78 26' fill='none' stroke='%23fff6d8' stroke-width='3' opacity='.55' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: 90% 90%; background-position: 50% 50%;
+  color: #2a1608; font-weight: 900;
+}
+[data-theme="journal"] body.ep-savanna svg.bracket path.vl { stroke:#7a5420; stroke-width:6; }
+[data-theme="journal"] body.ep-savanna svg.bracket .vtex { display:inline; stroke:#c4a050; stroke-width:2; fill:none; stroke-dasharray:8 8; stroke-linecap:round; }
+[data-theme="journal"] body.ep-savanna svg.bracket .vcurl { display:inline; stroke:#7a5420; stroke-width:3; fill:none; }
+[data-theme="journal"] body.ep-savanna svg.bracket .vleaf { display:none; }
+
+/* Ep3: each quotient box is a translucent ice block; frost around the quotient strip */
+[data-theme="journal"] body.ep-snow .cell.quo,
+body.ep-snow .cell.quo {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='i' x1='0' y1='0' x2='.28' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='.95'/%3E%3Cstop offset='.42' stop-color='%23d7eefc' stop-opacity='.88'/%3E%3Cstop offset='1' stop-color='%237eafd0' stop-opacity='.82'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='8' width='88' height='84' rx='10' fill='url(%23i)' stroke='%23e8f6ff' stroke-width='4'/%3E%3Cpath d='M20 24 C40 14 62 14 80 26' fill='none' stroke='%23fff' stroke-width='3.4' opacity='.9' stroke-linecap='round'/%3E%3Cpath d='M16 80 L84 80' stroke='%235e92b4' stroke-width='2' opacity='.4'/%3E%3Cpath d='M78 20 L86 28 M72 16 L82 26' stroke='%23fff' stroke-width='1.6' opacity='.7' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: 94% 92%; background-position: 50% 50%;
+  color: #071c2e; font-weight: 900;
+  text-shadow: 0 1px 0 rgba(255,255,255,.85), 0 0 2px rgba(255,255,255,.4);
+}
+[data-theme="journal"] body.ep-snow .cell.qtarget::after,
+body.ep-snow .cell.qtarget::after {
+  border: 2px solid rgba(210,238,255,.95);
+  border-radius: 10px;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.92) 0%, rgba(210,236,250,.78) 46%, rgba(140,190,220,.72) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -6px 8px rgba(90,140,180,.18), 0 2px 5px rgba(60,110,150,.25);
+  opacity: 1;
+  left: 6%; right: 6%; top: 4%; bottom: 2%;
+}
+[data-theme="journal"] body.ep-savanna .cell.qtarget::after {
+  border: 2px solid #5a3a10;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f6e4b8 0%, #d2a45a 55%, #9a6a28 100%);
+  box-shadow: inset 0 1px 0 rgba(255,246,216,.7), 0 2px 4px rgba(90,58,16,.25);
+  opacity: 1;
+  left: 6%; right: 6%; top: 4%; bottom: 2%;
+}
+[data-theme="journal"] body.ep-snow svg.bracket path.vl { stroke:#3a6a8a; stroke-width:6; }
+[data-theme="journal"] body.ep-snow svg.bracket .vtex { display:inline; stroke:#a8d0e8; stroke-width:2; fill:none; stroke-dasharray:7 9; stroke-linecap:round; }
+[data-theme="journal"] body.ep-snow svg.bracket .vcurl { display:inline; stroke:#3a6a8a; stroke-width:3; fill:none; }
+[data-theme="journal"] body.ep-snow svg.bracket .vleaf { display:none; }
+
+body.ep-snow .qfrost {
+  position:absolute; left:0; top:0; width:0; height:0;
+  pointer-events:none; z-index:1; border-radius:20px;
+  background:
+    radial-gradient(circle at 10% 18%, rgba(255,255,255,.85), transparent 32%),
+    radial-gradient(circle at 90% 22%, rgba(255,255,255,.7), transparent 34%),
+    radial-gradient(circle at 18% 88%, rgba(230,246,255,.55), transparent 36%),
+    radial-gradient(circle at 82% 90%, rgba(200,230,250,.5), transparent 38%),
+    linear-gradient(180deg, rgba(236,248,255,.62), rgba(186,222,245,.28) 55%, rgba(210,236,250,.2));
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.8),
+    inset 0 0 18px rgba(190,230,255,.7),
+    0 0 16px rgba(160,215,245,.5);
+  border: 2px solid rgba(230,246,255,.85);
+  outline: 3px solid rgba(170,210,235,.25);
+  outline-offset: 3px;
+}
+body.ep-snow .qfrost::before {
+  content:""; position:absolute; left:6%; right:6%; top:-10px; height:18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 20' preserveAspectRatio='none'%3E%3Cpath d='M0 20 L8 6 16 20 28 4 40 20 52 8 64 20 78 5 90 20 104 7 118 20 132 4 146 20 160 6 174 20 190 5 206 20 220 8 236 20 250 4 266 20 282 7 298 20 314 5 330 20 346 8 362 20 378 5 400 20' fill='%23eef8ff' stroke='%23c5e4f6' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: 100% 100%;
+}
+body.ep-snow .qfrost::after {
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:
+    radial-gradient(circle at 22% 40%, rgba(255,255,255,.7) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,.8) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 48% 78%, rgba(255,255,255,.65) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 86% 62%, rgba(255,255,255,.75) 0 2px, transparent 3px);
+}
+body.ep-snow #work { position:relative; }
+body.ep-snow .cell.quo { position:relative; z-index:3; }
+
+/* Workspace margin art (journal look) */
+[data-theme="journal"] body.ep-savanna #work,
+[data-theme="journal"] body.ep-snow #work,
+[data-theme="journal"] body.ep-jungle #work { position:relative; overflow:hidden; }
+[data-theme="journal"] body.ep-savanna #work::before,
+[data-theme="journal"] body.ep-snow #work::before,
+[data-theme="journal"] body.ep-jungle #work::before {
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:2;
+  background-repeat:no-repeat;
+}
+[data-theme="journal"] body.ep-savanna #work::before {
+  background-image: url("assets/theme-s-tl.svg"), url("assets/theme-s-tr.svg"), url("assets/theme-s-bl.svg"), url("assets/theme-s-br.svg"), url("assets/theme-s-left.svg"), url("assets/theme-s-right.svg");
+  background-size: 18% 22%, 18% 22%, 18% 24%, 18% 24%, 9% 88%, 9% 88%;
+  background-position: left top, right top, left bottom, right bottom, left center, right center;
+}
+[data-theme="journal"] body.ep-snow #work::before {
+  background-image: url("assets/theme-n-tl.svg"), url("assets/theme-n-tr.svg"), url("assets/theme-n-bl.svg"), url("assets/theme-n-br.svg"), url("assets/theme-n-left.svg"), url("assets/theme-n-right.svg");
+  background-size: 18% 22%, 18% 22%, 18% 24%, 18% 24%, 9% 88%, 9% 88%;
+  background-position: left top, right top, left bottom, right bottom, left center, right center;
+}
+[data-theme="journal"] body.ep-jungle #work::before {
+  background-image: url("assets/theme-j-tl.svg"), url("assets/theme-j-tr.svg"), url("assets/theme-j-bl.svg"), url("assets/theme-j-br.svg"), url("assets/theme-j-left.svg"), url("assets/theme-j-right.svg");
+  background-size: 18% 22%, 18% 22%, 18% 24%, 18% 24%, 9% 88%, 9% 88%;
+  background-position: left top, right top, left bottom, right bottom, left center, right center;
+}
+[data-theme="journal"] body.ep-savanna .key::after {
+  content:""; position:absolute; right:6px; bottom:5px; width:14px; height:14px; opacity:.35;
+  background: url("assets/theme-track.svg") no-repeat center / contain; pointer-events:none;
+}
+[data-theme="journal"] body.ep-savanna .key { position:relative; }
 
 </style>
 </head>
@@ -1285,6 +1412,8 @@ function layout() {
 function esc(s) { return String(s); }
 
 function render() {
+  document.body.classList.toggle("ep-jungle", G.episode === 0);
+  document.body.classList.toggle("ep-savanna", G.episode === 1);
   document.body.classList.toggle("ep-snow", G.episode === 2);
   renderHeader(); renderInput(); renderOverlay();
   const P = G.P, board = $("#board");
@@ -1372,7 +1501,7 @@ function render() {
     const r = rowsOf(P.cur);
     cy.sub.written.forEach((v, kk) => { const o = cells.get(r.diff + "," + (cy.pos - kk)); if (o && v !== undefined) o.cls.push("cmpnum"); });
   }
-  let html = "";
+  let html = (G.episode === 2 ? '<div class="qfrost" aria-hidden="true"></div>' : "");
   for (const o of cells.values()) {
     html += '<div class="cell ' + o.cls.join(" ") + '" style="left:' + (X(o.c) + (o.c >= P.n && o.r === 0 && o.cls.includes("quo") ? 0.1 * cw : 0)) + "px;top:" + Y(o.r) + 'px"' + o.attrs + ">" + o.txt + (o.mark || "") + "</div>";
   }
@@ -1409,6 +1538,22 @@ function render() {
   board.style.cssText = "--cw:" + cw + "px;--rh:" + rh + "px;--mx:" + L.mx + "px;width:" + bw + "px;height:" + bh + "px";
   board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + 38) + 'px;top:-38px"></div>' + html;
   board.style.top = "38px"; board.style.position = "absolute";
+  const frost = board.querySelector(".qfrost");
+  if (frost) {
+    const qcells = [...board.querySelectorAll(".cell.quo, .cell.qtarget")];
+    const dcells = [...board.querySelectorAll('[data-cell^="1,"]')];
+    if (qcells.length) {
+      const br = board.getBoundingClientRect();
+      let L = 1e9, T = 1e9, R = -1e9, B = -1e9;
+      (dcells.length ? dcells : qcells).forEach(c => { const r = c.getBoundingClientRect(); L = Math.min(L, r.left); R = Math.max(R, r.right); });
+      qcells.forEach(c => { const r = c.getBoundingClientRect(); T = Math.min(T, r.top); B = Math.max(B, r.bottom); L = Math.min(L, r.left); R = Math.max(R, r.right); });
+      const padX = 26, padY = 16;
+      frost.style.left = (L - br.left - padX) + "px";
+      frost.style.top = (T - br.top - padY) + "px";
+      frost.style.width = (R - L + padX * 2) + "px";
+      frost.style.height = (B - T + padY * 2) + "px";
+    }
+  }
   // prompt
   const pr = $("#prompt"); pr.className = P.msgCls || ""; pr.textContent = P.msg || defaultPrompt();
   // keep the active spot visible
@@ -2029,7 +2174,7 @@ const EP_INFO = [
 ];
 const LV_INFO = [
   { name: "Gator River", mapLabel: "The River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across Gator River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
-  { name: "Boa Drop", mapLabel: "Rocky Drop", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2", win: "win-l2", lose: "lose-l2" },
+  { name: "Boa Drop", mapLabel: "Boa Drop", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2", win: "win-l2", lose: "lose-l2" },
   { name: "Jaguar Ridge", mapLabel: "The Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
   { name: "The Great Escape", mapLabel: "The Lagoon", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
 ];
@@ -2105,6 +2250,7 @@ function preloadBoot() {
   try { getVideo("setup-l1"); getVideo("win-l1"); } catch (e) {}
 }
 const Cine = (() => {
+  const compassSvg = `<svg class="mcompass-rose" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="rgold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8e7a6"/><stop offset=".45" stop-color="#d4a84a"/><stop offset="1" stop-color="#8a5a18"/></linearGradient><linearGradient id="rdark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a2412"/><stop offset="1" stop-color="#1a0e06"/></linearGradient></defs><circle cx="100" cy="100" r="98" fill="url(#rdark)" stroke="#c9a050" stroke-width="3"/><circle cx="100" cy="100" r="90" fill="none" stroke="#e8c86a" stroke-width="1.2" opacity=".85"/><g fill="url(#rgold)" stroke="#3a2412" stroke-width="1"><polygon points="100,8 108,72 100,64 92,72"/><polygon points="100,192 92,128 100,136 108,128"/><polygon points="8,100 72,92 64,100 72,108"/><polygon points="192,100 128,108 136,100 128,92"/></g><g fill="#5c3a18" stroke="#2a1808" stroke-width=".8"><polygon points="100,28 104,78 100,74 96,78"/><polygon points="100,172 96,122 100,126 104,122"/><polygon points="28,100 78,96 74,100 78,104"/><polygon points="172,100 122,104 126,100 122,96"/><polygon points="39,39 78,90 74,86 86,78"/><polygon points="161,161 122,110 126,114 114,122"/><polygon points="161,39 110,78 114,74 122,86"/><polygon points="39,161 90,122 86,126 78,114"/></g><circle cx="100" cy="100" r="52" fill="#24140a" stroke="#e8c86a" stroke-width="3"/><circle cx="100" cy="100" r="47" fill="none" stroke="#8a5a18" stroke-width="1.5"/><text x="100" y="22" text-anchor="middle" fill="#f3e0a8" font-size="11" font-weight="700" font-family="Georgia,serif">N</text></svg>`;
   const root = document.getElementById("cine");
   let onTap = null, onSkip = null, onBtn = null;
   function show(html) { root.hidden = false; root.innerHTML = html; onTap = onSkip = onBtn = null; }
@@ -2227,7 +2373,7 @@ const Cine = (() => {
         show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 1536 864" preserveAspectRatio="none">' + buildSvg() +
           '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + (L.mapLabel || L.name) + "</div></div>" +
           (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Leaderboard">🏆</button>' +
-          (choice ? '<div class="mchoice"><button class="mcbtn cprimary" data-cine="mcont">Continue ▶</button>' + (showSave ? '<button class="mcbtn sec" data-cine="msave">Save for Later</button>' : "") + "</div>" : "") + "</div></div>");
+          (choice ? '<div class="mchoice"><div class="mcompass">' + compassSvg + '<button class="mcbtn cprimary mcompass-go" data-cine="mcont">Continue ▶</button>' + (showSave ? '<button class="mcbtn sec mcompass-save" data-cine="msave">Save for Later</button>' : "") + "</div></div>" : "") + "</div></div>");
         dots = Array.from(root.querySelectorAll(".dot.nd"));
         if (hadProgress) {
           if (prevArrived || prevI >= dots.length) { dots.forEach(d => d.classList.add("on")); i = dots.length; arrive(); }
