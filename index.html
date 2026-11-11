@@ -379,6 +379,45 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 @media (min-aspect-ratio: 16/10) {
   .cscreen.title img.hero { object-position:70% 16%; animation-name:heroZoomWide; }
 }
+/* main title v2: close-up Rex over the three-world vista; logo and buttons never cover his face */
+.tbgblur { display:none; position:absolute; inset:-60px; background-size:cover; background-position:center 30%; filter:blur(26px) brightness(.5) saturate(1.15); }
+.cscreen.title.rx img.hero { object-position:60% 20%; transform-origin:60% 30%; animation-name:heroZoomWide; }
+.cscreen.title.rx .tgrad { background:linear-gradient(90deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.2) 38%, rgba(0,0,0,0) 52%), linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 62%, rgba(10,6,2,.7) 100%); }
+.cscreen.title.rx .tbtns, .cscreen.title.rx .tnote { align-self:flex-start; margin-left:clamp(6px, 2.4vw, 36px); width:min(460px, 40vw); }
+.cscreen.title.rx .tnote { text-align:left; }
+@media (max-aspect-ratio: 1/1) {
+  .cscreen.title.rx .tbgblur { display:block; }
+  .cscreen.title.rx img.hero { top:calc(19vh + env(safe-area-inset-top)); bottom:auto; height:60vh; object-position:66% 30%; animation-name:heroZoomPortrait;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 7%, #000 85%, transparent 100%); mask-image:linear-gradient(180deg, transparent 0, #000 7%, #000 85%, transparent 100%); }
+  .cscreen.title.rx .tgrad { background:linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 60%, rgba(10,6,2,.75) 100%); }
+  .cscreen.title.rx .tlogo { flex-direction:row; align-items:baseline; gap:.12em; align-self:center; margin:0 auto; text-align:center; font-size:clamp(2rem, 10vw, 6.5rem); max-width:none; }
+  .cscreen.title.rx .tsub { align-self:center; margin:8px auto 0; text-align:center; max-width:none; }
+  .cscreen.title.rx .tbtns, .cscreen.title.rx .tnote { align-self:center; margin-left:auto; margin-right:auto; width:min(540px, 92vw); text-align:center; }
+  .cscreen.title.rx .tbtns { order:4; }
+  .cscreen.title.rx .tplayer { order:5; align-self:center; margin:10px auto 0; text-align:center; max-width:92vw; }
+  .cscreen.title.rx .tnote { order:6; }
+}
+@media (max-width: 600px) and (max-aspect-ratio: 1/1) {
+  .cscreen.title.rx img.hero { top:calc(10.5vh + env(safe-area-inset-top)); height:58vh; object-position:63% 30%; }
+  .cscreen.title.rx .tlogo { font-size:2.2rem; line-height:1; max-width:none; }
+  .cscreen.title.rx .tsub { font-size:.78rem; margin-top:4px; max-width:none; }
+  .cscreen.title.rx .tplayer { max-width:92vw; margin-top:8px; }
+  .cscreen.title.rx .tstart, .cscreen.title.rx .tep { min-height:58px; }
+  .cscreen.title.rx .tbtns { gap:9px; }
+}
+@media (min-aspect-ratio: 1/1) and (max-height: 760px) {
+  .cscreen.title.rx .tep { min-height:60px; padding:6px 18px; }
+  .cscreen.title.rx .tbtns { gap:8px; }
+  .cscreen.title.rx .tbox { padding-bottom:calc(3vh + env(safe-area-inset-bottom)); }
+  .cscreen.title.rx .tnote { margin-top:8px; }
+}
+@media (max-width: 600px) and (max-aspect-ratio: 1/1) and (max-height: 720px) {
+  .cscreen.title.rx img.hero { top:calc(9.5vh + env(safe-area-inset-top)); height:44vh; }
+  .cscreen.title.rx .tstart, .cscreen.title.rx .tep { min-height:50px; }
+  .cscreen.title.rx .tep { font-size:1.05rem; padding:5px 16px; }
+  .cscreen.title.rx .tep span { font-size:.78rem; margin-top:1px; }
+  .cscreen.title.rx .tbox { padding-bottom:calc(2.5vh + env(safe-area-inset-bottom)); }
+}
 @keyframes logoIn { from { opacity:0; transform:scale(.6) translateY(-20px); letter-spacing:.4em; } to { opacity:1; transform:none; } }
 .tsub { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(1.05rem, 2.9vw, 2.1rem); letter-spacing:.2em; text-transform:uppercase; color:#fbeccb; text-shadow:0 2px 8px #000; margin-top:12px; animation:fadeUp .9s .6s both; }
 .tbtns { margin-top:auto; display:flex; flex-direction:column; gap:12px; width:min(540px, 92vw); animation:fadeUp .9s 1s both; }
@@ -2426,7 +2465,7 @@ const Cine = (() => {
       const un = unlocked();
       const btns = un < 2 ? '<button class="tstart cprimary" data-cine="ep" data-epi="0">▶&nbsp; Start the expedition</button>'
         : '<div class="tpick">Choose your episode</div>' + EP_INFO.slice(0, un).map((E, i) => '<button class="tep" data-cine="ep" data-epi="' + i + '"><b>Episode ' + (i + 1) + ": " + E.name + "</b><span>" + (EPISODES[i].secs / 60) + ":00 per problem" + (E.soon ? " · " + E.soon : "") + "</span></button>").join("");
-      show('<div class="cscreen title"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo"><span class="tl1">MAN <span>vs.</span></span><span class="tl2">MATH</span></div><div class="tsub">Surviving Long Division</div>' + (Progress.cur ? '<div class="tplayer">Playing as <b>' + escH(Progress.cur.name) + '</b> <button data-cine="switch">Switch player</button></div>' : "") + '<div class="tbtns">' + btns + '</div><div class="tnote">Best with sound on 🔊<br><span style="opacity:.8;font-size:.82em">No sound? Turn off the iPad silent switch.</span></div></div></div>');
+      show('<div class="cscreen title rx"><div class="tbgblur" style="background-image:url(\'' + ASSET("title-rex.jpg") + '\')"></div><img class="hero" src="' + ASSET("title-rex.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo"><span class="tl1">MAN <span>vs.</span></span><span class="tl2">MATH</span></div><div class="tsub">Surviving Long Division</div>' + (Progress.cur ? '<div class="tplayer">Playing as <b>' + escH(Progress.cur.name) + '</b> <button data-cine="switch">Switch player</button></div>' : "") + '<div class="tbtns">' + btns + '</div><div class="tnote">Best with sound on 🔊<br><span style="opacity:.8;font-size:.82em">No sound? Turn off the iPad silent switch.</span></div></div></div>');
       let go = false;
       onBtn = (k, b) => {
         if (k === "switch" && !go) { go = true; res("switch"); return; }
