@@ -394,6 +394,41 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .title.go .tlogo { animation:logoGo 1.6s ease forwards; }
 .title.go .tbtns, .title.go .tnote { transition:opacity .4s; opacity:0; }
 @keyframes logoGo { 0% { transform:none; } 30% { transform:scale(1.1); filter:drop-shadow(0 0 30px #f3c65a) drop-shadow(0 12px 20px rgba(0,0,0,.75)); } 100% { transform:scale(1.04); } }
+/* episode opening screens (close-up Rex + voiceover) */
+.cscreen.epopen { background:#0b0805; }
+.eprex { position:absolute; inset:-3%; transform-origin:var(--fx,58%) var(--fy,48%); }
+.eprex img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:var(--px,60%) 22%; display:block; }
+.eprex img.epb { opacity:0; transition:opacity .04s linear; }
+.epopen.blink .eprex img.epb { opacity:1; }
+.epopen .eprex { animation:epSway 7.5s ease-in-out infinite; animation-play-state:paused; }
+.epopen.talking .eprex { animation-play-state:running; }
+@keyframes epSway { 0%,100% { transform:rotate(0deg) translate(0,0); } 22% { transform:rotate(-.45deg) translate(-.25%,.15%); } 48% { transform:rotate(.25deg) translate(.15%,-.35%); } 74% { transform:rotate(.5deg) translate(.3%,.1%); } }
+@media (prefers-reduced-motion: reduce) { .epopen .eprex { animation:none; } }
+.epopen.ep1 { --fx:58%; --fy:44%; --px:61%; }
+.epopen.ep2 { --fx:56%; --fy:46%; --px:58%; }
+.epopen.ep3 { --fx:58%; --fy:48%; --px:61%; }
+.epgrad { position:absolute; inset:0; background:linear-gradient(90deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.18) 42%, rgba(0,0,0,0) 60%), linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(8,5,2,.85) 100%); pointer-events:none; }
+.ephead { position:absolute; left:clamp(14px, 4vw, 56px); top:calc(clamp(14px, 6vh, 64px) + env(safe-area-inset-top)); text-align:left; animation:fadeUp .9s .2s both; }
+.epnum { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; letter-spacing:.2em; text-transform:uppercase; color:#f3c65a; font-size:clamp(.95rem, 2.2vw, 1.5rem); text-shadow:0 2px 8px #000; }
+.epname { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(2rem, 5.2vw, 4rem); line-height:1; letter-spacing:.04em; max-width:min(42vw, 9.5em);
+  background:linear-gradient(180deg, #fff7d6 0%, #f3c65a 42%, #b6721c 68%, #f8da7e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 3px 0 #3a2208) drop-shadow(0 10px 18px rgba(0,0,0,.75)); }
+.epbg { display:none; position:absolute; inset:-60px; background-size:cover; background-position:center; filter:blur(26px) brightness(.5) saturate(1.2); }
+.epsub { position:absolute; left:0; right:0; margin:0 auto; bottom:calc(112px + env(safe-area-inset-bottom)); width:min(860px, 92vw); box-sizing:border-box; text-align:center; font-weight:800; font-size:clamp(1.02rem, 2.3vw, 1.5rem); line-height:1.3; color:#fff;
+  padding:8px 16px; border-radius:12px; background:rgba(0,0,0,.55); opacity:0; transition:opacity .2s; pointer-events:none; text-shadow:0 1px 3px #000; }
+.epsub.on { opacity:1; }
+.epgo { position:absolute; left:0; right:0; margin:0 auto; width:min(320px, 80vw); bottom:calc(26px + env(safe-area-inset-bottom)); min-height:66px; border-radius:18px; border:2px solid #f3c65a; background:linear-gradient(#70482a, #3e2612); color:#fff3d0;
+  font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:1.4rem; letter-spacing:.06em; box-shadow:0 6px 0 #1f1208, 0 14px 32px rgba(0,0,0,.6); animation:fadeUp .8s .5s both; }
+.epgo:active { transform:translateY(4px); box-shadow:0 2px 0 #1f1208; }
+@media (max-aspect-ratio: 1/1) {
+  /* portrait: show more of the scene around Rex in a band, soft-edged over a blurred copy */
+  .epbg { display:block; }
+  .eprex { inset:auto -2%; top:calc(15vh + env(safe-area-inset-top)); height:60vh; -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 4%, #000 88%, transparent 100%); mask-image:linear-gradient(180deg, transparent 0, #000 4%, #000 88%, transparent 100%); }
+  .eprex img { object-position:var(--px,60%) 30%; }
+  .epgrad { background:linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 62%, rgba(8,5,2,.75) 100%); }
+  .ephead { top:calc(3vh + env(safe-area-inset-top)); left:0; right:0; text-align:center; }
+  .epname { max-width:none; font-size:clamp(1.8rem, 8vw, 4.2rem); }
+  .epsub { bottom:calc(108px + env(safe-area-inset-bottom)); }
+}
 /* map */
 .cscreen.map { background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%27.9%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20values%3D%270%200%200%200%20.1%20%200%200%200%200%20.06%20%200%200%200%200%20.02%20%200%200%200%20.55%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27160%27%20height%3D%27160%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E"), radial-gradient(ellipse at center, #4a3018, #120b05); }
 .mapbox { position:relative; width:min(100vw, calc(100vh * 16 / 9)); height:min(100vh, calc(100vw * 9 / 16)); width:min(100vw, calc(100dvh * 16 / 9)); height:min(100dvh, calc(100vw * 9 / 16)); animation:mapIn .8s cubic-bezier(.2,1,.3,1) both; }
@@ -895,7 +930,8 @@ let AC = null, master = null;
 function audio() {
   if (!settings.sound) return null;
   try {
-    if (AC && AC.state === "closed") { AC = null; master = null; }
+    /* a context that died on its own (iOS) is rebuilt through rebuildAudio so music, ambience and voice move to the new one */
+    if (AC && AC.state === "closed") { if (!audio.rb) { audio.rb = true; try { rebuildAudio(); } finally { audio.rb = false; } if (AC) return AC; } AC = null; master = null; }
     if (!AC) { try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); master = AC.createGain(); master.gain.value = 0.55; master.connect(AC.destination); watchAC(AC); }
     if (AC.state === "suspended" || AC.state === "interrupted") { const p = AC.resume(); if (p && p.catch) p.catch(() => {}); }
   } catch (e) { return null; }
@@ -1703,7 +1739,7 @@ document.addEventListener("click", e => {
   if (t.dataset.format) { if (t.dataset.format !== "remainders") { toast((t.dataset.format === "fractions" ? "Fractions" : "Decimals") + " mode is coming soon"); SFX.nudge(); } return; }
   if (t.dataset.themeBtn) { settings.theme = t.dataset.themeBtn; store.set("theme", settings.theme); document.documentElement.setAttribute("data-theme", settings.theme); $("#overlay-root").dataset.sig = ""; render(); return; }
   if (t.dataset.toggle) { settings[t.dataset.toggle] = !settings[t.dataset.toggle]; store.set(t.dataset.toggle, settings[t.dataset.toggle]);
-    if (t.dataset.toggle === "music" || t.dataset.toggle === "sound") { if (settings.music && settings.sound) { if (G.P && !Cine.visible) Music.play("bed"); } else Music.stop(); } $("#overlay-root").dataset.sig = ""; if (t.dataset.toggle === "haptics") haptic(30); else SFX.step(); render(); return; }
+    if (t.dataset.toggle === "music" || t.dataset.toggle === "sound") { if (settings.music && settings.sound) { if (G.P && !Cine.visible) Music.play("bed"); } else Music.stop(); if (!settings.music || !settings.sound) { RecAudio.stopTheme(0.3); if (!settings.sound) RecAudio.stopNarr(0.1); } } $("#overlay-root").dataset.sig = ""; if (t.dataset.toggle === "haptics") haptic(30); else SFX.step(); render(); return; }
   if (t.dataset.jump !== undefined) { const ep = G.overlay.jumpEp !== undefined ? G.overlay.jumpEp : G.episode; flowTok++; Cine.hide(); G.overlay = null; G.started = true; G.episode = ep; Music.play("bed"); newLevel(+t.dataset.jump, false); preloadLevel(+t.dataset.jump); return; }
   if (t.dataset.act === "next") return act("next");
   if (t.dataset.act === "yes") return act("yes");
@@ -1967,7 +2003,7 @@ const Music = (() => {
     const k = queue.indexOf(name); if (k >= 0) queue.splice(k, 1);
     queue.unshift(name); pumpQueue();
   }
-  function prerender() { ["theme", "bed", "suspense", "win", "lose"].forEach(n => { if (!bufs[n] && queue.indexOf(n) < 0) queue.push(n); }); pumpQueue(); }
+  function prerender() { ["bed", "suspense", "win", "lose"].forEach(n => { if (!bufs[n] && queue.indexOf(n) < 0) queue.push(n); }); pumpQueue(); }
   function startSrc(c) {
     if (cur !== c || c.src || !AC || c.ac !== AC) return;
     const b = bufs[c.name]; if (!b) return;
@@ -1989,6 +2025,7 @@ const Music = (() => {
   }
   function play(name) {
     const cue = CUES[name]; if (!cue) return;
+    try { RecAudio.stopTheme(0.6); } catch (e) {}
     if (!settings.music) { stop(); return; }
     const ac = audio(); if (!ac) { stop(); return; }
     if (cur && cur.name === name && cue.loop && cur.ac === ac) return;
@@ -2006,10 +2043,105 @@ const Music = (() => {
   }
   return { play, stop, prerender, reboot, get current() { return cur ? cur.name : null; }, get playing() { return !!(cur && cur.src && !cur.done); }, get ready() { return Object.keys(bufs); }, CUES, _bufs: bufs };
 })();
+/* ---- Joe's recorded audio: title theme (plays ONCE from 0:00, never loops) + episode-opening voiceover.
+   Decoded into AudioBuffers on the shared AudioContext (same path as the pre-rendered cues), straight to the
+   speakers at unity so the -16 LUFS masters keep their level. Waits for the first tap/key if autoplay is blocked. ---- */
+const RecAudio = (() => {
+  const SRC = { theme: "assets/music/main-theme.mp3", n0: "assets/narration/ep1-narration.mp3", n1: "assets/narration/ep2-narration.mp3", n2: "assets/narration/ep3-narration.mp3" };
+  const LINES = [
+    [[0.4, 3.106, "I'm Rex Ranger, and this is Man Versus Math."], [3.756, 8.163, "Every explorer has a choice. Turn back or solve the problem in front of them."], [8.813, 10.889, "We have a big challenge in front of us today."], [11.539, 16.021, "We're going to brave a jungle of long division and get through to the other side."], [16.821, 22.651, "If we watch our steps and stay focused, we hope to reach the rendezvous point in one piece."], [23.451, 26.358, "Hit the continue button to get dropped off at the starting point."], [27.008, 28.03, "Ready? Let's go!"]],
+    [[0.4, 3.106, "I'm Rex Ranger, and this is Man Versus Math."], [3.756, 8.163, "Every explorer has a choice. Turn back or solve the problem in front of them."], [8.813, 10.889, "We have a big challenge in front of us today."], [11.539, 16.311, "We're going to traverse a long savanna of division and we need to move fast."], [17.111, 24.53, "Every quotient found divides the distance so that, hopefully, we can reach the rendezvous point in one piece."], [25.33, 28.237, "Hit the continue button to get dropped off at the starting point."], [28.887, 29.909, "Ready? Let's go!"]],
+    [[0.4, 3.106, "I'm Rex Ranger, and this is Man Versus Math."], [3.756, 8.163, "Every explorer has a choice. Turn back or solve the problem in front of them."], [8.813, 16.275, "We have our biggest challenge in front of us today. We're going to scale a frozen mountain of long division and make it to the other side."], [17.075, 23.394, "We'll need to move faster than ever to avoid freezing and reach the rendezvous point before time runs out."], [24.194, 26.921, "Hit the continue button to get dropped off at the base."], [27.571, 28.592, "Ready? Let's go!"]]
+  ];
+  const DUCK = 0.42; /* about -7.5 dB under the voice */
+  const bytes = {}, bufs = {}, decoding = {};
+  function fetchBytes(k) {
+    if (!bytes[k]) bytes[k] = fetch(SRC[k]).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); });
+    bytes[k].catch(() => { delete bytes[k]; });
+    return bytes[k];
+  }
+  function load(k, ac) {
+    if (bufs[k]) return Promise.resolve(bufs[k]);
+    if (!decoding[k]) decoding[k] = fetchBytes(k).then(ab => new Promise((res, rej) => { try { const p = ac.decodeAudioData(ab.slice(0), res, rej); if (p && p.catch) p.catch(rej); } catch (e) { rej(e); } }))
+      .then(b => { delete decoding[k]; bufs[k] = b; return b; }, e => { delete decoding[k]; throw e; });
+    return decoding[k];
+  }
+  const live = () => AC && AC.state === "running" ? AC : null;
+  function fade(g, ac, to, secs) { try { const n = ac.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), n); g.gain.linearRampToValueAtTime(Math.max(0.0001, to), n + secs); } catch (e) {} }
+  function kill(n, secs) { if (!n || !n.src) return; const { src, g, ac } = n; n.src = null; fade(g, ac, 0.0001, secs); setTimeout(() => { try { src.onended = null; src.stop(); } catch (e) {} try { src.disconnect(); g.disconnect(); } catch (e) {} }, (secs + 0.08) * 1000); }
+  function startBuf(n, b, ac, off, vol) {
+    const g = ac.createGain(); g.gain.value = vol; g.connect(ac.destination);
+    const src = ac.createBufferSource(); src.buffer = b; src.loop = false; src.connect(g);
+    const t = ac.currentTime + 0.03; src.start(t, Math.max(0, off || 0));
+    n.src = src; n.g = g; n.ac = ac; n.t0 = t - (off || 0);
+    return src;
+  }
+  /* ---------- title theme ---------- */
+  const th = { want: false, src: null, off: 0 };
+  function tryTheme() {
+    if (!th.want || th.src || !settings.music || !settings.sound) return;
+    const ac = live(); if (!ac) return; /* not allowed yet: kick() starts it on the first tap/key */
+    load("theme", ac).then(b => {
+      if (!th.want || th.src || AC !== ac || ac.state !== "running" || !settings.music) return;
+      const src = startBuf(th, b, ac, th.off, nr.src ? DUCK : 1); th.off = 0;
+      src.onended = () => { if (th.src !== src) return; th.src = null; th.want = false; try { src.disconnect(); th.g.disconnect(); } catch (e) {} bufs.theme = null; };
+    }, e => { try { console.warn("title theme load failed", e); } catch (x) {} });
+  }
+  function playTheme() { if (th.src) return; th.want = true; th.off = 0; tryTheme(); }
+  function stopTheme(secs) { th.want = false; th.off = 0; if (th.src) { kill(th, secs == null ? 0.6 : secs); } bufs.theme = null; /* free ~57 MB of decoded audio for the iPad while playing */ }
+  function duck(on) { if (th.src && th.g) fade(th.g, th.ac, on ? DUCK : 1, on ? 0.35 : 1.0); }
+  /* ---------- voiceover ---------- */
+  const nr = { want: -1, src: null, cb: null, timer: 0, line: -1 };
+  function tick() {
+    if (!nr.src) return;
+    const t = nr.ac.currentTime - nr.t0, L = LINES[nr.ep] || [];
+    let k = -1; for (let i = 0; i < L.length; i++) if (t >= L[i][0] - 0.05 && t < L[i][1] + 0.45) { k = i; break; }
+    if (k !== nr.line) { nr.line = k; if (nr.cb && nr.cb.line) nr.cb.line(k >= 0 ? L[k][2] : ""); }
+  }
+  function endNarr(natural) {
+    clearInterval(nr.timer); nr.timer = 0; nr.line = -1;
+    const cb = nr.cb; nr.cb = null; nr.want = -1;
+    duck(false);
+    if (cb) { try { cb.line && cb.line(""); cb.end && cb.end(natural); } catch (e) {} }
+  }
+  function tryNarr() {
+    if (nr.want < 0 || nr.src || !settings.sound) return;
+    const ac = live(); if (!ac) return;
+    const ep = nr.want, key = "n" + ep;
+    load(key, ac).then(b => {
+      if (nr.want !== ep || nr.src || AC !== ac || ac.state !== "running") return;
+      nr.ep = ep; duck(true);
+      const src = startBuf(nr, b, ac, nr.off || 0, 1); nr.off = 0;
+      src.onended = () => { if (nr.src !== src) return; nr.src = null; try { src.disconnect(); nr.g.disconnect(); } catch (e) {} endNarr(true); };
+      nr.timer = setInterval(tick, 100);
+      if (nr.cb && nr.cb.start) nr.cb.start();
+    }, e => { try { console.warn("narration load failed", e); } catch (x) {} });
+  }
+  function narrate(ep, cb) { stopNarr(0.05); nr.want = ep; nr.cb = cb || null; nr.off = 0; tryNarr(); }
+  function stopNarr(secs) { if (nr.src) kill(nr, secs == null ? 0.25 : secs); if (nr.cb || nr.timer || nr.want >= 0) endNarr(false); }
+  /* first tap/key (autoplay blocked) or a resumed context: start whatever is waiting */
+  function kick() {
+    if (!(th.want && !th.src) && !(nr.want >= 0 && !nr.src)) return;
+    const ac = AC; if (!ac) return;
+    if (ac.state === "running") { tryTheme(); tryNarr(); return; }
+    try { const p = ac.resume(); if (p && p.then) p.then(() => { if (AC === ac && ac.state === "running") { tryTheme(); tryNarr(); } }, () => {}); } catch (e) {}
+  }
+  /* AudioContext was rebuilt (iPad recovery): carry on from the same spot on the new context, never from the top */
+  function reboot() {
+    if (th.src) { const off = th.ac.currentTime - th.t0, s = th.src; th.src = null; try { s.onended = null; s.stop(); s.disconnect(); th.g.disconnect(); } catch (e) {} th.want = true; th.off = Math.max(0, off); }
+    if (nr.src) { const off = nr.ac.currentTime - nr.t0, s = nr.src; nr.src = null; clearInterval(nr.timer); nr.timer = 0; try { s.onended = null; s.stop(); s.disconnect(); nr.g.disconnect(); } catch (e) {} nr.want = nr.ep; nr.off = Math.max(0, off); }
+    kick(); setTimeout(() => { tryTheme(); tryNarr(); }, 60);
+  }
+  function prefetch() { Object.keys(SRC).forEach(k => { fetchBytes(k).catch(() => {}); }); }
+  return { playTheme, stopTheme, narrate, stopNarr, kick, reboot, prefetch, LINES,
+    get themePlaying() { return !!th.src; }, get themeWanted() { return th.want; }, get themePos() { return th.src ? th.ac.currentTime - th.t0 : -1; }, get themeLoop() { return th.src ? th.src.loop : null; },
+    get themeGain() { return th.src ? th.g.gain.value : null; }, get narrating() { return !!nr.src; }, get narrPos() { return nr.src ? nr.ac.currentTime - nr.t0 : -1; } };
+})();
 function unlockAudio() {
   kickAudio();
   const ac = audio(); if (!ac) return;
   try { const b = ac.createBuffer(1, 1, 22050), s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0); } catch (e) {}
+  try { RecAudio.kick(); } catch (e) {}
 }
 /* ---- audio recovery: resume a suspended/interrupted context on the next tap; rebuild it if it is closed,
    resume fails or hangs, or its clock has frozen (iOS can leave a context "running" but dead). ---- */
@@ -2020,6 +2152,7 @@ function rebuildAudio() {
   if (!audio()) return;
   try { Ambience.reboot(); } catch (e) {}
   try { Music.reboot(); } catch (e) {}
+  try { RecAudio.reboot(); } catch (e) {}
 }
 function kickAudio() {
   if (!settings.sound || !AC) return;
@@ -2298,10 +2431,34 @@ const Cine = (() => {
       onBtn = (k, b) => {
         if (k === "switch" && !go) { go = true; res("switch"); return; }
         if (k !== "ep" || go) return; go = true;
-        const ep = +b.dataset.epi; unlockMedia(); Music.play("theme"); haptic(15);
+        const ep = +b.dataset.epi; unlockMedia(); RecAudio.playTheme(); haptic(15);
         const sc = root.querySelector(".cscreen"); if (sc) sc.classList.add("go");
         setTimeout(() => res(ep), 1800 * Math.max(ANIM, 0.05));
       };
+    });
+  }
+  /* Episode opening: close-up Rex in that episode's gear and setting, his voiceover over the main theme (ducked). */
+  function epOpen(ep) {
+    return new Promise(res => {
+      const E = EP_INFO[ep] || EP_INFO[0], n = ep + 1;
+      show('<div class="cscreen epopen ep' + n + '"><div class="epbg" style="background-image:url(\'' + ASSET("ep" + n + "-rex.jpg") + '\')"></div><div class="eprex"><img class="epo" src="' + ASSET("ep" + n + "-rex.jpg") + '" alt=""><img class="epb" src="' + ASSET("ep" + n + "-rex-blink.jpg") + '" alt=""></div><div class="epgrad"></div>' +
+        '<div class="ephead"><div class="epnum">Episode ' + n + '</div><div class="epname">' + E.name.replace(/&/g, "&amp;").replace(/</g, "&lt;") + '</div></div><div class="epsub" aria-live="polite"></div><button class="epgo cprimary" data-cine="epgo">Continue ▶</button></div>');
+      const sc = root.querySelector(".cscreen"), sub = root.querySelector(".epsub");
+      let fin = false, bt = 0, st = 0;
+      const blink = () => { if (fin) return; sc.classList.add("blink"); setTimeout(() => sc.classList.remove("blink"), 130); bt = setTimeout(blink, (sc.classList.contains("talking") ? 2400 : 3600) + Math.random() * 2800); };
+      bt = setTimeout(blink, 1600);
+      RecAudio.playTheme(); /* keeps going from the title; starts at 0:00 only if it isn't already playing */
+      st = setTimeout(() => {
+        if (fin) return;
+        RecAudio.narrate(ep, {
+          line: t => { if (fin) return; if (t) sub.textContent = t; sub.classList.toggle("on", !!t); },
+          start: () => { if (!fin) sc.classList.add("talking"); },
+          end: () => { if (!fin) sc.classList.remove("talking"); }
+        });
+      }, 700 * Math.max(ANIM, 0.3));
+      const done = () => { if (fin) return; fin = true; clearTimeout(bt); clearTimeout(st); RecAudio.stopNarr(0.25); res("continue"); };
+      onBtn = k => { if (k === "epgo") { SFX.step(); done(); } };
+      onSkip = done;
     });
   }
   function polyPath(pts) {
@@ -2533,7 +2690,7 @@ const Cine = (() => {
       onBtn = k => { if (k === "again" && ready) { SFX.step(); res(); } };
     });
   }
-  return { show, hide, title, map, clip, lose, skip() { if (onSkip) onSkip(); }, tap() { if (onTap) onTap(); }, get visible() { return !root.hidden; }, get screen() { const s = root.querySelector(".cscreen"); return s ? s.className.replace("cscreen", "").trim() : null; } };
+  return { show, hide, title, epOpen, map, clip, lose, skip() { if (onSkip) onSkip(); }, tap() { if (onTap) onTap(); }, get visible() { return !root.hidden; }, get screen() { const s = root.querySelector(".cscreen"); return s ? s.className.replace("cscreen", "").trim() : null; } };
 })();
 
 /* ================= game flow ================= */
@@ -2543,6 +2700,11 @@ async function beginLevel(ep, lv, keep, opts) {
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; G.episode = ep; G.level = lv; render();
   try { const pre = LVI(ep, lv); if (pre) getVideo(pre.setup); } catch (e) {}
+  /* Each episode opens with Rex's voiceover screen (not on every level, and not after a loss restart). */
+  if (lv === 0 && !opts.replay && !opts.noMap) {
+    await Cine.epOpen(ep); if (tok !== flowTok) return;
+  }
+  RecAudio.stopTheme(0.8);
   if (!opts.noMap) {
     const showSave = !(ep === 0 && lv === 0);
     // Strength power-up plays over the map so the +30% is impossible to miss.
@@ -2597,6 +2759,7 @@ async function loseFlow(reason) {
 async function runTitle() {
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; render(); Music.stop();
+  RecAudio.playTheme(); /* Joe's main theme, once from 0:00 (waits for the first tap if autoplay is blocked) */
   await dbReady; if (tok !== flowTok) return;
   while (tok === flowTok) {
     if (!Progress.cur) {
@@ -3255,10 +3418,11 @@ G.problems = genLevel(0); startProblem(); G.overlay = { type: "cine" }; render()
 runTitle();
 preloadBoot();
 setTimeout(() => { try { Music.prerender(); } catch (e) {} }, 400);
+setTimeout(() => { try { RecAudio.prefetch(); } catch (e) {} }, 150);
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
 window.showStrengthBoost = showStrengthBoost;
-window.__MVM = { G, Cine, Music, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
+window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
 window.__DD = { G, EPISODES, render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
