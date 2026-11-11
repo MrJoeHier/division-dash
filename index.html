@@ -727,6 +727,33 @@ body.ep-snow .cell.quo { position:relative; z-index:3; }
 [data-theme="journal"] body.ep-savanna .key { position:relative; }
 
 </style>
+<style id="accounts-css">
+/* ================= accounts: sign in, create account, guest, public scoreboard ================= */
+.lgtabs { display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:5px; margin:0 0 14px; border-radius:16px; background:rgba(0,0,0,.35); border:1px solid rgba(243,198,90,.35); }
+.lgtabs button { min-height:52px; border-radius:12px; border:0; background:transparent; color:#f6e7c4; font:900 1.08rem "Cinzel MVM", Georgia, serif; letter-spacing:.03em; }
+.lgtabs button.sel { background:linear-gradient(#f6d27a, #e0ac3e); color:#2a1c10; box-shadow:0 3px 10px rgba(0,0,0,.35); }
+.acform { display:flex; flex-direction:column; gap:12px; }
+.lgfield { display:flex; flex-direction:column; gap:6px; font-weight:800; color:#f3dfae; font-size:1rem; }
+.lgfield small { font-weight:600; color:#cdb88f; font-size:.86em; }
+.lgin { width:100%; min-height:56px; border-radius:14px; border:2px solid #b48a4a; background:#fff8e6; color:#2a1c10; font:700 1.15rem -apple-system, "Segoe UI", system-ui, sans-serif; padding:0 16px; -webkit-user-select:text; user-select:text; outline:none; }
+.lgin:focus { border-color:#f3c65a; box-shadow:0 0 0 4px rgba(243,198,90,.35); }
+.lgin:disabled, .acform button:disabled { opacity:.6; }
+.acform .lgbtn { width:100%; margin-top:4px; }
+.lghint.sm { margin:0; font-size:.9rem; }
+.lgor { display:flex; align-items:center; gap:10px; margin:8px 0 10px; color:#cdb88f; font-weight:800; font-size:.9rem; }
+.lgor::before, .lgor::after { content:""; flex:1; height:1px; background:rgba(243,198,90,.35); }
+.lgguest { width:100%; }
+.lgacts { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+.lgoff { font-weight:800; color:#ffcf9a; margin:0 0 8px; font-size:1.05rem; }
+.lbpub { margin:-6px 0 10px; color:#cdb88f; font-weight:600; font-size:.88rem; }
+.lbt tr.me td { background:rgba(243,198,90,.16); }
+.lbyou { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; background:#f3c65a; color:#2a1c10; font-size:.72rem; font-weight:900; text-transform:uppercase; vertical-align:middle; }
+.tchlogin { max-width:520px; margin:18px 0; }
+.tchtable tr.hid td { opacity:.55; }
+.tchtable tr.hid td.tchrow { opacity:1; }
+.tchwas { font-size:.8rem; color:#cdb88f; font-weight:600; }
+@media (max-width:520px) { .lgcard { padding:16px 14px; } .lbt th, .lbt td { padding:8px 5px; } .lgtabs button { font-size:.98rem; } }
+</style>
 </head>
 <body>
 <div id="app">
@@ -2570,11 +2597,20 @@ async function loseFlow(reason) {
 async function runTitle() {
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; render(); Music.stop();
+  await dbReady; if (tok !== flowTok) return;
   while (tok === flowTok) {
     if (!Progress.cur) {
-      const r = await loginScreen(); if (tok !== flowTok) return;
-      if (r.teacher) { await teacherFlow(); continue; }
-      const { rec, isNew } = await Progress.login(r.name); if (tok !== flowTok) return;
+      let got = null;
+      // Still signed in from last time on this device (online accounts): pick up where they left off.
+      if (!runTitle.resumed && cloudMode() && DB.user) { runTitle.resumed = true; got = await Progress.loginCloud().catch(() => null); }
+      runTitle.resumed = true;
+      if (!got) {
+        const r = await loginScreen(); if (tok !== flowTok) return;
+        if (r.teacher) { await teacherFlow(); continue; }
+        got = r.cloud ? await Progress.loginCloud() : r.guest ? Progress.loginGuest() : await Progress.login(r.name);
+      }
+      if (tok !== flowTok) return;
+      const { rec, isNew } = got;
       if (!isNew && hasProgress(rec)) {
         const c = await resumeScreen(rec); if (tok !== flowTok) return;
         if (c === "switch") { Progress.logout(); continue; }
@@ -2588,15 +2624,15 @@ async function runTitle() {
 }
 
 /* ================= students, progress, leaderboard, teacher ================= */
-// To share progress across devices, paste your Firebase web-app config here (see FIREBASE_SETUP.md).
-// Leave it empty to keep everything on this device (localStorage).
+// ONLINE ACCOUNTS + PUBLIC SCOREBOARD: paste your Firebase web-app config here (see FIREBASE_SETUP.md).
+// Leave it empty and the game keeps working as before, saving everything on this device (localStorage).
 const FIREBASE_CONFIG = {
-  // apiKey: "", authDomain: "", databaseURL: "https://YOUR-PROJECT-default-rtdb.firebaseio.com", projectId: "", appId: ""
+  // apiKey: "", authDomain: "", projectId: "", appId: ""
 };
-// auth:false = no sign-in (test-mode or simple rules). auth:true = students sign in anonymously, the teacher signs in with Google (strict rules).
-const FIREBASE_OPTIONS = { auth: false };
-const FB_VER = "10.12.2";
-const fbOn = () => !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.databaseURL);
+const FB_VER = "11.10.0";
+// ?emu=1 on localhost talks to the Firebase emulators (for testing; never used on the live site).
+const FB_EMU = (() => { try { return new URLSearchParams(location.search).get("emu") && /^(localhost|127\.0\.0\.1)$/.test(location.hostname); } catch (e) { return false; } })();
+const fbOn = () => !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId) || FB_EMU;
 const escH = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 function normName(raw) {
@@ -2615,8 +2651,56 @@ const highestEp = r => { let h = r.episode || 0; Object.keys(r.passed || {}).for
 const hasProgress = r => !!r && (r.done || passedCount(r) > 0 || r.episode > 0 || r.level > 0);
 const evId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
-/* ---- storage adapter: localStorage (default) ---- */
-const LK = { players: "mvm.players.v1", events: "mvm.events.v1", pin: "mvm.teacherPin.v1" };
+/* ---- usernames, nicknames and the name filter (accounts) ---- */
+const MAIL_DOMAIN = "mvm.local"; // username "sam_t" signs in to Firebase as sam_t@mvm.local (never shown anywhere)
+const normUser = s => String(s || "").trim().toLowerCase();
+const userEmail = u => normUser(u) + "@" + MAIL_DOMAIN;
+function checkUsername(u) {
+  u = normUser(u);
+  if (u.length < 3) return "Usernames need at least 3 characters.";
+  if (u.length > 20) return "Usernames can be up to 20 characters.";
+  if (!/^[a-z0-9][a-z0-9_.-]*$/.test(u)) return "Use only letters, numbers, _ . or - in your username.";
+  if (badWords(u)) return "Please pick a different username.";
+  return null;
+}
+const cleanNick = s => String(s || "").replace(/\s+/g, " ").trim();
+// Basic kid-safe filter. Catches common swears, slurs and simple disguises (sh1t, f.u.c.k, phuuuck).
+// The teacher can still rename or hide any scoreboard entry.
+const BAD_PARTS = ["fuck", "fuk", "phuck", "shit", "bitch", "biatch", "cunt", "pussy", "nigg", "niga", "faggot", "slut", "whore", "bastard", "asshole", "porn", "penis", "vagina", "rapist", "nazi", "hitler", "retard", "boob", "titty", "horny", "wank", "jizz", "dildo", "butthole", "suicide", "milf", "molest", "stfu", "dick"];
+const BAD_WORDS = ["ass", "asses", "cum", "tit", "tits", "fag", "fags", "hell", "sht", "fk", "fck", "fu", "wtf", "bj", "damn", "crap", "piss", "sex", "sexy", "rape", "anal", "anus", "cock", "hoe", "hoes", "kill", "kys", "pee", "poop", "pedo", "kkk", "nude", "naked", "balls", "die", "stupid", "idiot", "loser", "ugly", "fat", "dumb"];
+function badWords(raw) {
+  const leet = { "0": "o", "1": "i", "!": "i", "|": "i", "3": "e", "4": "a", "@": "a", "5": "s", "$": "s", "7": "t", "+": "t", "8": "b", "9": "g" };
+  const low = String(raw || "").replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase().replace(/[01!|3457@$+89]/g, c => leet[c]);
+  const squash = s => s.replace(/(.)\1+/g, "$1");
+  const joined = low.replace(/[^a-z]/g, ""), words = low.split(/[^a-z]+/).filter(Boolean);
+  if (BAD_PARTS.some(b => joined.indexOf(b) >= 0 || squash(joined).indexOf(squash(b)) >= 0)) return true;
+  return words.some(w => BAD_WORDS.some(b => w === b || (w.length > b.length && squash(w) === squash(b))));
+}
+function checkNick(n, opts) {
+  n = cleanNick(n);
+  if (n.length < 2) return "Scoreboard names need at least 2 characters.";
+  if (n.length > 16) return "Scoreboard names can be up to 16 characters.";
+  if (!/^[A-Za-z0-9][A-Za-z0-9 _.-]*$/.test(n)) return "Use only letters, numbers, spaces, _ . or -";
+  if (/\d{6,}/.test(n)) return "Please don't put long numbers in your name.";
+  if (badWords(n)) return "That name isn't allowed. Please pick a different one.";
+  if (opts && opts.taken && opts.taken(n)) return "Someone already uses that name. Try adding a number or a letter.";
+  return null;
+}
+const posOf = r => r && r.done ? 1e3 : ((r && r.episode) || 0) * 4 + ((r && r.level) || 0);
+// Merge guest progress played on this device into an account: keep every level passed, the furthest spot reached.
+function mergeRecs(acct, guest) {
+  const out = Object.assign({}, acct), gp = (guest && guest.passed) || {}, ap = (acct && acct.passed) || {};
+  out.passed = Object.assign({}, ap);
+  Object.keys(gp).forEach(k => { out.passed[k] = ap[k] ? Math.min(ap[k], gp[k]) : gp[k]; });
+  if (posOf(guest) > posOf(acct)) { out.episode = guest.episode || 0; out.level = guest.level || 0; out.strength = guest.strength; }
+  out.unlocked = Math.max(acct.unlocked || 1, (guest && guest.unlocked) || 1);
+  out.done = !!(acct.done || (guest && guest.done));
+  out.ts = Date.now();
+  return out;
+}
+
+/* ---- storage adapter: localStorage (default, and guest play) ---- */
+const LK = { players: "mvm.players.v1", events: "mvm.events.v1", pin: "mvm.teacherPin.v1", guest: "mvm.guest.v1" };
 const lget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const lset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const LocalDB = {
@@ -2631,6 +2715,7 @@ const LocalDB = {
   async events() { return lget(LK.events, []); },
   emit(ev) { LocalDB.subs.slice().forEach(s => { if (ev.ts > s.since) s.cb(ev); }); },
   onEvent(since, cb) { const s = { since, cb }; LocalDB.subs.push(s); return () => { LocalDB.subs = LocalDB.subs.filter(x => x !== s); }; },
+  // The teacher PIN is only ever kept as a salted hash, on this device.
   async getPin() { return lget(LK.pin, null); },
   async setPin(v) { if (v) lset(LK.pin, v); else localStorage.removeItem(LK.pin); }
 };
@@ -2639,73 +2724,182 @@ window.addEventListener("storage", e => { // other tabs on this device
   let old = []; try { old = JSON.parse(e.oldValue || "[]"); } catch (x) {}
   const seen = new Set(old.map(v => v.id)); try { JSON.parse(e.newValue).filter(v => !seen.has(v.id)).forEach(v => LocalDB.emit(v)); } catch (x) {}
 });
-/* ---- storage adapter: Firebase Realtime Database (when FIREBASE_CONFIG is filled in) ---- */
-function FirebaseDB() {
-  let db, M, A, auth; const base = "https://www.gstatic.com/firebasejs/" + FB_VER + "/";
-  const R = p => M.ref(db, p);
-  const F = {
-    kind: "firebase",
-    async init() {
-      const app = await import(base + "firebase-app.js"); M = await import(base + "firebase-database.js");
-      const fa = app.initializeApp(FIREBASE_CONFIG); db = M.getDatabase(fa);
-      if (FIREBASE_OPTIONS.auth) { A = await import(base + "firebase-auth.js"); auth = A.getAuth(fa); await new Promise(r => { const u = A.onAuthStateChanged(auth, () => { u(); r(); }); }); if (!auth.currentUser) await A.signInAnonymously(auth); }
-    },
-    uid() { return auth && auth.currentUser ? auth.currentUser.uid : null; },
-    authOn: () => !!FIREBASE_OPTIONS.auth,
-    isAdmin() { return !!(auth && auth.currentUser && !auth.currentUser.isAnonymous); },
-    adminEmail() { return auth && auth.currentUser ? auth.currentUser.email : ""; },
-    async adminSignIn() { await A.signInWithPopup(auth, new A.GoogleAuthProvider()); },
-    async players() { return (await M.get(R("players"))).val() || {}; },
-    async savePlayer(r) { const u = F.uid(); if (u && !r.uid && !F.isAdmin()) r.uid = u; await M.set(R("players/" + r.id), r); },
-    async removePlayer(id) {
-      await M.remove(R("players/" + id));
-      const s = await M.get(M.query(R("events"), M.orderByChild("pid"), M.equalTo(id))); const up = {};
-      s.forEach(c => { up[c.key] = null; }); if (Object.keys(up).length) await M.update(R("events"), up);
-    },
-    async resetAll() { await M.remove(R("players")); await M.remove(R("events")); },
-    async pushEvent(ev) { await M.set(M.push(R("events")), ev); },
-    async clearEvents() { await M.remove(R("events")); },
-    async events() { return Object.values((await M.get(R("events"))).val() || {}); },
-    onEvent(since, cb) { return M.onChildAdded(M.query(R("events"), M.orderByChild("ts"), M.startAt(since + 1)), s => { const v = s.val(); if (v && v.ts > since) cb(v); }); },
-    async getPin() { return (await M.get(R("config/teacherPinHash"))).val(); },
-    async setPin(v) { await M.set(R("config/teacherPinHash"), v || null); }
+
+/* ---- storage adapter: Firebase Auth (username + password) + Firestore (when FIREBASE_CONFIG is filled in) ----
+   users/{uid}        private progress (only that student and the teacher can read it)
+   leaderboard/{uid}  public scoreboard row: nickname + scores only (teacher can rename or hide it)
+   events/{id}        "passed a level" alerts for signed-in players
+   admins/{uid}       teacher accounts (added by hand in the Firebase console)                                  */
+function CloudDB() {
+  let A, S, auth, db, lbUnsub = null;
+  const base = "https://www.gstatic.com/firebasejs/" + FB_VER + "/";
+  const boardSubs = new Set();
+  const authErr = e => {
+    const c = (e && e.code) || "";
+    if (/email-already-in-use/.test(c)) return "That username is taken. Try another one.";
+    if (/invalid-credential|wrong-password|user-not-found|invalid-login|invalid-email/.test(c)) return "That username or password isn't right.";
+    if (/weak-password/.test(c)) return "Passwords need at least 6 characters.";
+    if (/too-many-requests/.test(c)) return "Too many tries. Wait a minute and try again.";
+    if (/network-request-failed|unavailable/.test(c)) return "Can't reach the internet. Check the connection, or play as a guest.";
+    if (/user-disabled/.test(c)) return "This account is turned off. Ask your teacher.";
+    return "Something went wrong (" + (c || (e && e.message) || e) + ").";
   };
-  return F;
+  const C = {
+    kind: "cloud", board: {}, teacher: false,
+    async init() {
+      const app = await import(base + "firebase-app.js");
+      A = await import(base + "firebase-auth.js"); S = await import(base + "firebase-firestore.js");
+      const cfg = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey ? FIREBASE_CONFIG : { apiKey: "demo-key", authDomain: "demo-mvm.firebaseapp.com", projectId: "demo-mvm", appId: "demo" };
+      const fa = app.initializeApp(cfg);
+      auth = A.getAuth(fa);
+      try { db = S.initializeFirestore(fa, { localCache: S.persistentLocalCache({ tabManager: S.persistentMultipleTabManager() }) }); }
+      catch (e) { db = S.getFirestore(fa); }
+      if (FB_EMU) { A.connectAuthEmulator(auth, "http://" + location.hostname + ":9099", { disableWarnings: true }); S.connectFirestoreEmulator(db, location.hostname, 8080); }
+      await (auth.authStateReady ? auth.authStateReady() : new Promise(r => { const u = A.onAuthStateChanged(auth, () => { u(); r(); }); }));
+      C.watchBoard();
+      if (auth.currentUser) C.teacher = await C.checkTeacher();
+    },
+    get user() { return auth && auth.currentUser; },
+    get username() { const u = auth && auth.currentUser; return u && u.email ? u.email.split("@")[0] : ""; },
+    authErr,
+    // public scoreboard, live
+    watchBoard() {
+      if (lbUnsub) lbUnsub();
+      lbUnsub = S.onSnapshot(S.query(S.collection(db, "leaderboard"), S.where("hidden", "==", false), S.limit(1000)), snap => {
+        const b = {}; snap.forEach(d => { const v = d.data(); b[d.id] = { uid: d.id, name: v.modName || v.name, levels: v.levels || 0, furthest: v.furthest || 1, done: !!v.done, ts: v.ts || 0 }; });
+        C.board = b; boardSubs.forEach(cb => { try { cb(b); } catch (e) {} });
+      }, e => console.warn("scoreboard listener", e));
+    },
+    onBoard(cb) { boardSubs.add(cb); return () => boardSubs.delete(cb); },
+    nickTaken(n, exceptUid) { const l = cleanNick(n).toLowerCase(); return Object.values(C.board).some(b => b.uid !== exceptUid && String(b.name).toLowerCase() === l); },
+    // accounts
+    async signUp(username, password, nick) {
+      const cred = await A.createUserWithEmailAndPassword(auth, userEmail(username), password);
+      const now = Date.now(), rec = { username: normUser(username), name: cleanNick(nick), episode: 0, level: 0, strength: 100, unlocked: 1, passed: {}, done: false, ts: now, created: now };
+      await S.setDoc(S.doc(db, "users", cred.user.uid), rec);
+      await S.setDoc(S.doc(db, "leaderboard", cred.user.uid), Object.assign(C.entryOf(rec), { hidden: false, modName: null }));
+      C.teacher = false;
+    },
+    async signIn(username, password) { await A.signInWithEmailAndPassword(auth, userEmail(username), password); C.teacher = await C.checkTeacher(); },
+    async signOut() { C.teacher = false; try { await A.signOut(auth); } catch (e) {} },
+    async checkTeacher() { const u = auth.currentUser; if (!u) return false; try { return (await S.getDoc(S.doc(db, "admins", u.uid))).exists(); } catch (e) { return false; } },
+    async loadMine() {
+      const u = auth.currentUser; if (!u) return null;
+      let s; try { s = await S.getDoc(S.doc(db, "users", u.uid)); } catch (e) { s = null; }
+      const cached = lget("mvm.acct.v1", null), mine = cached && cached.uid === u.uid ? cached.rec : null;
+      let r = s && s.exists() ? s.data() : null;
+      if (mine && (!r || (mine.ts || 0) > (r.ts || 0))) r = Object.assign({}, r || {}, mine); // offline save newer than the server copy
+      return r ? Object.assign(r, { id: u.uid, passed: r.passed || {} }) : null;
+    },
+    entryOf(r) { return { name: cleanNick(r.name).slice(0, 16), levels: Math.min(12, passedCount(r)), furthest: Math.max(1, Math.min(3, highestEp(r))), done: !!r.done, ts: r.ts || Date.now() }; },
+    progOf(r) {
+      const p = {}; Object.keys(r.passed || {}).forEach(k => { if (/^[0-2]-[0-3]$/.test(k)) p[k] = Math.round(+r.passed[k]) || Date.now(); });
+      return { username: r.username || C.username, name: cleanNick(r.name).slice(0, 16), episode: Math.max(0, Math.min(2, r.episode | 0)), level: Math.max(0, Math.min(3, r.level | 0)),
+        strength: Math.max(0, Math.min(100, Math.round(+r.strength || 0))), unlocked: Math.max(1, Math.min(3, r.unlocked | 0 || 1)), passed: p, done: !!r.done, ts: Math.round(r.ts || Date.now()), created: Math.round(r.created || Date.now()) };
+    },
+    // Saves are queued by Firestore while offline and sent when the connection comes back.
+    async saveMine(r) {
+      const u = auth.currentUser; if (!u) throw new Error("not signed in");
+      const p = C.progOf(r); lset("mvm.acct.v1", { uid: u.uid, rec: p });
+      const w1 = S.setDoc(S.doc(db, "users", u.uid), p);
+      const ref = S.doc(db, "leaderboard", u.uid);
+      const w2 = S.setDoc(ref, C.entryOf(p), { merge: true }).catch(e => /permission/.test((e && e.code) || "") ? S.setDoc(ref, Object.assign(C.entryOf(p), { hidden: false, modName: null })) : Promise.reject(e));
+      await Promise.all([w1, w2]);
+      const c = lget("mvm.acct.v1", null); if (c && c.uid === u.uid && c.rec.ts === p.ts) localStorage.removeItem("mvm.acct.v1");
+    },
+    async pushEvent(ev) { const u = auth.currentUser; if (!u) return; await S.addDoc(S.collection(db, "events"), { uid: u.uid, ep: ev.ep, lv: ev.lv, ts: ev.ts }); },
+    onEvent(since, cb) {
+      return S.onSnapshot(S.query(S.collection(db, "events"), S.where("ts", ">", since)), snap => {
+        snap.docChanges().forEach(ch => { if (ch.type !== "added") return; const v = ch.doc.data(), who = C.board[v.uid]; if (who) cb({ name: who.name, ep: v.ep, lv: v.lv, ts: v.ts }); });
+      }, () => {});
+    },
+    // teacher (account listed in admins/{uid})
+    async teacherData() {
+      const [lb, us] = await Promise.all([S.getDocs(S.collection(db, "leaderboard")), S.getDocs(S.collection(db, "users"))]);
+      const rows = {}; us.forEach(d => { rows[d.id] = Object.assign({ uid: d.id }, d.data()); });
+      lb.forEach(d => { rows[d.id] = Object.assign(rows[d.id] || { uid: d.id, username: "" }, { entry: d.data() }); });
+      return rows;
+    },
+    async setMod(uid, patch) { await S.updateDoc(S.doc(db, "leaderboard", uid), patch); },
+    async removeStudent(uid) { await Promise.all([S.deleteDoc(S.doc(db, "leaderboard", uid)), S.deleteDoc(S.doc(db, "users", uid))]); },
+    getPin: () => LocalDB.getPin(), setPin: v => LocalDB.setPin(v)
+  };
+  return C;
 }
-let DB = LocalDB;
+let DB = LocalDB, cloudDown = false;
+const cloudMode = () => DB.kind === "cloud";
 const dbReady = (async () => {
   if (!fbOn()) return;
-  try { const f = FirebaseDB(); await f.init(); DB = f; } catch (e) { console.warn("Firebase unavailable — saving on this device only.", e); }
+  try { const f = CloudDB(); await Promise.race([f.init(), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]); DB = f; }
+  catch (e) { cloudDown = true; console.warn("Online accounts unavailable — guest play on this device only.", e); }
 })();
 
 /* ---- the logged-in student ---- */
+// mode: "local" (no Firebase: name on this device), "guest" (Firebase set up, playing without an account), "cloud" (signed in)
 const Progress = {
-  cur: null, since: 0, unsub: null,
+  cur: null, mode: "local", since: 0, unsub: null,
+  startAlerts() {
+    if (this.unsub) { try { this.unsub(); } catch (e) {} }
+    this.since = Date.now();
+    this.unsub = this.mode === "guest" ? null : DB.onEvent(this.since, ev => alertToast(ev.name + " passed Level " + (ev.lv + 1) + " of Episode " + (ev.ep + 1) + "."));
+  },
   async login(name) {
     await dbReady;
-    const all = await DB.players().catch(() => ({}));
+    const all = await LocalDB.players().catch(() => ({}));
     let r = Object.values(all).find(p => p && p.name && p.name.toLowerCase() === name.toLowerCase());
-    const isNew = !r; if (!r) { r = newRec(name); await DB.savePlayer(r).catch(() => {}); }
+    const isNew = !r; if (!r) { r = newRec(name); await LocalDB.savePlayer(r).catch(() => {}); }
     r.passed = r.passed || {};
-    this.cur = r; this.since = Date.now();
-    if (this.unsub) { try { this.unsub(); } catch (e) {} }
-    this.unsub = DB.onEvent(this.since, ev => alertToast(ev.name + " passed Level " + (ev.lv + 1) + " of Episode " + (ev.ep + 1) + "."));
+    this.cur = r; this.mode = "local"; this.startAlerts();
     return { rec: r, isNew };
   },
-  logout() { if (this.unsub) { try { this.unsub(); } catch (e) {} } this.unsub = null; this.cur = null; },
+  loginGuest() {
+    const r = lget(LK.guest, null) || Object.assign(newRec("Guest"), { id: "guest" });
+    r.passed = r.passed || {}; this.cur = r; this.mode = "guest"; this.startAlerts();
+    return { rec: r, isNew: !hasProgress(r) };
+  },
+  // After a successful sign-in / sign-up: load the account and fold in any guest progress from this device.
+  async loginCloud() {
+    let r = await DB.loadMine(), isNew = !r;
+    if (!r) r = Object.assign(newRec(DB.username), { id: DB.user.uid, username: DB.username });
+    const g = lget(LK.guest, null);
+    if (g && hasProgress(g)) {
+      r = mergeRecs(r, g); isNew = false; localStorage.removeItem(LK.guest);
+      setTimeout(() => alertToast("Your guest progress was added to your account."), 300);
+    }
+    r.passed = r.passed || {}; this.cur = r; this.mode = "cloud"; this.startAlerts();
+    if (g && hasProgress(g)) await this.save({});
+    return { rec: r, isNew: isNew || !hasProgress(r) };
+  },
+  logout() {
+    if (this.unsub) { try { this.unsub(); } catch (e) {} } this.unsub = null;
+    if (this.mode === "cloud" && cloudMode()) DB.signOut();
+    this.cur = null;
+  },
   async save(patch) {
     if (!this.cur) return;
     Object.assign(this.cur, patch, { ts: Date.now() });
-    try { await DB.savePlayer(this.cur); } catch (e) { console.warn("save failed", e); alertToast("Couldn't save — check the connection."); }
+    if (this.mode === "guest") { lset(LK.guest, this.cur); return; }
+    if (this.mode === "cloud") {
+      // Firestore keeps the write (on this device) while offline and sends it when the connection is back.
+      const w = DB.saveMine(this.cur).then(() => "ok", e => { console.warn("save failed", e); return "err"; });
+      const r = await Promise.race([w, new Promise(ok => setTimeout(() => ok("slow"), 5000))]);
+      if (r === "slow") alertToast("Saved on this device. It will sync when you're back online.");
+      if (r === "err") alertToast("Couldn't save online — check the connection.");
+      return;
+    }
+    try { await LocalDB.savePlayer(this.cur); } catch (e) { console.warn("save failed", e); alertToast("Couldn't save — check the connection."); }
   },
   async levelPassed(ep, lv, strength) {
     const r = this.cur; if (!r) return;
     const lastLv = lv + 1 >= LEVELS.length, lastEp = ep + 1 >= EPISODES.length;
     r.passed = r.passed || {}; r.passed[ep + "-" + lv] = Date.now();
     const nx = !lastLv ? [ep, lv + 1] : !lastEp ? [ep + 1, 0] : [ep, lv];
-    await this.save({ episode: nx[0], level: nx[1], strength, done: !!r.done || (lastLv && lastEp),
+    const saving = this.save({ episode: nx[0], level: nx[1], strength, done: !!r.done || (lastLv && lastEp),
       unlocked: Math.max(r.unlocked || 1, Math.min(EPISODES.length, lastLv ? ep + 2 : ep + 1)) });
-    try { await DB.pushEvent({ id: evId(), pid: r.id, name: r.name, ep, lv, ts: Date.now() }); } catch (e) {}
+    const ev = { id: evId(), pid: r.id, name: r.name, ep, lv, ts: Date.now() };
+    if (this.mode === "cloud") { try { await DB.pushEvent(ev); } catch (e) {} }
+    else if (this.mode === "local") { try { await LocalDB.pushEvent(ev); } catch (e) {} }
+    await saving;
   },
   async saveLater(ep, lv, strength) { await this.save({ episode: ep, level: lv, strength }); },
   async lost(ep) { await this.save({ episode: ep, level: 0, strength: 100 }); },
@@ -2747,52 +2941,48 @@ function randHex(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); re
 const fmtWhen = ts => { try { return ts ? new Date(ts).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"; } catch (e) { return "—"; } };
 const reachTxt = r => r.done ? "All 3 episodes 🏆" : "Episode " + ((r.episode || 0) + 1) + " · Level " + ((r.level || 0) + 1);
 
-/* ---- leaderboard ---- */
-function lbHtml(players, view) {
-  view = "all"; // one unified board, no episode tabs
-  const list = Object.values(players || {}).filter(p => p && p.name);
-  const tabs = "";
-  if (!list.length) return '<h2>🏆 Leaderboard</h2>' + tabs + '<div class="lbempty">No explorers yet — be the first!</div>';
-  let body;
-  if (view === "all") {
-    list.sort((a, b) => passedCount(b) - passedCount(a) || highestEp(b) - highestEp(a) || a.name.localeCompare(b.name));
-    body = '<table class="lbt"><thead><tr><th>#</th><th>Explorer</th><th>Levels cleared</th><th>Furthest</th></tr></thead><tbody>' +
-      list.map((p, i) => '<tr><td class="rk">' + (i + 1) + "</td><td>" + escH(p.name) + "</td><td>" + passedCount(p) + " / 12</td><td>" + (p.done ? "Champion 🏆" : "Episode " + highestEp(p)) + "</td></tr>").join("") + "</tbody></table>";
-  } else {
-    const ep = +view, cnt = p => [0, 1, 2, 3].filter(l => (p.passed || {})[ep + "-" + l]).length;
-    const rows = list.filter(p => cnt(p) > 0 || (p.episode || 0) === ep).sort((a, b) => cnt(b) - cnt(a) || a.name.localeCompare(b.name));
-    body = rows.length ? '<table class="lbt"><thead><tr><th>#</th><th>Explorer</th>' + [0, 1, 2, 3].map(l => "<th>" + escH(LVI(ep, l).name) + "</th>").join("") + "</tr></thead><tbody>" +
-      rows.map((p, i) => '<tr><td class="rk">' + (i + 1) + "</td><td>" + escH(p.name) + "</td>" + [0, 1, 2, 3].map(l => (p.passed || {})[ep + "-" + l] ? '<td class="ck">✔</td>' : '<td class="no">·</td>').join("") + "</tr>").join("") + "</tbody></table>"
-      : '<div class="lbempty">Nobody has reached Episode ' + (ep + 1) + " yet.</div>";
-  }
-  return '<h2>🏆 Leaderboard</h2>' + tabs + '<div class="lbscroll">' + body + "</div>";
+/* ---- leaderboard (public when accounts are on) ---- */
+function boardRows(players) {
+  if (cloudMode()) return Object.values(DB.board);
+  return Object.values(players || {}).filter(p => p && p.name).map(p => ({ uid: p.id, name: p.name, levels: passedCount(p), furthest: highestEp(p), done: !!p.done, ts: p.ts || 0 }));
+}
+function lbHtml(players) {
+  const list = boardRows(players), me = Progress.cur && Progress.mode === "cloud" ? Progress.cur.id : null;
+  const head = '<h2>🏆 ' + (cloudMode() ? "Scoreboard" : "Leaderboard") + "</h2>" + (cloudMode() ? '<div class="lbpub">Everyone can see this board. It shows scoreboard names only.</div>' : "");
+  if (!list.length) return head + '<div class="lbempty">No explorers yet — be the first!</div>';
+  list.sort((a, b) => (b.done ? 1 : 0) - (a.done ? 1 : 0) || b.levels - a.levels || b.furthest - a.furthest || (a.ts || 0) - (b.ts || 0) || String(a.name).localeCompare(String(b.name)));
+  const body = '<table class="lbt"><thead><tr><th>#</th><th>Explorer</th><th>Levels cleared</th><th>Furthest</th></tr></thead><tbody>' +
+    list.map((p, i) => '<tr' + (me && p.uid === me ? ' class="me"' : "") + '><td class="rk">' + (i + 1) + "</td><td>" + escH(p.name) + (me && p.uid === me ? ' <span class="lbyou">you</span>' : "") + "</td><td>" + p.levels + " / 12</td><td>" + (p.done ? "Champion 🏆" : "Episode " + p.furthest) + "</td></tr>").join("") + "</tbody></table>";
+  return head + '<div class="lbscroll">' + body + "</div>";
 }
 async function openBoard() {
   await dbReady;
-  const players = await DB.players().catch(() => ({})); let view = "all";
+  const players = cloudMode() ? {} : await LocalDB.players().catch(() => ({}));
   const m = modal('<div class="mdlb"></div><div class="mdbtns"><button class="mdok" data-md="close">Close</button></div>', "wide lbmodal");
-  const draw = () => { m.el.querySelector(".mdlb").innerHTML = lbHtml(players, view); }; draw();
-  m.el.addEventListener("click", e => { const t = e.target.closest('[data-pg="lbtab"]'); if (t) { view = t.dataset.v; draw(); return; } if (e.target.closest('[data-md="close"]') || e.target === m.el) m.close(); });
-  m.el._ok = m.el._cancel = m.close;
+  const draw = () => { if (m.el.isConnected) m.el.querySelector(".mdlb").innerHTML = lbHtml(players); }; draw();
+  const off = cloudMode() ? DB.onBoard(draw) : null;
+  const close = () => { if (off) off(); m.close(); };
+  m.el.addEventListener("click", e => { if (e.target.closest('[data-md="close"]') || e.target === m.el) close(); });
+  m.el._ok = m.el._cancel = close;
 }
 
 /* ---- login, resume and teacher screens (drawn inside #cine) ---- */
 let pgHandler = null;
 document.getElementById("cine").addEventListener("click", e => { const b = e.target.closest("[data-pg]"); if (b && pgHandler) pgHandler(b.dataset.pg, b, e); });
+const loginShell = (left, right) => '<div class="cscreen login"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="lgwrap">' +
+  '<div class="lghead"><div class="tlogo sm">MAN <span>vs.</span> MATH</div><div class="tsub">Surviving Long Division</div></div>' +
+  '<div class="lgcols">' + left + '<div class="lgcard lb" id="lbbox">' + right + "</div></div></div>" +
+  '<button class="lgteach" data-pg="teacher">Teacher</button></div>';
 async function loginScreen() {
   await dbReady;
   preloadBoot();
-  const players = await DB.players().catch(() => ({}));
+  if (cloudMode() || cloudDown) return accountScreen();
+  const players = await LocalDB.players().catch(() => ({}));
   const names = Object.values(players).filter(p => p && p.name).sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(p => p.name);
   return new Promise(res => {
-    let view = "all";
-    Cine.show('<div class="cscreen login"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="lgwrap">' +
-      '<div class="lghead"><div class="tlogo sm">MAN <span>vs.</span> MATH</div><div class="tsub">Surviving Long Division</div></div>' +
-      '<div class="lgcols"><div class="lgcard"><h2>Who\'s playing?</h2><div class="lghint">Type your first name and last initial, like <b>Sam T.</b></div><form id="lgform" autocomplete="off"><input id="lgname" maxlength="30" placeholder="First name + last initial" autocapitalize="words" autocomplete="off" spellcheck="false" aria-label="Your first name and last initial"><button class="lgbtn" type="submit">Start ▶</button></form><div class="lgmsg" id="lgmsg"></div>' +
+    Cine.show(loginShell('<div class="lgcard"><h2>Who\'s playing?</h2><div class="lghint">Type your first name and last initial, like <b>Sam T.</b></div><form id="lgform" autocomplete="off"><input id="lgname" maxlength="30" placeholder="First name + last initial" autocapitalize="words" autocomplete="off" spellcheck="false" aria-label="Your first name and last initial"><button class="lgbtn" type="submit">Start ▶</button></form><div class="lgmsg" id="lgmsg"></div>' +
       (names.length ? '<div class="lgsub">Already played here? Tap your name:</div><div class="lgnames">' + names.map(n => '<button data-pg="pick" data-name="' + escH(n) + '">' + escH(n) + "</button>").join("") + "</div>" : "") +
-      '<div class="lgnote">' + (DB.kind === "firebase" ? "Progress is shared online with your class." : "Progress is saved on this device.") + "</div></div>" +
-      '<div class="lgcard lb" id="lbbox">' + lbHtml(players, view) + "</div></div></div>" +
-      '<button class="lgteach" data-pg="teacher">Teacher</button></div>');
+      '<div class="lgnote">Progress is saved on this device.</div></div>', lbHtml(players)));
     const inp = document.getElementById("lgname"), msg = document.getElementById("lgmsg");
     inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); document.getElementById("lgform").requestSubmit ? document.getElementById("lgform").requestSubmit() : document.getElementById("lgform").dispatchEvent(new Event("submit", { cancelable: true })); } });
     inp.addEventListener("input", () => { const n = normName(inp.value); msg.className = "lgmsg" + (n ? " ok" : ""); msg.textContent = n ? "You'll play as " + n : ""; });
@@ -2804,20 +2994,80 @@ async function loginScreen() {
     pgHandler = (k, b) => {
       if (k === "pick") { unlockMedia(); pgHandler = null; res({ name: b.dataset.name }); }
       if (k === "teacher") { pgHandler = null; res({ teacher: true }); }
-      if (k === "lbtab") { view = b.dataset.v; document.getElementById("lbbox").innerHTML = lbHtml(players, view); }
     };
+  });
+}
+// Sign in / create account / play as guest (Firebase set up). Resolves { cloud:true } once signed in.
+function accountScreen(startTab) {
+  return new Promise(res => {
+    let tab = startTab || "in", busy = false, offBoard = null;
+    const guestHas = hasProgress(lget(LK.guest, null));
+    const field = (id, label, attrs) => '<label class="lgfield" for="' + id + '"><span>' + label + "</span><input id=\"" + id + '" class="lgin" ' + attrs + "></label>";
+    const left = () => {
+      if (!cloudMode()) return '<div class="lgcard acct"><h2>Who\'s playing?</h2><div class="lgoff">Can\'t reach the online scoreboard right now.</div>' +
+        '<div class="lghint">You can still play as a guest. Your progress stays on this device, and it\'s added to your account the next time you sign in here.</div>' +
+        '<div class="lgacts"><button class="lgbtn" data-pg="guest">Play as guest ▶</button><button class="rsalt" data-pg="retry">Try again</button></div></div>';
+      const tabs = '<div class="lgtabs" role="tablist"><button role="tab" data-pg="tab-in" class="' + (tab === "in" ? "sel" : "") + '" aria-selected="' + (tab === "in") + '">Sign in</button><button role="tab" data-pg="tab-up" class="' + (tab === "up" ? "sel" : "") + '" aria-selected="' + (tab === "up") + '">Create account</button></div>';
+      const form = tab === "in"
+        ? '<form id="acform" class="acform" autocomplete="on">' + field("acuser", "Username", 'name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" placeholder="e.g. jungle_sam"') +
+          field("acpass", "Password", 'type="password" name="password" autocomplete="current-password" maxlength="64" placeholder="Your password"') + '<button class="lgbtn" type="submit">Sign in ▶</button></form>'
+        : '<form id="acform" class="acform" autocomplete="on">' + field("acuser", "Pick a username <small>(to sign in)</small>", 'name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" placeholder="e.g. jungle_sam"') +
+          field("acpass", "Make a password <small>(6+ characters)</small>", 'type="password" name="password" autocomplete="new-password" maxlength="64" placeholder="At least 6 characters"') +
+          field("acnick", "Scoreboard name <small>(everyone sees this)</small>", 'name="nickname" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="16" placeholder="e.g. Sam the Brave"') +
+          '<div class="lghint sm">Use a nickname, not your full name. Write your username and password down somewhere safe.</div><button class="lgbtn" type="submit">Create account ▶</button></form>';
+      return '<div class="lgcard acct">' + tabs + form + '<div class="lgmsg" id="lgmsg" role="status" aria-live="polite"></div>' +
+        '<div class="lgor"><span>or</span></div><button class="rsalt lgguest" data-pg="guest">Play as guest' + (guestHas ? " (keep going)" : "") + "</button>" +
+        '<div class="lgnote">Signed in, your scores are saved online and follow you to any device. Guest progress stays on this device until you sign in.</div></div>';
+    };
+    const draw = () => {
+      Cine.show(loginShell(left(), lbHtml({})));
+      const f = document.getElementById("acform"); if (f) f.addEventListener("submit", submit);
+      const u = document.getElementById("acuser"); if (u && !matchMedia("(pointer: coarse)").matches) setTimeout(() => u.focus(), 50);
+    };
+    const say = (t, cls) => { const m = document.getElementById("lgmsg"); if (m) { m.className = "lgmsg " + (cls || ""); m.textContent = t; } };
+    const finish = r => { if (offBoard) offBoard(); pgHandler = null; res(r); };
+    async function submit(e) {
+      e.preventDefault(); if (busy) return;
+      const u = document.getElementById("acuser").value, p = document.getElementById("acpass").value, nEl = document.getElementById("acnick");
+      const uErr = checkUsername(u); if (uErr && tab === "up") { say(uErr, "bad"); return; }
+      if (!normUser(u) || !p) { say("Type your username and password.", "bad"); return; }
+      if (tab === "up") {
+        if (p.length < 6) { say("Passwords need at least 6 characters.", "bad"); return; }
+        const nErr = checkNick(nEl.value, { taken: n => DB.nickTaken(n) }); if (nErr) { say(nErr, "bad"); nEl.focus(); return; }
+      }
+      busy = true; say(tab === "up" ? "Creating your account…" : "Signing in…", "ok"); unlockMedia();
+      document.querySelectorAll("#acform button, #acform input").forEach(x => x.disabled = true);
+      try {
+        if (tab === "up") await DB.signUp(u, p, nEl.value); else await DB.signIn(u, p);
+        finish({ cloud: true });
+      } catch (err) {
+        busy = false; document.querySelectorAll("#acform button, #acform input").forEach(x => x.disabled = false);
+        say(DB.authErr(err), "bad");
+      }
+    }
+    pgHandler = k => {
+      if (busy) return;
+      if (k === "tab-in" || k === "tab-up") { tab = k.slice(4); draw(); return; }
+      if (k === "guest") { unlockMedia(); finish({ guest: true }); return; }
+      if (k === "retry") { location.reload(); return; }
+      if (k === "teacher") { finish({ teacher: true }); return; }
+    };
+    draw();
+    if (cloudMode()) offBoard = DB.onBoard(() => { const b = document.getElementById("lbbox"); if (b) b.innerHTML = lbHtml({}); });
   });
 }
 function resumeScreen(r) {
   return new Promise(res => {
-    const L = LVI(r.episode, r.level), E = EP_INFO[r.episode] || EP_INFO[0];
+    const L = LVI(r.episode, r.level), E = EP_INFO[r.episode] || EP_INFO[0], guest = Progress.mode === "guest";
     const line = r.done ? "Welcome back, " + r.name + ": all three episodes complete!" : "Welcome back, " + r.name + ": Episode " + (r.episode + 1) + ", Level " + (r.level + 1) + " next, Strength " + Math.round(r.strength) + "%";
     Cine.show('<div class="cscreen resume"><img class="hero" src="' + ASSET("title-hero.jpg") + '" alt=""><div class="tgrad"></div><div class="lgwrap"><div class="lgcard rscard">' +
       "<h1>Welcome back, " + escH(r.name) + '!</h1><div class="rsline" id="rsline">' + escH(line) + "</div>" +
       (r.done ? '<div class="rsdet">' + passedCount(r) + " of 12 levels cleared. Pick any episode to play again.</div>" : '<div class="rsdet">Episode ' + (r.episode + 1) + " · " + escH(E.name) + " — Level " + (r.level + 1) + ": " + escH(L.name) + " · " + passedCount(r) + " of 12 levels cleared</div>" +
         '<div class="rsmeter"><div class="meterbar"><div class="fillbar" style="width:' + r.strength + "%;background:" + meterColor(r.strength) + '"></div></div><span>' + Math.round(r.strength) + "% strength</span></div>") +
+      (guest ? '<div class="rsdet">Playing as a guest: progress is saved on this device only.</div>' : "") +
       '<div class="rsbtns">' + (r.done ? "" : '<button class="tstart cprimary" data-pg="continue">▶&nbsp; Continue</button>') +
-      '<button class="rsalt' + (r.done ? " cprimary" : "") + '" data-pg="choose">Choose an episode</button><button class="rsalt" data-pg="board">🏆 Leaderboard</button><button class="rsalt" data-pg="switch">Not ' + escH(r.name) + "? Switch player</button></div></div></div></div>");
+      '<button class="rsalt' + (r.done ? " cprimary" : "") + '" data-pg="choose">Choose an episode</button><button class="rsalt" data-pg="board">🏆 ' + (cloudMode() ? "Scoreboard" : "Leaderboard") + "</button>" +
+      (guest ? '<button class="rsalt" data-pg="switch">Sign in to save your scores</button>' : '<button class="rsalt" data-pg="switch">Not ' + escH(r.name) + "? " + (Progress.mode === "cloud" ? "Sign out" : "Switch player") + "</button>") + "</div></div></div></div>");
     pgHandler = k => { if (k === "board") { openBoard(); return; } if (k === "continue" || k === "choose") unlockMedia(); pgHandler = null; res(k); };
   });
 }
@@ -2826,7 +3076,7 @@ async function teacherFlow() {
   if (!window.crypto || !crypto.subtle) { await ask({ title: "Teacher", text: "Teacher tools need the secure (https) game page.", cancel: null }); return; }
   let rec = await DB.getPin().catch(() => null);
   if (!rec) {
-    const p1 = await ask({ title: "Create a teacher PIN", text: "First time here: choose a 4–8 digit PIN. Only a salted hash of it is stored.", input: "pin", placeholder: "New PIN", ok: "Next", check: v => /^\d{4,8}$/.test(v) ? null : "Use 4 to 8 digits." });
+    const p1 = await ask({ title: "Create a teacher PIN", text: "First time on this device: choose a 4–8 digit PIN. Only a salted hash of it is stored, on this device.", input: "pin", placeholder: "New PIN", ok: "Next", check: v => /^\d{4,8}$/.test(v) ? null : "Use 4 to 8 digits." });
     if (p1 === false) return;
     const p2 = await ask({ title: "Confirm the PIN", text: "Type the same PIN again.", input: "pin", placeholder: "Same PIN again", ok: "Save PIN", check: v => v === p1 ? null : "The PINs don't match — try again." });
     if (p2 === false) return;
@@ -2837,7 +3087,7 @@ async function teacherFlow() {
     const ok = await ask({ title: "Teacher", text: "Enter the teacher PIN.", input: "pin", ok: "Unlock", check: async v => (await sha256(rec.salt + ":" + v)) === rec.hash ? null : "That PIN isn't right." });
     if (ok === false) return;
   }
-  await teacherScreen();
+  await (cloudMode() ? teacherCloudScreen() : teacherScreen());
 }
 function rosterCsv(players) {
   const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
@@ -2845,16 +3095,15 @@ function rosterCsv(players) {
   return ["Student,Episode,Next level,Levels passed,Strength %,Last played,Passed (episode-level)"].concat(rows.map(r => [q(r.name), r.done ? "done" : (r.episode || 0) + 1, r.done ? "" : (r.level || 0) + 1, passedCount(r), Math.round(r.strength), q(r.ts ? new Date(r.ts).toISOString() : ""),
     q(Object.keys(r.passed || {}).sort().map(k => "E" + (+k.split("-")[0] + 1) + "L" + (+k.split("-")[1] + 1)).join(" "))].join(","))).join("\n") + "\n";
 }
+function downloadCsv(csv) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "man-vs-math-roster-" + new Date().toISOString().slice(0, 10) + ".csv"; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__lastCsv = csv; }
 function teacherScreen() {
   return new Promise(res => {
     let players = {};
-    const load = async () => { players = await DB.players().catch(() => ({})); draw(); };
+    const load = async () => { players = await LocalDB.players().catch(() => ({})); draw(); };
     const draw = () => {
       const rows = Object.values(players).filter(p => p && p.name).sort((a, b) => a.name.localeCompare(b.name));
-      const fbAuth = DB.kind === "firebase" && DB.authOn && DB.authOn();
-      Cine.show('<div class="cscreen teacher"><div class="tchwrap"><div class="tchhead"><h1>Teacher</h1><div class="tchsub">' + rows.length + " student" + (rows.length === 1 ? "" : "s") + " · " + (DB.kind === "firebase" ? "shared online (Firebase)" : "saved on this device") + "</div>" +
+      Cine.show('<div class="cscreen teacher"><div class="tchwrap"><div class="tchhead"><h1>Teacher</h1><div class="tchsub">' + rows.length + " student" + (rows.length === 1 ? "" : "s") + " · saved on this device</div>" +
         '<button data-pg="t-close" class="tbtn sec">Done</button></div>' +
-        (fbAuth ? '<div class="tchauth">' + (DB.isAdmin() ? "Signed in as " + escH(DB.adminEmail()) : '<button data-pg="t-google" class="tbtn sec">Sign in with Google (needed to remove or reset)</button>') + "</div>" : "") +
         '<div class="tchact"><button data-pg="t-add" class="tbtn">＋ Add student</button><button data-pg="t-csv" class="tbtn">⬇ Export CSV</button><button data-pg="t-alerts" class="tbtn sec">Clear alerts</button><button data-pg="t-reset" class="tbtn danger">Reset scoreboard &amp; all student data</button></div>' +
         '<div class="tchtable"><table><thead><tr><th>Student</th><th>Reached</th><th>Levels passed</th><th>Strength</th><th>Last played</th><th></th></tr></thead><tbody>' +
         (rows.length ? rows.map(r => "<tr><td><b>" + escH(r.name) + "</b></td><td>" + escH(reachTxt(r)) + "</td><td>" + passedCount(r) + " / 12</td><td>" + Math.round(r.strength) + "%</td><td>" + escH(fmtWhen(r.ts)) + '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + r.id + '">Rename</button><button data-pg="t-del" data-id="' + r.id + '" class="danger">Remove</button></td></tr>').join("")
@@ -2866,17 +3115,74 @@ function teacherScreen() {
     pgHandler = async (k, b) => {
       const r = b.dataset.id && players[b.dataset.id];
       if (k === "t-close") { pgHandler = null; res(); return; }
-      if (k === "t-google") return guard(() => DB.adminSignIn());
-      if (k === "t-add") { const v = await ask({ title: "Add a student", text: "First name and last initial.", input: "text", placeholder: "e.g. Sam T.", ok: "Add", check: nameCheck(null) }); if (v !== false) await guard(() => DB.savePlayer(newRec(normName(v)))); return; }
-      if (k === "t-ren" && r) { const v = await ask({ title: "Rename " + r.name, text: "First name and last initial.", input: "text", value: r.name, ok: "Rename", check: nameCheck(r.id) }); if (v !== false) await guard(() => DB.savePlayer(Object.assign({}, r, { name: normName(v) }))); return; }
-      if (k === "t-del" && r) { const v = await ask({ title: "Remove " + r.name + "?", text: "This deletes " + r.name + "'s saved game, progress and alerts. It can't be undone.", ok: "Remove", danger: true }); if (v !== false) await guard(() => DB.removePlayer(r.id)); return; }
-      if (k === "t-alerts") { const v = await ask({ title: "Clear alerts?", text: "Removes the history of “passed a level” alerts. Student progress stays.", ok: "Clear alerts" }); if (v !== false) await guard(() => DB.clearEvents()); if (v !== false) alertToast("Alerts cleared."); return; }
-      if (k === "t-reset") { const v = await ask({ title: "Reset everything?", text: "This deletes every student, every saved game, the scoreboard and all alerts. Type RESET to confirm.", input: "text", placeholder: "RESET", ok: "Reset everything", danger: true, check: v => v === "RESET" ? null : "Type RESET in capital letters." }); if (v !== false) { await guard(() => DB.resetAll()); alertToast("Scoreboard and student data reset."); } return; }
-      if (k === "t-csv") { const csv = rosterCsv(players); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "man-vs-math-roster-" + new Date().toISOString().slice(0, 10) + ".csv"; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__lastCsv = csv; return; }
+      if (k === "t-add") { const v = await ask({ title: "Add a student", text: "First name and last initial.", input: "text", placeholder: "e.g. Sam T.", ok: "Add", check: nameCheck(null) }); if (v !== false) await guard(() => LocalDB.savePlayer(newRec(normName(v)))); return; }
+      if (k === "t-ren" && r) { const v = await ask({ title: "Rename " + r.name, text: "First name and last initial.", input: "text", value: r.name, ok: "Rename", check: nameCheck(r.id) }); if (v !== false) await guard(() => LocalDB.savePlayer(Object.assign({}, r, { name: normName(v) }))); return; }
+      if (k === "t-del" && r) { const v = await ask({ title: "Remove " + r.name + "?", text: "This deletes " + r.name + "'s saved game, progress and alerts. It can't be undone.", ok: "Remove", danger: true }); if (v !== false) await guard(() => LocalDB.removePlayer(r.id)); return; }
+      if (k === "t-alerts") { const v = await ask({ title: "Clear alerts?", text: "Removes the history of “passed a level” alerts. Student progress stays.", ok: "Clear alerts" }); if (v !== false) await guard(() => LocalDB.clearEvents()); if (v !== false) alertToast("Alerts cleared."); return; }
+      if (k === "t-reset") { const v = await ask({ title: "Reset everything?", text: "This deletes every student, every saved game, the scoreboard and all alerts. Type RESET to confirm.", input: "text", placeholder: "RESET", ok: "Reset everything", danger: true, check: v => v === "RESET" ? null : "Type RESET in capital letters." }); if (v !== false) { await guard(() => LocalDB.resetAll()); alertToast("Scoreboard and student data reset."); } return; }
+      if (k === "t-csv") { downloadCsv(rosterCsv(players)); return; }
     };
     load();
   });
 }
+// Teacher screen with online accounts: sign in with the teacher account, then rename / hide / show / remove scoreboard entries.
+function teacherCloudScreen() {
+  return new Promise(res => {
+    let rows = {}, err = "", busy = false;
+    const shown = r => (r.entry && (r.entry.modName || r.entry.name)) || r.name || "?";
+    const load = async () => { if (DB.teacher) { try { rows = await DB.teacherData(); err = ""; } catch (e) { err = "Couldn't load students: " + ((e && e.code) || e); } } draw(); };
+    const draw = () => {
+      const list = Object.values(rows).sort((a, b) => shown(a).localeCompare(shown(b)));
+      const head = '<div class="tchhead"><h1>Teacher</h1><div class="tchsub">' + (DB.teacher ? list.length + " account" + (list.length === 1 ? "" : "s") + " · online scoreboard" : "Online scoreboard") + "</div>" +
+        '<button data-pg="t-close" class="tbtn sec">Done</button></div>';
+      if (!DB.teacher) {
+        Cine.show('<div class="cscreen teacher"><div class="tchwrap">' + head + '<div class="lgcard tchlogin"><h2>Sign in with the teacher account</h2>' +
+          '<div class="lghint">Use the game username and password of the account you listed in Firebase as a teacher (see FIREBASE_SETUP.md).</div>' +
+          '<form id="tform" class="acform" autocomplete="on"><label class="lgfield" for="tuser"><span>Username</span><input id="tuser" class="lgin" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20"></label>' +
+          '<label class="lgfield" for="tpass"><span>Password</span><input id="tpass" class="lgin" type="password" autocomplete="current-password" maxlength="64"></label><button class="lgbtn" type="submit">Sign in ▶</button></form>' +
+          '<div class="lgmsg bad" id="tmsg">' + escH(err) + "</div></div></div></div>");
+        document.getElementById("tform").addEventListener("submit", async e => {
+          e.preventDefault(); if (busy) return; busy = true; const m = document.getElementById("tmsg"); m.className = "lgmsg ok"; m.textContent = "Signing in…";
+          try { await DB.signIn(document.getElementById("tuser").value, document.getElementById("tpass").value); if (!DB.teacher) { await DB.signOut(); err = "That account isn't set up as a teacher account."; } else err = ""; }
+          catch (x) { err = DB.authErr(x); }
+          busy = false; await load();
+        });
+        return;
+      }
+      Cine.show('<div class="cscreen teacher"><div class="tchwrap">' + head +
+        '<div class="tchauth">Signed in as teacher <b>' + escH(DB.username) + "</b>. Hidden names never show on the public scoreboard.</div>" +
+        '<div class="tchact"><button data-pg="t-csv" class="tbtn">⬇ Export CSV</button><button data-pg="t-refresh" class="tbtn sec">↻ Refresh</button><button data-pg="t-out" class="tbtn sec">Sign out teacher</button></div>' +
+        (err ? '<div class="lgmsg bad">' + escH(err) + "</div>" : "") +
+        '<div class="tchtable"><table><thead><tr><th>Scoreboard name</th><th>Username</th><th>Reached</th><th>Levels</th><th>Last played</th><th>On board</th><th></th></tr></thead><tbody>' +
+        (list.length ? list.map(r => { const e = r.entry || {}, hid = !!e.hidden; return '<tr class="' + (hid ? "hid" : "") + '"><td><b>' + escH(shown(r)) + "</b>" + (e.modName && e.name ? '<div class="tchwas">chose “' + escH(e.name) + "”</div>" : "") + "</td><td>" + escH(r.username || "—") + "</td><td>" + escH(r.episode != null ? reachTxt(r) : "—") + "</td><td>" + (r.passed ? passedCount(r) : e.levels || 0) + " / 12</td><td>" + escH(fmtWhen(r.ts || e.ts)) + "</td><td>" + (hid ? "Hidden" : "Shown") +
+          '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + escH(r.uid) + '">Rename</button>' + (r.entry ? '<button data-pg="t-hide" data-id="' + escH(r.uid) + '">' + (hid ? "Show" : "Hide") + "</button>" : "") + '<button data-pg="t-del" data-id="' + escH(r.uid) + '" class="danger">Remove</button></td></tr>'; }).join("")
+          : '<tr><td colspan="7" class="empty">No accounts yet. Students appear here after they create an account.</td></tr>') + "</tbody></table></div></div></div>");
+    };
+    const guard = async fn => { try { await fn(); } catch (e) { await ask({ title: "That didn't work", text: String((e && (e.code || e.message)) || e), cancel: null }); } await load(); };
+    pgHandler = async (k, b) => {
+      const r = b.dataset.id && rows[b.dataset.id];
+      if (k === "t-close") { if (DB.teacher) await DB.signOut(); pgHandler = null; res(); return; }
+      if (k === "t-out") { await DB.signOut(); rows = {}; draw(); return; }
+      if (k === "t-refresh") { await load(); return; }
+      if (k === "t-ren" && r && r.entry) {
+        const v = await ask({ title: "Rename " + shown(r), text: "New scoreboard name (2–16 letters or numbers). Use their chosen name to undo a rename.", input: "text", value: shown(r), ok: "Rename", check: v => checkNick(v, { taken: n => DB.nickTaken(n, r.uid) }) });
+        if (v !== false) { const n = cleanNick(v); await guard(() => DB.setMod(r.uid, { modName: n === r.entry.name ? null : n })); } return;
+      }
+      if (k === "t-ren" && r) { await ask({ title: "No scoreboard entry", text: "This account has no scoreboard row yet; it appears after the student plays.", cancel: null }); return; }
+      if (k === "t-hide" && r && r.entry) { await guard(() => DB.setMod(r.uid, { hidden: !r.entry.hidden })); return; }
+      if (k === "t-del" && r) { const v = await ask({ title: "Remove " + shown(r) + "?", text: "Deletes this student's saved progress and scoreboard row. They can still sign in and start over. To keep a name off the board, use Hide instead.", ok: "Remove", danger: true }); if (v !== false) await guard(() => DB.removeStudent(r.uid)); return; }
+      if (k === "t-csv") {
+        const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+        const list = Object.values(rows).sort((a, b) => shown(a).localeCompare(shown(b)));
+        downloadCsv(["Scoreboard name,Username,Episode,Next level,Levels passed,Strength %,Last played,On scoreboard,Passed (episode-level)"].concat(list.map(r => [q(shown(r)), q(r.username), r.done ? "done" : (r.episode || 0) + 1, r.done ? "" : (r.level || 0) + 1, passedCount(r), Math.round(r.strength || 0), q(r.ts ? new Date(r.ts).toISOString() : ""), r.entry && r.entry.hidden ? "hidden" : "shown",
+          q(Object.keys(r.passed || {}).sort().map(k => "E" + (+k.split("-")[0] + 1) + "L" + (+k.split("-")[1] + 1)).join(" "))].join(","))).join("\n") + "\n"); return;
+      }
+    };
+    load();
+  });
+}
+window.__MVM_AUTH = { checkUsername, checkNick, badWords, mergeRecs, userEmail, get DB() { return DB; }, Progress, accountScreen, openBoard };
+
 
 /* ================= dev tools (?dev=1) ================= */
 async function devSolve() {

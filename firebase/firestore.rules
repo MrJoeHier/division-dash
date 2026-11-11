@@ -1,0 +1,63 @@
+rules_version = '2';
+// Man vs. Math: Firestore security rules (paste into Firebase console → Firestore Database → Rules → Publish).
+//   users/{uid}        private progress: only that student (and a teacher) can read; only that student can write
+//   leaderboard/{uid}  public scoreboard: anyone can read rows that aren't hidden; only nickname + scores are stored
+//   events/{id}        "passed a level" alerts for signed-in players (no names stored)
+//   admins/{uid}       teacher accounts: added by hand in the console, never writable from the game
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+    function isTeacher() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function okInt(v, lo, hi) { return v is int && v >= lo && v <= hi; }
+    function okName(n) { return n is string && n.size() >= 2 && n.size() <= 16 && n.matches('[A-Za-z0-9][A-Za-z0-9 _.-]*'); }
+    function progKeys() { return ['username', 'name', 'episode', 'level', 'strength', 'unlocked', 'passed', 'done', 'ts', 'created']; }
+    function levelKeys() { return ['0-0', '0-1', '0-2', '0-3', '1-0', '1-1', '1-2', '1-3', '2-0', '2-1', '2-2', '2-3']; }
+    function okProgress(d) {
+      return d.keys().hasAll(progKeys()) && d.keys().hasOnly(progKeys())
+        && d.username is string && d.username.matches('[a-z0-9][a-z0-9_.-]{2,19}')
+        && request.auth.token.email == d.username + '@mvm.local'
+        && okName(d.name) && okInt(d.episode, 0, 2) && okInt(d.level, 0, 3)
+        && d.strength is number && d.strength >= 0 && d.strength <= 100
+        && okInt(d.unlocked, 1, 3) && d.passed is map && d.passed.keys().hasOnly(levelKeys())
+        && d.done is bool && d.ts is int && d.created is int;
+    }
+    function entryKeys() { return ['name', 'levels', 'furthest', 'done', 'ts', 'hidden', 'modName']; }
+    function okEntry(d) {
+      return d.keys().hasAll(entryKeys()) && d.keys().hasOnly(entryKeys())
+        && okName(d.name) && okInt(d.levels, 0, 12) && okInt(d.furthest, 1, 3) && d.done is bool && d.ts is int
+        && d.hidden is bool && (d.modName == null || okName(d.modName));
+    }
+
+    match /users/{uid} {
+      allow get: if isMe(uid) || isTeacher();
+      allow list: if isTeacher();
+      allow create: if isMe(uid) && okProgress(request.resource.data);
+      allow update: if isMe(uid) && okProgress(request.resource.data) && request.resource.data.username == resource.data.username;
+      allow delete: if isTeacher();
+    }
+
+    match /leaderboard/{uid} {
+      allow get: if isMe(uid) || isTeacher() || resource.data.hidden == false;
+      allow list: if isTeacher() || resource.data.hidden == false;
+      allow create: if isMe(uid) && okEntry(request.resource.data)
+        && request.resource.data.hidden == false && request.resource.data.modName == null;
+      allow update: if okEntry(request.resource.data) && (
+        (isMe(uid) && request.resource.data.hidden == resource.data.hidden && request.resource.data.modName == resource.data.modName)
+        || (isTeacher() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hidden', 'modName'])));
+      allow delete: if isTeacher();
+    }
+
+    match /events/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasAll(['uid', 'ep', 'lv', 'ts']) && request.resource.data.keys().hasOnly(['uid', 'ep', 'lv', 'ts'])
+        && okInt(request.resource.data.ep, 0, 2) && okInt(request.resource.data.lv, 0, 3) && request.resource.data.ts is int;
+      allow delete: if isTeacher();
+    }
+
+    match /admins/{uid} {
+      allow get: if isMe(uid);
+    }
+  }
+}

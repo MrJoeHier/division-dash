@@ -1,161 +1,94 @@
-# Sharing student progress across devices (Firebase)
+# Student accounts and the public scoreboard (Firebase)
 
-Out of the box, **Man vs. Math** saves everything in the browser's `localStorage`: students, saved games,
-the leaderboard, the "passed a level" alerts and the teacher PIN hash. That works right away, but only **per device**:
-a student who plays on iPad 3 won't see their save on iPad 5, and alerts only show for events on the same device.
+Out of the box, **Man vs. Math** saves everything in the browser (`localStorage`) on each device, and students type
+"Sam T." to play. Nothing changes until you paste a Firebase config into `index.html`.
 
-To share all of that across the class, connect a free **Firebase Realtime Database**. The game already includes the
-code for it. It switches over automatically as soon as `FIREBASE_CONFIG` in `index.html` is filled in.
+Once a config is in, the start screen becomes:
+
+- **Sign in** / **Create account** with a **username + password** (no email needed). Students also pick a
+  **scoreboard name** (a nickname, 2–16 letters or numbers, run through a bad-word filter).
+- **Play as guest**: progress stays on that device. The next time someone signs in on that device, the guest
+  progress is added to their account.
+- A **public scoreboard** anyone can see (signed in or not). It shows only the scoreboard name, levels cleared
+  and furthest episode. Never usernames, emails or real names.
+- Progress follows the student to any device. If the internet drops mid-game, saves are kept on the device and
+  sent when the connection comes back. If Firebase can't be reached at all, guest play still works.
+- The **Teacher** button (PIN on each device, stored only as a salted hash) opens a screen where you sign in with
+  your teacher account to **rename**, **hide/show** or **remove** any student's scoreboard entry and export a CSV.
+
+Behind the scenes, a username like `sam_t` signs in to Firebase as `sam_t@mvm.local`. That address is never shown,
+can't receive mail, and isn't stored anywhere else.
 
 ---
 
-## 1. Create the project (about 10 minutes, free "Spark" plan)
+## 1. Create the Firebase project (about 10 minutes, free Spark plan)
 
 1. Go to <https://console.firebase.google.com> and sign in with your Google account.
-2. **Add project**, then name it (e.g. `man-vs-math`). Google Analytics isn't needed, so turn it off. Click **Create**.
-3. In the left menu: **Build → Realtime Database → Create database**.
-   - Location: the one closest to you (e.g. `us-central1`).
-   - Start in **locked mode**. You'll paste rules in step 3.
-4. Copy the database URL shown at the top of the Data tab, e.g.
-   `https://man-vs-math-default-rtdb.firebaseio.com`.
-5. **Project settings** (gear icon) → **General** → *Your apps* → click the **`</>` (Web)** icon.
-   Name it `game` (no Hosting needed) and click **Register app**. Firebase shows a `firebaseConfig = { ... }` block.
+2. **Create a project** → name it `man-vs-math` → turn **Google Analytics off** → **Create project**.
+3. Left menu **Build → Authentication → Get started** → **Sign-in method** tab → **Email/Password** →
+   turn on the first switch (**Email/Password**, *not* "Email link") → **Save**.
+4. Left menu **Build → Firestore Database → Create database** → **Standard edition** if asked → location closest
+   to you (e.g. `nam5 (United States)`) → **Start in production mode** → **Create**.
+5. Firestore **Rules** tab → delete what's there → paste the entire contents of
+   [`firebase/firestore.rules`](firebase/firestore.rules) → **Publish**.
+6. Gear icon **⚙ → Project settings → General** → scroll to **Your apps** → click the **`</>`** (Web) icon →
+   nickname `game` → leave "Firebase Hosting" unchecked → **Register app**. Firebase shows a
+   `const firebaseConfig = { ... }` block. Copy the values for `apiKey`, `authDomain`, `projectId` and `appId`.
 
 ## 2. Paste the config into the game
 
-Open `index.html`, search for `FIREBASE_CONFIG` and fill it in:
+Open `index.html`, search for `FIREBASE_CONFIG`, and fill it in (keep the quotes):
 
 ```js
 const FIREBASE_CONFIG = {
   apiKey: "AIza…",
   authDomain: "man-vs-math.firebaseapp.com",
-  databaseURL: "https://man-vs-math-default-rtdb.firebaseio.com",
   projectId: "man-vs-math",
   appId: "1:…:web:…"
 };
-const FIREBASE_OPTIONS = { auth: false };   // see step 3 for when to set this to true
 ```
 
-These values aren't secret: every web app ships them to the browser. The **database rules** below protect the data.
-Commit and push. The login screen then says *"Progress is shared online with your class."*
+These values aren't secret: every web app sends them to the browser. The **Firestore rules** protect the data.
+Commit and push. The start screen then shows **Sign in / Create account**.
 
-Data layout the game uses:
+## 3. Make your teacher account
 
-| Path | What it holds |
-|---|---|
-| `players/{id}` | one record per student: `name` ("Sam T."), `episode`, `level` (next level), `strength`, `unlocked`, `passed` (`"0-2": timestamp` = Episode 1 Level 3), `done`, `ts` (last played), `created`, and `uid` when sign-in is on |
-| `events/{pushId}` | one per level passed: `{ id, pid, name, ep, lv, ts }`. Every logged-in player gets an `onChildAdded` listener for events newer than their login, which shows the "Sam T. passed Level 3 of Episode 1." toast |
-| `config/teacherPinHash` | `{ salt, hash, v, ts }`, a salted SHA-256 of the teacher PIN. The PIN itself is never stored |
+1. Open the game and **Create account** with a username for yourself (e.g. `mrhier`) and a strong password.
+2. Firebase console → **Authentication → Users** → copy the **User UID** of `mrhier@mvm.local`.
+3. **Firestore Database → Data → + Start collection** → Collection ID `admins` → **Next** →
+   Document ID: paste the UID → add a field `note` (string) `teacher` → **Save**.
+4. In the game tap **Teacher** → create (or enter) the device PIN → sign in with `mrhier` and your password.
 
-## 3. Database rules
+The teacher account plays like any other account. To keep yourself off the scoreboard, tap **Hide** next to your name.
 
-Paste one of these into **Realtime Database → Rules** and click **Publish**.
+## What the rules enforce
 
-### Option A: simple (no sign-in; fine to get started)
+| Data | Who can read | Who can write |
+|---|---|---|
+| `users/{uid}`: username, scoreboard name, episode/level, strength, levels passed | that student, teacher | that student only (fields and ranges checked; username must match the sign-in) |
+| `leaderboard/{uid}`: scoreboard name, levels (0–12), furthest episode (1–3), done, `hidden`, `modName` | **everyone** (rows not hidden) | that student (can't unhide or undo a teacher rename); the teacher can change only `hidden` / `modName` |
+| `events/{id}`: "passed Level 3" alerts (uid, episode, level, time) | signed-in players | signed-in players, their own uid only |
+| `admins/{uid}` | only that account (to check "am I a teacher?") | nobody from the game (console only) |
 
-Anyone with the game link can read and write progress and push alerts, but nobody can **delete** students, wipe
-alerts or change the PIN from the game. Do those from the Firebase console (Data tab), or switch to Option B.
-Keep `FIREBASE_OPTIONS = { auth: false }`.
+## Day-to-day
 
-```json
-{
-  "rules": {
-    ".read": false,
-    "players": {
-      ".read": true,
-      "$id": {
-        ".write": "newData.exists()",
-        ".validate": "newData.hasChildren(['name','episode','level','strength','ts']) && newData.child('name').isString() && newData.child('name').val().length <= 30"
-      }
-    },
-    "events": {
-      ".read": true,
-      ".indexOn": ["ts", "pid"],
-      "$e": { ".write": "!data.exists() && newData.exists()", ".validate": "newData.hasChildren(['name','ep','lv','ts'])" }
-    },
-    "config": {
-      ".read": true,
-      "teacherPinHash": { ".write": "!data.exists()" }
-    }
-  }
-}
+- **Bad or unkind name:** Teacher → **Rename** (sets what the board shows) or **Hide** (removes it from the public board).
+  The student can't change either back.
+- **Remove** deletes a student's saved progress and scoreboard row. They can sign in again and start over.
+  To block an account completely: Firebase console → Authentication → Users → ⋮ → **Disable account**.
+- **Forgotten password:** there's no email to reset it. The student makes a new account (you can Hide the old row),
+  or you delete the old user in Authentication → Users so they can re-register the same username.
+- **Forgot the teacher PIN:** it lives only on that device. Open the game with `?dev=1` at the end of the address
+  and tap **Clear teacher PIN** in the DEV bar, then tap Teacher to make a new one.
+
+## Testing locally (optional, for developers)
+
+Rules tests and the game both run against the Firebase emulators (needs Node 18+ and Java 11+):
+
+```sh
+cd firebase/tests && npm install && npm test          # security-rules tests
+cd firebase && npx firebase emulators:start --only auth,firestore --project demo-mvm
+# serve the site (e.g. python3 -m http.server 8123) and open http://127.0.0.1:8123/?emu=1
 ```
 
-In Option A the teacher screen's **Remove**, **Clear alerts** and **Reset** buttons show a "permission denied" message
-by design. *Test mode* (`".read": true, ".write": true` everywhere) would also work, but anyone with the link could
-then wipe the data, and Firebase turns test mode off after 30 days. Option A is the safer "simple" choice.
-
-### Option B: recommended (students write only their own record; deletes and resets are teacher-only)
-
-1. **Build → Authentication → Get started**, then enable these two sign-in methods:
-   - **Anonymous**: each device signs in silently, so students still just type "Sam T.", with no passwords.
-   - **Google**: the teacher's account.
-2. Authentication → **Settings → Authorized domains**: add `mrjoehier.github.io`.
-3. In `index.html` set `const FIREBASE_OPTIONS = { auth: true };`.
-4. Replace `jhier@i5design.com` below if you'll sign in as the teacher with a different Google account. Then publish:
-
-```json
-{
-  "rules": {
-    ".read": false,
-    "players": {
-      ".read": "auth != null",
-      "$id": {
-        ".write": "auth != null && ((newData.exists() && (!data.exists() || !data.child('uid').exists() || data.child('uid').val() === auth.uid) && newData.child('uid').val() === auth.uid) || auth.token.email === 'jhier@i5design.com')",
-        ".validate": "newData.hasChildren(['name','episode','level','strength','ts']) && newData.child('name').isString() && newData.child('name').val().length <= 30"
-      }
-    },
-    "events": {
-      ".read": "auth != null",
-      ".indexOn": ["ts", "pid"],
-      ".write": "auth.token.email === 'jhier@i5design.com'",
-      "$e": { ".write": "auth != null && !data.exists() && newData.exists()", ".validate": "newData.hasChildren(['name','ep','lv','ts'])" }
-    },
-    "config": {
-      ".read": "auth != null",
-      ".write": "auth.token.email === 'jhier@i5design.com'"
-    }
-  }
-}
-```
-
-What this enforces:
-
-- **A student's device can create and update only the records it created** (`uid` = that device's anonymous sign-in),
-  plus claim a record the teacher added ahead of time (no `uid` yet) the first time that student plays. It can never delete a record.
-- **Anyone signed in can push a new alert**, but can't edit or remove existing ones.
-- **Only the teacher's Google account** can remove students, clear alerts, reset everything, edit any record
-  (rename, add ahead of time) and set the PIN. On the Teacher screen, tap **Sign in with Google** first.
-
-The trade-off: the anonymous sign-in belongs to the **device and browser**, not the student. With shared iPads,
-students on the same iPad can update each other's records, and a student who moves to a different iPad can read
-their save but can't write to it until the teacher re-adds or renames them from that device. If students mostly
-stay on one iPad, this works well. If they move around a lot, Option A is simpler.
-
-## 4. Teacher PIN
-
-- The **first** time someone taps **Teacher** on the login screen, they create the PIN (4–8 digits, typed twice).
-  Only a salted SHA-256 hash is saved: in `localStorage` (`mvm.teacherPin.v1`) and, with Firebase on, at
-  `config/teacherPinHash`. No PIN is written into the code.
-- In Option B the PIN can only be saved to Firebase by the teacher's Google account. Set Firebase up, open the
-  Teacher screen on your own device, sign in with Google, then create the PIN.
-
-### Forgot the PIN?
-
-- **Without Firebase (this device only):** open the game with `?dev=1` at the end of the address
-  (e.g. `https://mrjoehier.github.io/division-dash/?dev=1`). In the small DEV bar at the bottom-left, tap
-  **Clear teacher PIN**. The next tap on **Teacher** asks you to create a new PIN.
-  You could also clear the site's data in the browser settings, but that erases the students too.
-- **With Firebase:** in the Firebase console open **Realtime Database → Data**, hover `config → teacherPinHash`
-  and click the 🗑 (delete). The next Teacher visit creates a new PIN. In Option A the DEV bar can't clear it,
-  because the rules block deletes. In Option B it works only when you're signed in with your Google account.
-
-## 5. Checking it works
-
-1. Open the game on two devices and log in as two different students.
-2. Pass a level on one device. Within a second or two, the other shows *"Sam T. passed Level 1 of Episode 1."*
-3. The leaderboard on the login screen and the 🏆 button on the map list both students.
-4. In the Firebase console, **Data** shows `players` and `events` filling in.
-
-If Firebase can't load (offline, typo in the config), the game logs a warning and falls back to saving on the device,
-so class can continue.
+`?emu=1` only works on `localhost` / `127.0.0.1`; the live site ignores it.
