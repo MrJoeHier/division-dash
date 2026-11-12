@@ -101,3 +101,14 @@ test("only a teacher's own admins doc is readable", async () => {
   await assertSucceeds(getDoc(doc(as("sam", "sam_t"), "admins/sam")));   // reads "doesn't exist"
   await assertFails(getDoc(doc(as("sam", "sam_t"), "admins/teach")));
 });
+
+test("stars: 1-3 per passed level, the public total must add up", async () => {
+  const sam = as("sam", "sam_t");
+  await assertSucceeds(setDoc(doc(sam, "users/sam"), prog("sam_t", { stars: { "0-0": 3 }, reach: 1700000000001 })));
+  await assertFails(setDoc(doc(sam, "users/sam"), prog("sam_t", { stars: { "0-0": 4 } })));
+  await assertFails(setDoc(doc(sam, "users/sam"), prog("sam_t", { stars: { "9-9": 1 } })));
+  await assertSucceeds(setDoc(doc(sam, "leaderboard/sam"), entry({ stars: { "0-0": 2 }, total: 2, reach: 1700000000001 })));
+  await assertFails(setDoc(doc(sam, "leaderboard/sam"), { stars: { "0-0": 2 }, total: 30 }, { merge: true }));
+  await assertFails(setDoc(doc(sam, "leaderboard/sam"), { stars: { "0-0": 3, "0-1": 3 }, total: 6 }, { merge: true })); // more starred levels than levels passed
+  await assertSucceeds(setDoc(doc(sam, "leaderboard/sam"), { levels: 2, stars: { "0-0": 3, "0-1": 1 }, total: 4 }, { merge: true }));
+});

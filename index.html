@@ -614,6 +614,75 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .lbt td.rk { width:2.4em; color:#f3c65a; font-weight:900; }
 .lbt .ck { color:#8fd16f; font-weight:900; } .lbt .no { opacity:.35; }
 .lbempty { opacity:.8; padding:10px 0; font-weight:700; }
+/* ---- star scoreboard (full screen) ---- */
+.sb { position:fixed; inset:0; z-index:380; overflow:hidden; background:#120b05; color:#f6e7c4; display:flex; flex-direction:column; animation:fadeIn .25s; font-family:-apple-system, "Segoe UI", system-ui, sans-serif; }
+.sbbg { position:absolute; inset:-30px; background-size:cover; background-position:center; filter:blur(14px) brightness(.38) saturate(1.1); }
+.sb::after { content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%, rgba(243,198,90,.12), transparent 60%), linear-gradient(rgba(10,6,2,.35), rgba(10,6,2,.7)); pointer-events:none; }
+.sbwrap { position:relative; z-index:1; flex:1; min-height:0; display:flex; flex-direction:column; padding:calc(12px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); gap:8px; }
+.sbhead { display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap; gap:4px 16px; text-align:center; }
+.sbtitle { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(1.5rem, 3.6vw, 2.5rem); color:#f3c65a; letter-spacing:.05em; text-shadow:0 3px 0 #3a230e, 0 6px 18px #000; }
+.sbsub { font-weight:700; color:#e3cfa3; font-size:clamp(.8rem, 1.6vw, 1rem); }
+.sbcue { align-self:center; display:flex; align-items:center; gap:10px; padding:6px 18px; border-radius:999px; border:2px solid #f3c65a; background:linear-gradient(#5a3a1e, #2e1c0d); font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:clamp(.95rem, 2vw, 1.25rem); color:#fff3d0; box-shadow:0 6px 18px rgba(0,0,0,.5); animation:cardIn .5s cubic-bezier(.2,1.3,.4,1); }
+.sbcue .cst { display:inline-flex; gap:2px; } .sbcue svg { width:1.3em; height:1.3em; }
+.sbscroll { flex:1; min-height:0; overflow:auto; -webkit-overflow-scrolling:touch; border-radius:14px; overscroll-behavior:contain; }
+.sbt { border-collapse:separate; border-spacing:0 5px; margin:0 auto; font-variant-numeric:tabular-nums; }
+.sbt th { position:sticky; top:0; z-index:3; background:#1d1208; color:#f3d79a; font-weight:800; padding:4px 3px; text-align:center; white-space:nowrap; }
+.sbt thead tr:first-child th { top:0; } .sbt thead tr:nth-child(2) th { top:var(--sbh1, 30px); }
+.sbt th.sbep { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:.82rem; letter-spacing:.08em; text-transform:uppercase; border-bottom:2px solid rgba(243,198,90,.55); }
+.sbt th.sbep.e2 { color:#f6c879; } .sbt th.sbep.e3 { color:#cfe6f3; }
+.sbt th.sblv { font-size:1.05rem; line-height:1.05; vertical-align:top; width:var(--bw); }
+.sbt th.sblv small { display:block; font-size:.62rem; font-weight:700; color:#cdb88f; white-space:normal; width:var(--bw); margin:2px auto 0; line-height:1.1; }
+.sbt th.sbrk, .sbt td.sbrk { position:sticky; left:0; z-index:2; width:40px; min-width:40px; }
+.sbt th.sbnm, .sbt td.sbnm { position:sticky; left:40px; z-index:2; }
+.sbt th.sbtot, .sbt td.sbtot { position:sticky; right:0; z-index:2; }
+.sbt thead th.sbrk, .sbt thead th.sbnm, .sbt thead th.sbtot { z-index:4; }
+.sbt th.sbnm { text-align:left; padding-left:12px; }
+.sbt td { padding:5px 3px; vertical-align:middle; }
+.sbr.g td { background:#2f5b2b; } .sbr.b td { background:#5b3b1f; }
+.sbr td:first-child { border-radius:12px 0 0 12px; } .sbr td:last-child { border-radius:0 12px 12px 0; }
+.sbt td.sbrk { text-align:center; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:1.2rem; color:#f3c65a; text-shadow:0 2px 3px #000; }
+.sbt td.sbnm { padding-right:6px; }
+.sbnm .nbx { display:flex; align-items:center; gap:6px; min-height:var(--bh); width:var(--nw); padding:0 10px; border-radius:9px; font-weight:800; font-size:1.05rem; color:#fff3d0; box-sizing:border-box; }
+.sbr.g .nbx { background:#173016; } .sbr.b .nbx { background:#2a180a; }
+.nbx .nm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; flex:1; }
+.nbx em { font-style:normal; flex:none; font-size:.68rem; font-weight:900; letter-spacing:.06em; padding:3px 7px; border-radius:999px; background:#f3c65a; color:#2a1c10; }
+.bx { width:var(--bw); height:var(--bh); border-radius:9px; display:flex; align-items:center; justify-content:center; gap:1px; box-sizing:border-box; transition:background .3s; }
+.sbr.g .bx { background:rgba(178,226,158,.2); border:1.5px solid rgba(190,235,170,.28); } .sbr.b .bx { background:rgba(236,196,146,.18); border:1.5px solid rgba(240,205,160,.26); }
+.sbr.g .bx.on { background:#132a12; border-color:#0b1a0a; } .sbr.b .bx.on { background:#241307; border-color:#160b03; }
+.bx svg { width:var(--sw); height:var(--sw); flex:none; }
+.bx svg path { fill:none; stroke:rgba(255,236,180,.5); stroke-width:1.6; stroke-linejoin:round; }
+.bx.on svg path { stroke:rgba(243,198,90,.45); }
+.bx svg.lit path, .sbcue svg path { fill:#f6c64a; stroke:#a8741c; stroke-width:1.2; filter:drop-shadow(0 0 2px rgba(255,210,90,.6)); }
+.bx.new { animation:bxPop .7s .3s both; } @keyframes bxPop { 0% { transform:scale(.7); } 60% { transform:scale(1.12); } 100% { transform:none; } }
+.sbt td.sbtot { padding-left:6px; }
+.sbtot .tbx { min-width:64px; min-height:var(--bh); display:flex; align-items:center; justify-content:center; gap:4px; border-radius:9px; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:1.3rem; color:#f6c64a; text-shadow:0 2px 3px #000; padding:0 8px; box-sizing:border-box; }
+.sbr.g .tbx { background:#173016; } .sbr.b .tbx { background:#2a180a; }
+.tbx svg { width:.9em; height:.9em; } .tbx svg path { fill:#f6c64a; stroke:#a8741c; stroke-width:1.2; }
+.sbt th.sbtot { padding:4px 6px; font-size:.8rem; }
+.sbr.me td { box-shadow:inset 0 3px 0 #f3c65a, inset 0 -3px 0 #f3c65a; }
+.sbr.me td:first-child { box-shadow:inset 3px 3px 0 #f3c65a, inset 0 -3px 0 #f3c65a; } .sbr.me td:last-child { box-shadow:inset -3px 3px 0 #f3c65a, inset 0 -3px 0 #f3c65a; }
+.sbempty { text-align:center; font-weight:800; font-size:1.2rem; padding:40px 10px; color:#e3cfa3; }
+.sbfoot { display:flex; justify-content:center; align-items:center; gap:14px; }
+.sbgo { min-height:56px; min-width:200px; padding:0 28px; border-radius:16px; border:2px solid #f3c65a; background:linear-gradient(#4f8a3c,#2f6b2a); color:#fff; font:900 1.25rem "Cinzel MVM", Georgia, serif; letter-spacing:.04em; box-shadow:0 5px 0 #173016, 0 12px 26px rgba(0,0,0,.55); }
+.sbhint { font-size:.8rem; color:#cdb88f; font-weight:700; }
+.sb { --bw:62px; --bh:44px; --sw:17px; --nw:190px; }
+@media (max-width: 1100px) { .sb { --bw:52px; --bh:42px; --sw:14.5px; --nw:150px; } .sbt th.sblv small { font-size:.58rem; } }
+@media (max-width: 700px) { .sb { --bw:54px; --bh:40px; --sw:15px; --nw:118px; } .nbx { font-size:.92rem; padding:0 7px; line-height:1.1; } .nbx .nm { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; } .sbt td.sbrk, .sbt th.sbrk { width:30px; min-width:30px; font-size:1rem; } .sbt th.sbnm, .sbt td.sbnm { left:30px; } .sbtot .tbx { min-width:52px; font-size:1.1rem; } .sbhint { display:none; } }
+@media (max-height: 460px) { .sb { --bh:34px; --sw:14px; } .sbwrap { gap:4px; padding-top:calc(6px + env(safe-area-inset-top)); } .sbtitle { font-size:1.3rem; } .sbsub { display:none; } .sbgo { min-height:44px; font-size:1.05rem; } .sbt th.sblv small { display:none; } .sbcue { padding:3px 14px; font-size:.9rem; } }
+/* win freeze frame */
+.cscreen.vid.frozen .ccap { bottom:calc(92px + env(safe-area-inset-bottom)); }
+.vcont { position:absolute; z-index:4; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%); min-height:50px; padding:0 26px; border-radius:999px; border:2px solid #f3c65a; background:linear-gradient(#70482a, #3e2612); color:#fff3d0; font:900 1.1rem "Cinzel MVM", Georgia, serif; letter-spacing:.05em; box-shadow:0 5px 0 #1f1208, 0 10px 24px rgba(0,0,0,.6); animation:fadeUp .5s both; }
+/* login teaser + password dialog */
+.lbtz { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+.lbtz div { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px; font-weight:800; }
+.lbtz div:nth-child(odd) { background:#2f5b2b; } .lbtz div:nth-child(even) { background:#5b3b1f; }
+.lbtz b { color:#f3c65a; font-family:"Cinzel MVM", Georgia, serif; width:1.4em; } .lbtz span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .lbtz i { font-style:normal; color:#f6c64a; }
+.lbopen { width:100%; }
+.pwrow { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+.pwrow .mdin { flex:1; }
+.pwshow { min-height:44px; padding:0 12px; border-radius:12px; border:2px solid rgba(243,198,90,.6); background:rgba(255,255,255,.07); color:#fff3d0; font-weight:800; font-size:.9rem; }
+.pwlab { display:block; font-weight:800; color:#e3cfa3; margin:2px 0 6px; font-size:.95rem; }
+.pwhelp { font-size:.85rem; color:#cdb88f; font-weight:600; margin-top:4px; }
 /* modal */
 .mdl { position:fixed; inset:0; z-index:400; background:rgba(10,6,2,.66); display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn .2s; }
 .mdcard { width:min(540px, 100%); max-height:88vh; overflow:auto; background:linear-gradient(#3a2615, #24170c); color:#f6e7c4; border:2px solid #f3c65a; border-radius:20px; padding:20px 22px; box-shadow:0 20px 60px rgba(0,0,0,.6); text-align:left; animation:cardIn .3s cubic-bezier(.2,1.3,.4,1); }
@@ -1160,7 +1229,7 @@ function newLevel(l, keepStrength) {
     G.strength = 100;
     if (from < 100) setTimeout(() => showStrengthBoost(from, 100, { hold: 2800 }), 400 * Math.max(ANIM, 0.05));
   }
-  G.stars = []; G.problems = genLevel(l); startProblem();
+  G.stars = []; G.lvMiss = 0; G.problems = genLevel(l); startProblem();
 }
 function startProblem() {
   G.timeLeft = EPISODES[G.episode].secs; G.lastTickSec = null;
@@ -1177,7 +1246,7 @@ function say(msg, cls) { G.P.msg = msg; G.P.msgCls = cls || ""; }
 
 function penalty(sel) {
   const P = G.P; if (!P) return;
-  G.strength = Math.max(0, G.strength - 10); P.pens++; streak = 0;
+  G.strength = Math.max(0, G.strength - 10); P.pens++; G.lvMiss = (G.lvMiss || 0) + 1; streak = 0;
   SFX.buzz(); haptic([70, 40, 90]);
   fresh.add("drain");
   render();
@@ -1793,7 +1862,9 @@ document.addEventListener("keydown", e => {
   audio();
   const md = document.querySelector(".mdl");
   if (md) { if (e.key === "Enter" && md._ok) { e.preventDefault(); md._ok(); } else if (e.key === "Escape" && md._cancel) md._cancel(); return; }
+  if (SB) { if (boardKeyOk(e)) { e.preventDefault(); SB.key(e); } return; }
   if (Cine.visible) {
+    const vc = document.querySelector("#cine .vcont"); if (vc) { if (boardKeyOk(e)) { e.preventDefault(); vc.click(); } return; }
     if (e.key === "Enter") { const b = Array.from(document.querySelectorAll("#cine .cprimary")).find(x => !x.closest(".mchoice:not(.show)") && (!x.classList.contains("again") || x.classList.contains("show"))); if (b) { e.preventDefault(); b.click(); } }
     return;
   }
@@ -2595,7 +2666,7 @@ const Cine = (() => {
         const prevI = i, prevArrived = arrived, hadProgress = keepProgress;
         show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 1536 864" preserveAspectRatio="none">' + buildSvg() +
           '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + (L.mapLabel || L.name) + "</div></div>" +
-          (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Leaderboard">🏆</button>' +
+          (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Star Scoreboard">🏆</button>' +
           (choice ? '<div class="mchoice"><div class="mcompass">' + compassSvg + '<button class="mcbtn cprimary mcompass-go" data-cine="mcont">Continue ▶</button>' + (showSave ? '<button class="mcbtn sec mcompass-save" data-cine="msave">Save for Later</button>' : "") + "</div></div>" : "") + "</div></div>");
         dots = Array.from(root.querySelectorAll(".dot.nd"));
         if (hadProgress) {
@@ -2636,12 +2707,24 @@ const Cine = (() => {
         v.onended = v.onerror = v.onplaying = v.oncanplay = v.oncanplaythrough = v.onloadeddata = null;
         try { v.pause(); } catch (e) {} res();
       };
+      // Win clips stop on their last frame; a small Continue (or any key) moves on.
+      let frozen = false;
+      const freeze = () => {
+        if (fin || frozen) return; if (!opts.freeze) { finish(); return; }
+        frozen = true; timers.forEach(clearTimeout); timers.length = 0; clearUI();
+        try { v.onended = null; v.pause(); } catch (e) {}
+        if (!fell && started) v.style.opacity = "1";
+        const sc = root.querySelector(".cscreen"); if (sc) sc.classList.add("frozen");
+        const sk = root.querySelector(".cskip"); if (sk) sk.remove();
+        const b = document.createElement("button"); b.className = "vcont cprimary"; b.dataset.cine = "vcont"; b.textContent = "Continue ▶"; (sc || root).appendChild(b);
+        onTap = null; onSkip = finish; onBtn = k => { if (k === "vcont") { SFX.step(); finish(); } };
+      };
       const hardFallback = () => {
         if (fin || fell) return; fell = true; try { v.pause(); } catch (e) {}
         try { v.dataset.bad = "1"; } catch (e) {}
         clearUI();
         wrap.innerHTML = '<img class="cv kb" src="' + poster + '" alt="">';
-        timers.push(setTimeout(finish, opts.kind === "win" ? 7000 : 4500));
+        timers.push(setTimeout(freeze, opts.kind === "win" ? 7000 : 4500));
       };
       const showTap = () => {
         if (fin || fell || started || waitingTap) return; waitingTap = true;
@@ -2696,7 +2779,7 @@ const Cine = (() => {
         hardFallback();
       };
       const bind = () => {
-        v.onended = finish;
+        v.onended = freeze;
         v.onerror = () => { if (!started) onDecodeError(); };
         v.onplaying = markPlaying;
         v.oncanplaythrough = onReady;
@@ -2711,8 +2794,8 @@ const Cine = (() => {
       timers.push(setTimeout(() => { if (!started && !waitingTap && !fell) { if (ready || v.readyState >= 2) showTap(); } }, TUNE.clipStall));
       // Still waiting long after that: keep offering tap, do NOT still-frame.
       timers.push(setTimeout(() => { if (!started && !fell && !waitingTap) showTap(); }, TUNE.clipStall + 15000));
-      timers.push(setTimeout(finish, TUNE.clipCap));
-      onSkip = finish;
+      timers.push(setTimeout(freeze, TUNE.clipCap));
+      onSkip = freeze;
     });
   }
   function lose(lv, reason) {
@@ -2767,11 +2850,17 @@ async function winLevel() {
   const lastLevel = G.level + 1 >= LEVELS.length, lastEp = G.episode + 1 >= EPISODES.length;
   const type = !lastLevel ? "level" : lastEp ? "all" : "episode";
   if (lastLevel && !Progress.cur) store.set("unlocked", Math.max(unlocked(), Math.min(3, G.episode + 2)));
-  Progress.levelPassed(G.episode, G.level, G.strength);
+  const wEp = G.episode, wLv = G.level, miss = G.lvMiss || 0;
+  const passing = Progress.levelPassed(wEp, wLv, G.strength, miss).catch(e => console.warn("save failed", e));
   G.overlay = { type: "cine" }; render();
   Music.play("win");
-  const WL = LVI(G.episode, G.level);
-  await Cine.clip(WL.win, { kind: "win", cap: WL.winCap });
+  const WL = LVI(wEp, wLv);
+  await Cine.clip(WL.win, { kind: "win", cap: WL.winCap, freeze: true });
+  if (tok !== flowTok) return;
+  // Continue pressed on the freeze frame: the win music fades out quickly as the scoreboard comes up.
+  try { Music.stop(0.35); } catch (e) {}
+  await passing; if (tok !== flowTok) return;
+  await showBoard({ win: { ep: wEp, lv: wLv, stars: starsFor(miss), miss } });
   if (tok !== flowTok) return;
   Cine.hide();
   if (!lastLevel) {
@@ -2809,7 +2898,7 @@ async function runTitle() {
       if (!got) {
         const r = await loginScreen(); if (tok !== flowTok) return;
         if (r.teacher) { await teacherFlow(); continue; }
-        got = r.cloud ? await Progress.loginCloud() : r.guest ? Progress.loginGuest() : await Progress.login(r.name);
+        got = r.cloud ? await Progress.loginCloud() : r.guest ? Progress.loginGuest() : await Progress.login(r.name, r.pw);
       }
       if (tok !== flowTok) return;
       const { rec, isNew } = got;
@@ -2852,6 +2941,32 @@ const passedCount = r => Object.keys((r && r.passed) || {}).length;
 const highestEp = r => { let h = r.episode || 0; Object.keys(r.passed || {}).forEach(k => { h = Math.max(h, +k.split("-")[0]); }); return h + 1; };
 const hasProgress = r => !!r && (r.done || passedCount(r) > 0 || r.episode > 0 || r.level > 0);
 const evId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+/* ---- stars: 3 = no mistakes on the level, 2 = one or two, 1 = more than two. Best result per level is kept. ---- */
+const LV_KEYS = ["0-0", "0-1", "0-2", "0-3", "1-0", "1-1", "1-2", "1-3", "2-0", "2-1", "2-2", "2-3"];
+const starsFor = m => (m | 0) === 0 ? 3 : m <= 2 ? 2 : 1;
+// A level passed before stars existed counts as 1 star until it's replayed.
+const lvStars = (r, k) => { if (!r || !r.passed || !r.passed[k]) return 0; const v = Math.round(+((r.stars || {})[k]) || 0); return v >= 1 && v <= 3 ? v : 1; };
+const starTotal = r => LV_KEYS.reduce((a, k) => a + lvStars(r, k), 0);
+const cleanStars = r => { const o = {}; LV_KEYS.forEach(k => { const v = lvStars(r, k); if (v) o[k] = v; }); return o; };
+// When the player last improved (more levels or more stars): breaks ties on the board, most recent on top.
+const reachOf = r => (r && (r.reach || Math.max(0, ...Object.values(r.passed || {}).map(Number).filter(n => n > 0)) || r.ts)) || 0;
+/* ---- passwords: only a salted PBKDF2-SHA256 hash is ever stored ---- */
+const PW_ITER = 120000;
+const hexBytes = h => new Uint8Array((String(h).match(/../g) || []).map(x => parseInt(x, 16)));
+async function pbkdf2Hex(secret, saltHex, iter) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), "PBKDF2", false, ["deriveBits"]);
+  const b = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: hexBytes(saltHex), iterations: iter }, k, 256);
+  return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, "0")).join("");
+}
+async function makeSecret(v) { const salt = randHex(16); return { alg: "PBKDF2-SHA256", it: PW_ITER, salt, hash: await pbkdf2Hex(v, salt, PW_ITER), v: 2, ts: Date.now() }; }
+async function checkSecret(rec, v) {
+  if (!rec || !rec.salt || !rec.hash) return false;
+  const h = rec.v === 2 ? await pbkdf2Hex(v, rec.salt, rec.it || PW_ITER) : await sha256(rec.salt + ":" + v); // v1 = older salted SHA-256 teacher PIN
+  let d = h.length ^ rec.hash.length; for (let i = 0; i < h.length; i++) d |= h.charCodeAt(i) ^ (rec.hash.charCodeAt(i) || 0);
+  return d === 0;
+}
+const hasPw = r => !!(r && r.pw && r.pw.salt && r.pw.hash);
+const canHash = () => !!(window.crypto && crypto.subtle);
 
 /* ---- usernames, nicknames and the name filter (accounts) ---- */
 const MAIL_DOMAIN = "mvm.local"; // username "sam_t" signs in to Firebase as sam_t@mvm.local (never shown anywhere)
@@ -2897,6 +3012,8 @@ function mergeRecs(acct, guest) {
   if (posOf(guest) > posOf(acct)) { out.episode = guest.episode || 0; out.level = guest.level || 0; out.strength = guest.strength; }
   out.unlocked = Math.max(acct.unlocked || 1, (guest && guest.unlocked) || 1);
   out.done = !!(acct.done || (guest && guest.done));
+  out.stars = {}; LV_KEYS.forEach(k => { const v = Math.max(lvStars(acct, k), lvStars(guest, k)); if (v && out.passed[k]) out.stars[k] = v; });
+  out.reach = Math.max(reachOf(acct), reachOf(guest));
   out.ts = Date.now();
   return out;
 }
@@ -2968,7 +3085,7 @@ function CloudDB() {
     watchBoard() {
       if (lbUnsub) lbUnsub();
       lbUnsub = S.onSnapshot(S.query(S.collection(db, "leaderboard"), S.where("hidden", "==", false), S.limit(1000)), snap => {
-        const b = {}; snap.forEach(d => { const v = d.data(); b[d.id] = { uid: d.id, name: v.modName || v.name, levels: v.levels || 0, furthest: v.furthest || 1, done: !!v.done, ts: v.ts || 0 }; });
+        const b = {}; snap.forEach(d => { const v = d.data(); b[d.id] = { uid: d.id, name: v.modName || v.name, levels: v.levels || 0, furthest: v.furthest || 1, done: !!v.done, ts: v.ts || 0, stars: v.stars || {}, total: v.total || 0, reach: v.reach || v.ts || 0 }; });
         C.board = b; boardSubs.forEach(cb => { try { cb(b); } catch (e) {} });
       }, e => console.warn("scoreboard listener", e));
     },
@@ -2993,11 +3110,11 @@ function CloudDB() {
       if (mine && (!r || (mine.ts || 0) > (r.ts || 0))) r = Object.assign({}, r || {}, mine); // offline save newer than the server copy
       return r ? Object.assign(r, { id: u.uid, passed: r.passed || {} }) : null;
     },
-    entryOf(r) { return { name: cleanNick(r.name).slice(0, 16), levels: Math.min(12, passedCount(r)), furthest: Math.max(1, Math.min(3, highestEp(r))), done: !!r.done, ts: r.ts || Date.now() }; },
+    entryOf(r) { return { name: cleanNick(r.name).slice(0, 16), levels: Math.min(12, passedCount(r)), furthest: Math.max(1, Math.min(3, highestEp(r))), done: !!r.done, ts: r.ts || Date.now(), stars: cleanStars(r), total: starTotal(r), reach: Math.round(reachOf(r) || Date.now()) }; },
     progOf(r) {
       const p = {}; Object.keys(r.passed || {}).forEach(k => { if (/^[0-2]-[0-3]$/.test(k)) p[k] = Math.round(+r.passed[k]) || Date.now(); });
       return { username: r.username || C.username, name: cleanNick(r.name).slice(0, 16), episode: Math.max(0, Math.min(2, r.episode | 0)), level: Math.max(0, Math.min(3, r.level | 0)),
-        strength: Math.max(0, Math.min(100, Math.round(+r.strength || 0))), unlocked: Math.max(1, Math.min(3, r.unlocked | 0 || 1)), passed: p, done: !!r.done, ts: Math.round(r.ts || Date.now()), created: Math.round(r.created || Date.now()) };
+        strength: Math.max(0, Math.min(100, Math.round(+r.strength || 0))), unlocked: Math.max(1, Math.min(3, r.unlocked | 0 || 1)), passed: p, done: !!r.done, ts: Math.round(r.ts || Date.now()), created: Math.round(r.created || Date.now()), stars: cleanStars(Object.assign({}, r, { passed: p })), reach: Math.round(reachOf(r) || Date.now()) };
     },
     // Saves are queued by Firestore while offline and sent when the connection comes back.
     async saveMine(r) {
@@ -3045,11 +3162,13 @@ const Progress = {
     this.since = Date.now();
     this.unsub = this.mode === "guest" ? null : DB.onEvent(this.since, ev => alertToast(ev.name + " passed Level " + (ev.lv + 1) + " of Episode " + (ev.ep + 1) + "."));
   },
-  async login(name) {
+  async login(name, pw) {
     await dbReady;
     const all = await LocalDB.players().catch(() => ({}));
     let r = Object.values(all).find(p => p && p.name && p.name.toLowerCase() === name.toLowerCase());
-    const isNew = !r; if (!r) { r = newRec(name); await LocalDB.savePlayer(r).catch(() => {}); }
+    const isNew = !r; if (!r) r = newRec(name);
+    if (pw) r.pw = pw; // salted hash only (new player, or an older player setting one for the first time)
+    if (isNew || pw) await LocalDB.savePlayer(r).catch(() => {});
     r.passed = r.passed || {};
     this.cur = r; this.mode = "local"; this.startAlerts();
     return { rec: r, isNew };
@@ -3091,10 +3210,13 @@ const Progress = {
     }
     try { await LocalDB.savePlayer(this.cur); } catch (e) { console.warn("save failed", e); alertToast("Couldn't save — check the connection."); }
   },
-  async levelPassed(ep, lv, strength) {
+  async levelPassed(ep, lv, strength, mistakes) {
     const r = this.cur; if (!r) return;
-    const lastLv = lv + 1 >= LEVELS.length, lastEp = ep + 1 >= EPISODES.length;
-    r.passed = r.passed || {}; r.passed[ep + "-" + lv] = Date.now();
+    const lastLv = lv + 1 >= LEVELS.length, lastEp = ep + 1 >= EPISODES.length, k = ep + "-" + lv;
+    const lv0 = passedCount(r), st0 = starTotal(r), best = lvStars(r, k);
+    r.passed = r.passed || {}; r.passed[k] = Date.now();
+    r.stars = Object.assign({}, r.stars || {}); r.stars[k] = Math.max(best, starsFor(mistakes || 0));
+    if (passedCount(r) > lv0 || starTotal(r) > st0) r.reach = Date.now();
     const nx = !lastLv ? [ep, lv + 1] : !lastEp ? [ep + 1, 0] : [ep, lv];
     const saving = this.save({ episode: nx[0], level: nx[1], strength, done: !!r.done || (lastLv && lastEp),
       unlocked: Math.max(r.unlocked || 1, Math.min(EPISODES.length, lastLv ? ep + 2 : ep + 1)) });
@@ -3143,29 +3265,129 @@ function randHex(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); re
 const fmtWhen = ts => { try { return ts ? new Date(ts).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"; } catch (e) { return "—"; } };
 const reachTxt = r => r.done ? "All 3 episodes 🏆" : "Episode " + ((r.episode || 0) + 1) + " · Level " + ((r.level || 0) + 1);
 
-/* ---- leaderboard (public when accounts are on) ---- */
+/* ---- star scoreboard (public when accounts are on; display names only) ---- */
+const STAR_PATH = '<path d="M12 2.8l2.75 5.9 6.45.75-4.8 4.4 1.35 6.35L12 16.95 6.25 20.2l1.35-6.35-4.8-4.4 6.45-.75z"/>';
+const starSvg = lit => '<svg viewBox="0 0 24 24" aria-hidden="true"' + (lit ? ' class="lit"' : "") + ">" + STAR_PATH + "</svg>";
+const EP_SHORT = ["Jungle", "Savanna", "Mountain"];
+const rowOfRec = r => ({ uid: r.id, name: r.name, levels: passedCount(r), stars: cleanStars(r), total: starTotal(r), reach: reachOf(r) });
 function boardRows(players) {
-  if (cloudMode()) return Object.values(DB.board);
-  return Object.values(players || {}).filter(p => p && p.name).map(p => ({ uid: p.id, name: p.name, levels: passedCount(p), furthest: highestEp(p), done: !!p.done, ts: p.ts || 0 }));
+  let list;
+  if (cloudMode()) {
+    const b = Object.assign({}, DB.board);
+    list = Object.values(b).map(v => { const st = {}; LV_KEYS.forEach(k => { const n = Math.round(+(v.stars || {})[k] || 0); if (n >= 1 && n <= 3) st[k] = n; }); return { uid: v.uid, name: v.name, levels: v.levels || 0, stars: st, total: Object.values(st).reduce((a, n) => a + n, 0), reach: v.reach || v.ts || 0 }; });
+    const c = Progress.cur; // my own row straight from this device, so a fresh win shows at once
+    if (c && Progress.mode === "cloud") { const i = list.findIndex(x => x.uid === c.id), mine = Object.assign(rowOfRec(c), { name: i >= 0 ? list[i].name : c.name }); if (i >= 0) list[i] = mine; else list.push(mine); }
+    if (c && Progress.mode === "guest" && hasProgress(c)) list.push(Object.assign(rowOfRec(c), { uid: "guest", name: "You (guest)" }));
+  } else {
+    const all = Object.assign({}, players || {});
+    if (Progress.cur && Progress.mode === "local") all[Progress.cur.id] = Progress.cur;
+    list = Object.values(all).filter(p => p && p.name).map(rowOfRec);
+  }
+  // Most levels passed, then most stars, then whoever got there most recently.
+  return list.sort((a, b) => b.levels - a.levels || b.total - a.total || (b.reach || 0) - (a.reach || 0) || String(a.name).localeCompare(String(b.name)));
 }
+// Small preview for the sign-in screen; the full board opens from its button.
 function lbHtml(players) {
-  const list = boardRows(players), me = Progress.cur && Progress.mode === "cloud" ? Progress.cur.id : null;
-  const head = '<h2>🏆 ' + (cloudMode() ? "Scoreboard" : "Leaderboard") + "</h2>" + (cloudMode() ? '<div class="lbpub">Everyone can see this board. It shows scoreboard names only.</div>' : "");
-  if (!list.length) return head + '<div class="lbempty">No explorers yet — be the first!</div>';
-  list.sort((a, b) => (b.done ? 1 : 0) - (a.done ? 1 : 0) || b.levels - a.levels || b.furthest - a.furthest || (a.ts || 0) - (b.ts || 0) || String(a.name).localeCompare(String(b.name)));
-  const body = '<table class="lbt"><thead><tr><th>#</th><th>Explorer</th><th>Levels cleared</th><th>Furthest</th></tr></thead><tbody>' +
-    list.map((p, i) => '<tr' + (me && p.uid === me ? ' class="me"' : "") + '><td class="rk">' + (i + 1) + "</td><td>" + escH(p.name) + (me && p.uid === me ? ' <span class="lbyou">you</span>' : "") + "</td><td>" + p.levels + " / 12</td><td>" + (p.done ? "Champion 🏆" : "Episode " + p.furthest) + "</td></tr>").join("") + "</tbody></table>";
-  return head + '<div class="lbscroll">' + body + "</div>";
+  const list = boardRows(players).slice(0, 3);
+  return '<h2>🏆 Star Scoreboard</h2>' + (cloudMode() ? '<div class="lbpub">Everyone can see this board. It shows scoreboard names only.</div>' : "") +
+    (list.length ? '<div class="lbtz">' + list.map((r, i) => "<div><b>" + (i + 1) + "</b><span>" + escH(r.name) + "</span><i>" + r.levels + (r.levels === 1 ? " level · " : " levels · ") + r.total + " ★</i></div>").join("") + "</div>"
+      : '<div class="lbempty">No explorers yet — be the first!</div>') + '<button class="rsalt lbopen" data-pg="board">See the full scoreboard</button>';
 }
-async function openBoard() {
-  await dbReady;
-  const players = cloudMode() ? {} : await LocalDB.players().catch(() => ({}));
-  const m = modal('<div class="mdlb"></div><div class="mdbtns"><button class="mdok" data-md="close">Close</button></div>', "wide lbmodal");
-  const draw = () => { if (m.el.isConnected) m.el.querySelector(".mdlb").innerHTML = lbHtml(players); }; draw();
-  const off = cloudMode() ? DB.onBoard(draw) : null;
-  const close = () => { if (off) off(); m.close(); };
-  m.el.addEventListener("click", e => { if (e.target.closest('[data-md="close"]') || e.target === m.el) close(); });
-  m.el._ok = m.el._cancel = close;
+let SB = null;
+const boardKeyOk = e => !e.repeat && !/^(Shift|Control|Alt|Meta|Tab|CapsLock|Fn|OS|Dead|Unidentified)$/.test(e.key);
+// Full-screen star board. After a win, o.win = { ep, lv, stars, miss }. Resolves when the player presses Continue (or any key).
+function showBoard(o) {
+  o = o || {};
+  if (SB) SB.close();
+  return new Promise(async res => {
+    await dbReady;
+    const players = cloudMode() ? {} : await LocalDB.players().catch(() => ({}));
+    const meId = Progress.cur ? (Progress.mode === "guest" ? (cloudMode() ? "guest" : null) : Progress.cur.id) : null;
+    const ep = o.win ? o.win.ep : Math.max(0, Math.min(2, G.episode || 0)), E = EP_INFO[ep] || EP_INFO[0];
+    const el = document.createElement("div"); el.className = "sb"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Star Scoreboard");
+    const newK = o.win ? o.win.ep + "-" + o.win.lv : null;
+    const head1 = '<tr><th class="sbrk" rowspan="2">#</th><th class="sbnm" rowspan="2">Explorer</th>' + [0, 1, 2].map(e => '<th class="sbep e' + (e + 1) + '" colspan="4">Ep ' + (e + 1) + " · " + EP_SHORT[e] + "</th>").join("") + '<th class="sbtot" rowspan="2">Total<br>stars</th></tr>';
+    const head2 = "<tr>" + [0, 1, 2].map(e => LVS(e).map((L, i) => '<th class="sblv" title="Episode ' + (e + 1) + ", Level " + (i + 1) + ": " + escH(L.name) + '">' + (i + 1) + "<small>" + escH(L.name.replace(/^The /, "")) + "</small></th>").join("")).join("") + "</tr>";
+    const cue = () => {
+      if (!o.win) return "";
+      const n = o.win.stars, L = LVI(o.win.ep, o.win.lv);
+      return '<div class="sbcue" role="status"><span class="cst">' + [0, 1, 2].map(i => starSvg(i < n)).join("") + "</span><span>You earned " + n + " star" + (n === 1 ? "" : "s") + " on " + escH(L.name) + "!</span></div>";
+    };
+    const draw = () => {
+      if (!el.isConnected && el.dataset.drawn) return;
+      const list = boardRows(players);
+      const body = list.length ? list.map((r, i) => {
+        const me = meId && r.uid === meId;
+        return '<tr class="sbr ' + (i % 2 ? "b" : "g") + (me ? " me" : "") + '"' + (me ? ' id="sbme"' : "") + '><td class="sbrk">' + (i + 1) + '</td><td class="sbnm"><div class="nbx"><span class="nm">' + escH(r.name) + "</span>" + (me ? "<em>YOU</em>" : "") + "</div></td>" +
+          LV_KEYS.map(k => { const n = r.stars[k] || 0, L = LVI(+k[0], +k[2]); return '<td><div class="bx' + (n ? " on" : "") + (me && k === newK ? " new" : "") + '" title="' + escH("Episode " + (+k[0] + 1) + ", Level " + (+k[2] + 1) + ": " + L.name) + '" aria-label="' + escH(L.name + ": " + (n ? n + " of 3 stars" : "not passed yet")) + '">' + [0, 1, 2].map(j => starSvg(j < n)).join("") + "</div></td>"; }).join("") +
+          '<td class="sbtot"><div class="tbx" aria-label="' + r.total + ' stars in all">' + r.total + starSvg(true) + "</div></td></tr>";
+      }).join("") : '<tr><td colspan="15"><div class="sbempty">No explorers yet — be the first!</div></td></tr>';
+      const sc = el.querySelector(".sbscroll"), keep = sc ? [sc.scrollLeft, sc.scrollTop] : null;
+      el.innerHTML = '<div class="sbbg" style="background-image:url(\'' + ASSET((E.map || "map-jungle-wide") + ".jpg") + '\')"></div><div class="sbwrap"><div class="sbhead"><div class="sbtitle">🏆 Star Scoreboard</div><div class="sbsub">' +
+        (cloudMode() ? "Everyone can see this board · scoreboard names only" : "Most levels passed, then most stars") + "</div></div>" + cue() +
+        '<div class="sbscroll"><table class="sbt"><thead>' + head1 + head2 + "</thead><tbody>" + body + '</tbody></table></div><div class="sbfoot"><button class="sbgo cprimary" data-sb="go">Continue ▶</button><span class="sbhint">or press any key</span></div></div>';
+      el.dataset.drawn = "1";
+      const h1 = el.querySelector(".sbt thead tr"); if (h1) el.style.setProperty("--sbh1", h1.getBoundingClientRect().height + "px");
+      const nsc = el.querySelector(".sbscroll");
+      if (keep) { nsc.scrollLeft = keep[0]; nsc.scrollTop = keep[1]; }
+      return nsc;
+    };
+    document.body.appendChild(el);
+    const nsc = draw();
+    try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
+    const go = el.querySelector(".sbgo"); if (go) try { go.focus({ preventScroll: true }); } catch (e) {}
+    // Bring my row (and the level I just passed) into view.
+    requestAnimationFrame(() => {
+      const me = el.querySelector("#sbme"); if (!me) return;
+      const r = me.getBoundingClientRect(), s = nsc.getBoundingClientRect();
+      if (r.bottom > s.bottom || r.top < s.top + 60) nsc.scrollTop += r.top - s.top - s.height / 2 + r.height / 2;
+      const bx = me.querySelector(".bx.new");
+      if (bx) { const b = bx.getBoundingClientRect(); if (b.right > s.right - 70) nsc.scrollLeft += b.right - s.right + s.width / 3; }
+    });
+    const opened = Date.now();
+    const off = cloudMode() ? DB.onBoard(() => { if (el.isConnected) draw(); }) : null;
+    const close = () => { if (!el.isConnected) return; if (off) off(); el.remove(); if (SB === api) SB = null; res(); };
+    const api = { close, key: () => { if (Date.now() - opened < 450) return; SFX.step(); close(); } };
+    SB = api;
+    el.addEventListener("click", e => { if (e.target.closest('[data-sb="go"]') && Date.now() - opened > 250) { SFX.step(); close(); } });
+  });
+}
+const openBoard = () => showBoard();
+// Password step for local players: "set" makes a new password (twice); "enter" checks it with o.verify(value).
+function pwDialog(o) {
+  return new Promise(res => {
+    const set = o.mode === "set";
+    const inp = (id, ph) => '<div class="pwrow"><input id="' + id + '" class="mdin" type="password" maxlength="40" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="' + ph + '"></div>';
+    const m = modal("<h2>" + escH(o.title) + "</h2><p>" + escH(o.text) + "</p>" +
+      (set ? '<label class="pwlab" for="pw1">Make a password <small>(at least 4 letters or numbers)</small></label>' + inp("pw1", "New password") + '<label class="pwlab" for="pw2">Type it again</label>' + inp("pw2", "Same password again")
+        : '<label class="pwlab" for="pw1">Password</label>' + inp("pw1", "Your password")) +
+      '<label class="pwhelp"><input type="checkbox" class="pwsee"> Show password</label><div class="mderr" role="alert"></div><div class="pwhelp">' +
+      escH(set ? "Write it down somewhere safe. Don't share it." : "Forgot it? Ask your teacher to reset it.") + '</div><div class="mdbtns"><button data-md="cancel" class="mdsec">Back</button><button data-md="ok" class="mdok">' + (set ? "Save password ▶" : "Let me in ▶") + "</button></div>", "pwdlg");
+    m.el.classList.add("pwmodal");
+    const i1 = m.el.querySelector("#pw1"), i2 = m.el.querySelector("#pw2"), err = m.el.querySelector(".mderr");
+    let busy = false, tries = 0, until = 0;
+    const fail = (t, el) => { err.textContent = t; const f = el || i1; f.value = ""; f.focus(); };
+    const ok = async () => {
+      if (busy) return; if (o.gesture) try { o.gesture(); } catch (e) {}
+      const a = i1.value;
+      if (set) {
+        if (a.length < 4) return fail("Use at least 4 characters.");
+        if (a !== i2.value) { i1.value = ""; return fail("The two passwords don't match. Type both again.", i1); }
+        busy = true; err.textContent = ""; const rec = await makeSecret(a); m.close(); res(rec); return;
+      }
+      if (Date.now() < until) { err.textContent = "Too many tries. Wait a few seconds."; return; }
+      if (!a) return fail("Type your password.");
+      busy = true; const good = await o.verify(a); busy = false;
+      if (!good) { tries++; if (tries >= 5) { until = Date.now() + 15000; tries = 0; } return fail("That password isn't right. Try again" + (tries ? "." : " in a few seconds.")); }
+      m.close(); res(true);
+    };
+    const cancel = () => { m.close(); res(false); };
+    m.el.addEventListener("click", e => { const b = e.target.closest("[data-md]"); if (b) { if (b.dataset.md === "ok") ok(); else cancel(); } });
+    m.el.querySelector(".pwsee").addEventListener("change", e => { m.el.querySelectorAll("#pw1, #pw2").forEach(x => x.type = e.target.checked ? "text" : "password"); });
+    m.el.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); if (set && e.target === i1 && i2) i2.focus(); else ok(); } else if (e.key === "Escape") cancel(); });
+    m.el._ok = ok; m.el._cancel = cancel;
+    setTimeout(() => i1.focus(), 30);
+  });
 }
 
 /* ---- login, resume and teacher screens (drawn inside #cine) ---- */
@@ -3184,17 +3406,39 @@ async function loginScreen() {
   return new Promise(res => {
     Cine.show(loginShell('<div class="lgcard"><h2>Who\'s playing?</h2><div class="lghint">Type your first name and last initial, like <b>Sam T.</b></div><form id="lgform" autocomplete="off"><input id="lgname" maxlength="30" placeholder="First name + last initial" autocapitalize="words" autocomplete="off" spellcheck="false" aria-label="Your first name and last initial"><button class="lgbtn" type="submit">Start ▶</button></form><div class="lgmsg" id="lgmsg"></div>' +
       (names.length ? '<div class="lgsub">Already played here? Tap your name:</div><div class="lgnames">' + names.map(n => '<button data-pg="pick" data-name="' + escH(n) + '">' + escH(n) + "</button>").join("") + "</div>" : "") +
-      '<div class="lgnote">Progress is saved on this device.</div></div>', lbHtml(players)));
+      '<div class="lgnote">Each player has a password. Progress is saved on this device.</div></div>', lbHtml(players)));
     const inp = document.getElementById("lgname"), msg = document.getElementById("lgmsg");
     inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); document.getElementById("lgform").requestSubmit ? document.getElementById("lgform").requestSubmit() : document.getElementById("lgform").dispatchEvent(new Event("submit", { cancelable: true })); } });
     inp.addEventListener("input", () => { const n = normName(inp.value); msg.className = "lgmsg" + (n ? " ok" : ""); msg.textContent = n ? "You'll play as " + n : ""; });
+    let busy = false;
+    const enterAs = async n => {
+      if (busy) return;
+      if (!canHash()) { msg.className = "lgmsg bad"; msg.textContent = "Passwords need the secure (https) game page."; return; }
+      busy = true;
+      try {
+        const all = await LocalDB.players().catch(() => ({}));
+        const r = Object.values(all).find(p => p && p.name && p.name.toLowerCase() === n.toLowerCase());
+        let pw = null;
+        if (r && hasPw(r)) {
+          const ok = await pwDialog({ mode: "enter", title: "Hi, " + r.name + "!", text: "Type your password to play as " + r.name + (/\.$/.test(r.name) ? "" : "."), verify: v => checkSecret(r.pw, v), gesture: unlockMedia });
+          if (!ok) return;
+        } else {
+          pw = await pwDialog(r ? { mode: "set", title: "Welcome back, " + r.name + "!", text: "Players now have a password, so nobody else can play as you. Make yours now. You'll type it each time you play.", gesture: unlockMedia }
+            : { mode: "set", title: "Make your password", text: "This keeps your game safe, so only you can play as " + n + (/\.$/.test(n) ? "" : "."), gesture: unlockMedia });
+          if (!pw) return;
+        }
+        pgHandler = null; res({ name: r ? r.name : n, pw });
+      } finally { busy = false; }
+    };
     document.getElementById("lgform").addEventListener("submit", e => {
       e.preventDefault(); const n = normName(inp.value);
       if (!n) { msg.className = "lgmsg bad"; msg.textContent = "Type your first name and last initial, like Sam T."; inp.focus(); return; }
-      unlockMedia(); pgHandler = null; res({ name: n });
+      unlockMedia(); enterAs(n);
     });
     pgHandler = (k, b) => {
-      if (k === "pick") { unlockMedia(); pgHandler = null; res({ name: b.dataset.name }); }
+      if (busy) return;
+      if (k === "pick") { unlockMedia(); enterAs(b.dataset.name); }
+      if (k === "board") { showBoard(); return; }
       if (k === "teacher") { pgHandler = null; res({ teacher: true }); }
     };
   });
@@ -3252,6 +3496,7 @@ function accountScreen(startTab) {
       if (k === "tab-in" || k === "tab-up") { tab = k.slice(4); draw(); return; }
       if (k === "guest") { unlockMedia(); finish({ guest: true }); return; }
       if (k === "retry") { location.reload(); return; }
+      if (k === "board") { showBoard(); return; }
       if (k === "teacher") { finish({ teacher: true }); return; }
     };
     draw();
@@ -3268,7 +3513,7 @@ function resumeScreen(r) {
         '<div class="rsmeter"><div class="meterbar"><div class="fillbar" style="width:' + r.strength + "%;background:" + meterColor(r.strength) + '"></div></div><span>' + Math.round(r.strength) + "% strength</span></div>") +
       (guest ? '<div class="rsdet">Playing as a guest: progress is saved on this device only.</div>' : "") +
       '<div class="rsbtns">' + (r.done ? "" : '<button class="tstart cprimary" data-pg="continue">▶&nbsp; Continue</button>') +
-      '<button class="rsalt' + (r.done ? " cprimary" : "") + '" data-pg="choose">Choose an episode</button><button class="rsalt" data-pg="board">🏆 ' + (cloudMode() ? "Scoreboard" : "Leaderboard") + "</button>" +
+      '<button class="rsalt' + (r.done ? " cprimary" : "") + '" data-pg="choose">Choose an episode</button><button class="rsalt" data-pg="board">🏆 Star Scoreboard</button>' +
       (guest ? '<button class="rsalt" data-pg="switch">Sign in to save your scores</button>' : '<button class="rsalt" data-pg="switch">Not ' + escH(r.name) + "? " + (Progress.mode === "cloud" ? "Sign out" : "Switch player") + "</button>") + "</div></div></div></div>");
     pgHandler = k => { if (k === "board") { openBoard(); return; } if (k === "continue" || k === "choose") unlockMedia(); pgHandler = null; res(k); };
   });
@@ -3282,12 +3527,13 @@ async function teacherFlow() {
     if (p1 === false) return;
     const p2 = await ask({ title: "Confirm the PIN", text: "Type the same PIN again.", input: "pin", placeholder: "Same PIN again", ok: "Save PIN", check: v => v === p1 ? null : "The PINs don't match — try again." });
     if (p2 === false) return;
-    const salt = randHex(16); rec = { salt, hash: await sha256(salt + ":" + p1), v: 1, ts: Date.now() };
+    rec = await makeSecret(p1);
     try { await DB.setPin(rec); } catch (e) { await ask({ title: "Couldn't save the PIN", text: String((e && e.message) || e), cancel: null }); return; }
     alertToast("Teacher PIN created.");
   } else {
-    const ok = await ask({ title: "Teacher", text: "Enter the teacher PIN.", input: "pin", ok: "Unlock", check: async v => (await sha256(rec.salt + ":" + v)) === rec.hash ? null : "That PIN isn't right." });
+    const ok = await ask({ title: "Teacher", text: "Enter the teacher PIN.", input: "pin", ok: "Unlock", check: async v => (await checkSecret(rec, v)) ? null : "That PIN isn't right." });
     if (ok === false) return;
+    if (rec.v !== 2) { try { await DB.setPin(await makeSecret(ok)); } catch (e) {} }
   }
   await (cloudMode() ? teacherCloudScreen() : teacherScreen());
 }
@@ -3307,9 +3553,9 @@ function teacherScreen() {
       Cine.show('<div class="cscreen teacher"><div class="tchwrap"><div class="tchhead"><h1>Teacher</h1><div class="tchsub">' + rows.length + " student" + (rows.length === 1 ? "" : "s") + " · saved on this device</div>" +
         '<button data-pg="t-close" class="tbtn sec">Done</button></div>' +
         '<div class="tchact"><button data-pg="t-add" class="tbtn">＋ Add student</button><button data-pg="t-csv" class="tbtn">⬇ Export CSV</button><button data-pg="t-alerts" class="tbtn sec">Clear alerts</button><button data-pg="t-reset" class="tbtn danger">Reset scoreboard &amp; all student data</button></div>' +
-        '<div class="tchtable"><table><thead><tr><th>Student</th><th>Reached</th><th>Levels passed</th><th>Strength</th><th>Last played</th><th></th></tr></thead><tbody>' +
-        (rows.length ? rows.map(r => "<tr><td><b>" + escH(r.name) + "</b></td><td>" + escH(reachTxt(r)) + "</td><td>" + passedCount(r) + " / 12</td><td>" + Math.round(r.strength) + "%</td><td>" + escH(fmtWhen(r.ts)) + '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + r.id + '">Rename</button><button data-pg="t-del" data-id="' + r.id + '" class="danger">Remove</button></td></tr>').join("")
-          : '<tr><td colspan="6" class="empty">No students yet. Students appear here after they log in, or add them ahead of time.</td></tr>') + "</tbody></table></div></div></div>");
+        '<div class="tchtable"><table><thead><tr><th>Student</th><th>Reached</th><th>Levels passed</th><th>Stars</th><th>Strength</th><th>Password</th><th>Last played</th><th></th></tr></thead><tbody>' +
+        (rows.length ? rows.map(r => "<tr><td><b>" + escH(r.name) + "</b></td><td>" + escH(reachTxt(r)) + "</td><td>" + passedCount(r) + " / 12</td><td>" + starTotal(r) + " / 36</td><td>" + Math.round(r.strength) + "%</td><td>" + (hasPw(r) ? "Set" : "Not yet") + "</td><td>" + escH(fmtWhen(r.ts)) + '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + r.id + '">Rename</button>' + (hasPw(r) ? '<button data-pg="t-pw" data-id="' + r.id + '">Reset password</button>' : "") + '<button data-pg="t-del" data-id="' + r.id + '" class="danger">Remove</button></td></tr>').join("")
+          : '<tr><td colspan="8" class="empty">No students yet. Students appear here after they log in, or add them ahead of time.</td></tr>') + "</tbody></table></div></div></div>");
     };
     const dupe = (n, id) => Object.values(players).some(p => p && p.name && p.id !== id && p.name.toLowerCase() === n.toLowerCase());
     const nameCheck = id => v => { const n = normName(v); return !n ? "Use a first name and last initial, like Sam T." : dupe(n, id) ? n + " is already on the roster." : null; };
@@ -3319,6 +3565,7 @@ function teacherScreen() {
       if (k === "t-close") { pgHandler = null; res(); return; }
       if (k === "t-add") { const v = await ask({ title: "Add a student", text: "First name and last initial.", input: "text", placeholder: "e.g. Sam T.", ok: "Add", check: nameCheck(null) }); if (v !== false) await guard(() => LocalDB.savePlayer(newRec(normName(v)))); return; }
       if (k === "t-ren" && r) { const v = await ask({ title: "Rename " + r.name, text: "First name and last initial.", input: "text", value: r.name, ok: "Rename", check: nameCheck(r.id) }); if (v !== false) await guard(() => LocalDB.savePlayer(Object.assign({}, r, { name: normName(v) }))); return; }
+      if (k === "t-pw" && r) { const v = await ask({ title: "Reset " + r.name + "'s password?", text: r.name + " will make a new password the next time they pick their name. Their progress and stars stay.", ok: "Reset password" }); if (v !== false) { const c = Object.assign({}, r); delete c.pw; await guard(() => LocalDB.savePlayer(c)); alertToast(r.name + " will make a new password next time."); } return; }
       if (k === "t-del" && r) { const v = await ask({ title: "Remove " + r.name + "?", text: "This deletes " + r.name + "'s saved game, progress and alerts. It can't be undone.", ok: "Remove", danger: true }); if (v !== false) await guard(() => LocalDB.removePlayer(r.id)); return; }
       if (k === "t-alerts") { const v = await ask({ title: "Clear alerts?", text: "Removes the history of “passed a level” alerts. Student progress stays.", ok: "Clear alerts" }); if (v !== false) await guard(() => LocalDB.clearEvents()); if (v !== false) alertToast("Alerts cleared."); return; }
       if (k === "t-reset") { const v = await ask({ title: "Reset everything?", text: "This deletes every student, every saved game, the scoreboard and all alerts. Type RESET to confirm.", input: "text", placeholder: "RESET", ok: "Reset everything", danger: true, check: v => v === "RESET" ? null : "Type RESET in capital letters." }); if (v !== false) { await guard(() => LocalDB.resetAll()); alertToast("Scoreboard and student data reset."); } return; }
@@ -3383,7 +3630,7 @@ function teacherCloudScreen() {
     load();
   });
 }
-window.__MVM_AUTH = { checkUsername, checkNick, badWords, mergeRecs, userEmail, get DB() { return DB; }, Progress, accountScreen, openBoard };
+window.__MVM_AUTH = { checkUsername, checkNick, badWords, mergeRecs, userEmail, get DB() { return DB; }, Progress, accountScreen, openBoard, showBoard, starsFor, starTotal, boardRows };
 
 
 /* ================= dev tools (?dev=1) ================= */
@@ -3462,7 +3709,7 @@ try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed
 
 window.showStrengthBoost = showStrengthBoost;
 window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
-window.__DD = { G, EPISODES, render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
+window.__DD = { G, EPISODES, penalty: () => penalty(), render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
 </script>

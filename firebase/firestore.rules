@@ -13,8 +13,21 @@ service cloud.firestore {
     function okName(n) { return n is string && n.size() >= 2 && n.size() <= 16 && n.matches('[A-Za-z0-9][A-Za-z0-9 _.-]*'); }
     function progKeys() { return ['username', 'name', 'episode', 'level', 'strength', 'unlocked', 'passed', 'done', 'ts', 'created']; }
     function levelKeys() { return ['0-0', '0-1', '0-2', '0-3', '1-0', '1-1', '1-2', '1-3', '2-0', '2-1', '2-2', '2-3']; }
+    // stars: best stars per passed level (1-3), e.g. {'0-0': 3}; reach: when levels/stars last went up (ranking tie-break)
+    function okStar(m, k) { return !(k in m) || okInt(m[k], 1, 3); }
+    function okStars(m) {
+      return m is map && m.keys().hasOnly(levelKeys())
+        && okStar(m, '0-0') && okStar(m, '0-1') && okStar(m, '0-2') && okStar(m, '0-3')
+        && okStar(m, '1-0') && okStar(m, '1-1') && okStar(m, '1-2') && okStar(m, '1-3')
+        && okStar(m, '2-0') && okStar(m, '2-1') && okStar(m, '2-2') && okStar(m, '2-3');
+    }
+    function starSum(m) {
+      return m.get('0-0', 0) + m.get('0-1', 0) + m.get('0-2', 0) + m.get('0-3', 0) + m.get('1-0', 0) + m.get('1-1', 0)
+        + m.get('1-2', 0) + m.get('1-3', 0) + m.get('2-0', 0) + m.get('2-1', 0) + m.get('2-2', 0) + m.get('2-3', 0);
+    }
     function okProgress(d) {
-      return d.keys().hasAll(progKeys()) && d.keys().hasOnly(progKeys())
+      return d.keys().hasAll(progKeys()) && d.keys().hasOnly(progKeys().concat(['stars', 'reach']))
+        && (!('stars' in d) || okStars(d.stars)) && (!('reach' in d) || d.reach is int)
         && d.username is string && d.username.matches('[a-z0-9][a-z0-9_.-]{2,19}')
         && request.auth.token.email == d.username + '@mvm.local'
         && okName(d.name) && okInt(d.episode, 0, 2) && okInt(d.level, 0, 3)
@@ -24,7 +37,10 @@ service cloud.firestore {
     }
     function entryKeys() { return ['name', 'levels', 'furthest', 'done', 'ts', 'hidden', 'modName']; }
     function okEntry(d) {
-      return d.keys().hasAll(entryKeys()) && d.keys().hasOnly(entryKeys())
+      return d.keys().hasAll(entryKeys()) && d.keys().hasOnly(entryKeys().concat(['stars', 'total', 'reach']))
+        && (!('stars' in d) || (okStars(d.stars) && d.stars.size() <= d.levels))
+        && (!('total' in d) || (okInt(d.total, 0, 36) && d.total == starSum(d.get('stars', {}))))
+        && (!('reach' in d) || d.reach is int)
         && okName(d.name) && okInt(d.levels, 0, 12) && okInt(d.furthest, 1, 3) && d.done is bool && d.ts is int
         && d.hidden is bool && (d.modName == null || okName(d.modName));
     }
