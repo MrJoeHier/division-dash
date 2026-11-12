@@ -471,6 +471,24 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 /* map */
 .cscreen.map { background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%27.9%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20values%3D%270%200%200%200%20.1%20%200%200%200%200%20.06%20%200%200%200%200%20.02%20%200%200%200%20.55%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27160%27%20height%3D%27160%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E"), radial-gradient(ellipse at center, #4a3018, #120b05); }
 .mapbox { position:relative; width:min(100vw, calc(100vh * 16 / 9)); height:min(100vh, calc(100vw * 9 / 16)); width:min(100vw, calc(100dvh * 16 / 9)); height:min(100dvh, calc(100vw * 9 / 16)); animation:mapIn .8s cubic-bezier(.2,1,.3,1) both; }
+/* map unfurl: the map art opens from a centre roll; two scroll rods slide out to the frame edges, then fade */
+.cscreen.map.uf, .cscreen.map.noanim { animation:none; }
+.cscreen.map.noanim .mapbox { animation:none; }
+.cscreen.map.uf .mapbox { animation:ufClip var(--uf,1000ms) linear backwards; }
+@keyframes ufClip { 0% { clip-path:inset(0 48.2% 0 48.2%); } 14% { clip-path:inset(0 48.2% 0 48.2%); animation-timing-function:cubic-bezier(.3,.75,.3,1); } 88% { clip-path:inset(0 0 0 0); } 100% { clip-path:inset(0 0 0 0); } }
+.munroll { position:absolute; left:50%; top:50%; width:min(100vw, calc(100vh * 16 / 9)); height:min(100vh, calc(100vw * 9 / 16)); width:min(100vw, calc(100dvh * 16 / 9)); height:min(100dvh, calc(100vw * 9 / 16)); transform:translate(-50%,-50%); pointer-events:none; z-index:6; }
+.mrw { position:absolute; inset:0; opacity:0; will-change:transform, opacity; }
+.mrw.l { animation:ufL var(--uf,1000ms) linear both; }
+.mrw.r { animation:ufR var(--uf,1000ms) linear both; }
+@keyframes ufL { 0% { opacity:0; transform:translate(-1.8%,-3%); } 14% { opacity:1; transform:translate(-1.8%,0); animation-timing-function:cubic-bezier(.3,.75,.3,1); } 88% { opacity:1; transform:translate(-50%,0); } 100% { opacity:0; transform:translate(-50.5%,0); } }
+@keyframes ufR { 0% { opacity:0; transform:translate(1.8%,-3%); } 14% { opacity:1; transform:translate(1.8%,0); animation-timing-function:cubic-bezier(.3,.75,.3,1); } 88% { opacity:1; transform:translate(50%,0); } 100% { opacity:0; transform:translate(50.5%,0); } }
+.mrod { position:absolute; left:48.2%; width:3.6%; top:-2.2%; bottom:-2.2%; border-radius:7px; background:linear-gradient(90deg, #22130a 0%, #5e3a1c 16%, #b48a52 36%, #f0d9a6 50%, #c49a5e 64%, #5a3618 86%, #1e1008 100%); box-shadow:0 0 0 1px rgba(20,10,4,.6), 0 6px 18px rgba(0,0,0,.55); }
+.mrod::before, .mrod::after { content:""; position:absolute; left:-28%; right:-28%; height:clamp(8px, 2.6%, 18px); border-radius:40%; background:radial-gradient(ellipse at 50% 35%, #ffeab0, #c99838 45%, #6a4512 85%); box-shadow:0 2px 4px rgba(0,0,0,.6); }
+.mrod::before { top:-1%; } .mrod::after { bottom:-1%; }
+.mrw.l .mrod { box-shadow:0 0 0 1px rgba(20,10,4,.6), 14px 0 22px rgba(20,10,4,.55); }
+.mrw.r .mrod { box-shadow:0 0 0 1px rgba(20,10,4,.6), -14px 0 22px rgba(20,10,4,.55); }
+@media (prefers-reduced-motion: reduce) { .cscreen.map.uf .mapbox { animation:fadeIn .3s both; } .munroll { display:none; } }
+
 .mapbox .mban { top:0.6%; left:10%; right:10%; padding:0.35vh 1.4vh 0.45vh; background:radial-gradient(ellipse at center, rgba(20,12,4,.55), rgba(20,12,4,.18) 70%, rgba(20,12,4,0)); }
 .mapbox .mep { font-size:clamp(0.65rem, 1.9vh, 0.95rem); letter-spacing:.18em; }
 .mapbox .mlv { font-size:clamp(1.15rem, 4.2vh, 2.35rem); margin:.15vh 0; }
@@ -485,20 +503,33 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .mlab.todo { opacity:.88; }
 .mlab.rv text { fill:#ffe9a8; }
 .mk.rv .ring { fill:#7a1d12; stroke:#ffd43b; }
-.mchoice { position:absolute; left:auto; right:1%; bottom:1.5%; width:auto; display:flex; flex-direction:column; align-items:center; z-index:4; opacity:0; transform:translateY(16px); pointer-events:none; transition:opacity .35s, transform .35s cubic-bezier(.2,1.4,.4,1); }
+.mchoice { position:absolute; left:auto; right:1.2%; bottom:1.6%; width:auto; display:flex; flex-direction:column; align-items:center; gap:clamp(6px, 1.2vmin, 12px); z-index:7; opacity:0; transform:translateY(16px); pointer-events:none; transition:opacity .35s, transform .35s cubic-bezier(.2,1.4,.4,1); }
 .mchoice.show { opacity:1; transform:none; pointer-events:auto; }
-.mcompass { position:relative; width:min(32vmin, 230px); height:min(32vmin, 230px); filter:drop-shadow(0 8px 18px rgba(0,0,0,.55)); }
-.mcompass-rose { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-.mcompass-go { position:absolute; left:50%; top:50%; width:46%; height:46%; min-width:76px; min-height:76px; max-width:none; padding:6px 8px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:clamp(0.72rem, 2.1vmin, 1.02rem); letter-spacing:.04em; line-height:1.15; text-align:center; box-shadow:0 3px 0 #1f1208, 0 8px 16px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25); transform:translate(-50%,-50%); }
-.mcompass-go:active { transform:translate(-50%,-50%) translateY(3px); box-shadow:0 1px 0 #1f1208, 0 4px 10px rgba(0,0,0,.4); }
-.mcompass-save { position:absolute; left:50%; bottom:9%; transform:translateX(-50%); width:max-content; max-width:72%; min-height:28px; padding:4px 10px; border-radius:999px; font-size:clamp(0.58rem, 1.6vmin, 0.78rem); letter-spacing:.02em; box-shadow:0 3px 0 #1f1208, 0 6px 12px rgba(0,0,0,.4); }
-.mcompass-save:active { transform:translateX(-50%) translateY(2px); box-shadow:0 1px 0 #1f1208; }
-/* Phone portrait: keep the rose on the map's lower right, overflow into the letterbox for a larger tap target. Do not cover the map. */
-@media (max-width: 600px) and (max-aspect-ratio: 3/4) {
-  .mchoice { right:1%; left:auto; bottom:-36%; top:auto; transform:none; }
-  .mchoice.show { transform:none; }
-  .mcompass { width:min(38vw, 150px); height:min(38vw, 150px); }
-  .mcompass-go { min-width:64px; min-height:64px; }
+/* The whole compass rose is the Continue button (rose art + "Continue" lettered in the hub, one hit target). */
+.mrose { --rs:min(30vmin, 220px); position:relative; display:block; width:var(--rs); height:var(--rs); padding:0; margin:0; border:0; border-radius:50%; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; filter:drop-shadow(0 6px 14px rgba(0,0,0,.6)); transition:transform .18s cubic-bezier(.3,1.6,.5,1), filter .18s; }
+.mrose svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; display:block; }
+.mrose-lab { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:48%; pointer-events:none; display:flex; flex-direction:column; align-items:center; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; font-size:calc(var(--rs) * .082); line-height:1; letter-spacing:.02em; color:#ffe7a3; text-shadow:0 1px 0 #1a0d04, 0 0 8px rgba(255,200,90,.35); }
+.mrose-lab small { font-size:.85em; margin-top:.18em; color:#f3c65a; }
+.mchoice.show .mrose { animation:roseGlow 2.2s ease-in-out .4s infinite; }
+@keyframes roseGlow { 0%,100% { filter:drop-shadow(0 6px 14px rgba(0,0,0,.6)); } 50% { filter:drop-shadow(0 6px 14px rgba(0,0,0,.6)) drop-shadow(0 0 12px rgba(255,205,90,.75)); } }
+.mrose:hover, .mrose:focus-visible { transform:scale(1.05); outline:none; }
+.mrose:focus-visible { filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 10px #ffd43b); }
+.mrose:active { transform:scale(.95); }
+/* Save for Later: a stitched leather tag with brass rivets, sitting above the rose */
+.msave-tag { position:relative; min-height:44px; min-width:44px; padding:6px clamp(22px, 3vmin, 30px); border-radius:10px; border:2px solid #2a1608; background:linear-gradient(#83522a, #4e2c13); color:#fbe7b5; font-family:"Cinzel MVM", Georgia, serif; font-weight:800; font-size:clamp(0.72rem, 2vmin, 0.98rem); letter-spacing:.03em; white-space:nowrap; cursor:pointer; touch-action:manipulation; text-shadow:0 1px 0 #1a0d04; box-shadow:0 4px 0 #1f1208, 0 8px 16px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,220,160,.35); }
+.msave-tag::before { content:""; position:absolute; inset:4px; border:1.5px dashed rgba(243,198,90,.7); border-radius:7px; pointer-events:none; }
+.msave-tag::after { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 11px 50%, #fff0bf 0 1.5px, #c99838 2.5px, #5a3a14 4px, transparent 4.6px), radial-gradient(circle at calc(100% - 11px) 50%, #fff0bf 0 1.5px, #c99838 2.5px, #5a3a14 4px, transparent 4.6px); }
+.msave-tag:active { transform:translateY(3px); box-shadow:0 1px 0 #1f1208, 0 4px 8px rgba(0,0,0,.4); }
+/* Portrait (phone + iPad): rose and tag sit in the letterbox under the map, centred, so nothing covers the map. */
+@media (max-aspect-ratio: 3/4) {
+  .mchoice { top:calc(100% + 10px); bottom:auto; left:50%; right:auto; transform:translate(-50%, 16px); }
+  .mchoice.show { transform:translate(-50%, 0); }
+  .mrose { --rs:min(40vw, 210px, 24vh); }
+}
+/* Short landscape phones: a slightly smaller rose */
+@media (max-height: 500px) and (min-aspect-ratio: 4/3) {
+  .mrose { --rs:min(29vmin, 130px); }
+  .msave-tag { padding-top:4px; padding-bottom:4px; }
 }
 
 .mapbox > img { position:absolute; inset:0; width:100%; height:100%; display:block; }
@@ -1082,6 +1113,7 @@ const SFX = {
   over() { [392, 349, 311, 262].forEach((f, i) => tone(f, i * 0.16, 0.3, "triangle", 0.14)); },
   dot(i) { tone(1046 + (i % 6) * 60, 0, 0.07, "sine", 0.05); noise(0, 0.03, 0.025, 2400); }
 };
+const AMB_LEVEL = 0.4; // map-screen ambience bed (was 1.15, about -9 dB)
 const Ambience = (() => {
   let nodes = [], g = null, ep = -1, iv = null, gen = 0;
   function stop(fade) {
@@ -1154,7 +1186,7 @@ const Ambience = (() => {
   }
   function water(t) {
     if (!settings.sound) return;
-    noise(0, 0.22, 0.07, 2200); noise(0.05, 0.18, 0.045, 3200);
+    noise(0, 0.22, 0.07 * AMB_LEVEL / 1.15, 2200); noise(0.05, 0.18, 0.045 * AMB_LEVEL / 1.15, 3200);
   }
   function start(episode) {
     if (!settings.sound) return;
@@ -1164,7 +1196,7 @@ const Ambience = (() => {
     ep = episode | 0;
     g = ac.createGain(); g.gain.value = 0.0001; g.connect(master);
     const n = ac.currentTime;
-    g.gain.linearRampToValueAtTime(1.15, n + 0.5);
+    g.gain.linearRampToValueAtTime(AMB_LEVEL, n + 0.5); // map ambience bus: was 1.15, now well under music/narration
     // layered beds
     if (ep === 0) {
       noiseBed(ac, g, "bandpass", 1400, 0.55, 0.085); // canopy hush
@@ -2520,7 +2552,12 @@ function preloadBoot() {
   try { getVideo("setup-l1"); getVideo("win-l1"); } catch (e) {}
 }
 const Cine = (() => {
-  const compassSvg = `<svg class="mcompass-rose" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="rgold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8e7a6"/><stop offset=".45" stop-color="#d4a84a"/><stop offset="1" stop-color="#8a5a18"/></linearGradient><linearGradient id="rdark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a2412"/><stop offset="1" stop-color="#1a0e06"/></linearGradient></defs><circle cx="100" cy="100" r="98" fill="url(#rdark)" stroke="#c9a050" stroke-width="3"/><circle cx="100" cy="100" r="90" fill="none" stroke="#e8c86a" stroke-width="1.2" opacity=".85"/><g fill="url(#rgold)" stroke="#3a2412" stroke-width="1"><polygon points="100,8 108,72 100,64 92,72"/><polygon points="100,192 92,128 100,136 108,128"/><polygon points="8,100 72,92 64,100 72,108"/><polygon points="192,100 128,108 136,100 128,92"/></g><g fill="#5c3a18" stroke="#2a1808" stroke-width=".8"><polygon points="100,28 104,78 100,74 96,78"/><polygon points="100,172 96,122 100,126 104,122"/><polygon points="28,100 78,96 74,100 78,104"/><polygon points="172,100 122,104 126,100 122,96"/><polygon points="39,39 78,90 74,86 86,78"/><polygon points="161,161 122,110 126,114 114,122"/><polygon points="161,39 110,78 114,74 122,86"/><polygon points="39,161 90,122 86,126 78,114"/></g><circle cx="100" cy="100" r="52" fill="#24140a" stroke="#e8c86a" stroke-width="3"/><circle cx="100" cy="100" r="47" fill="none" stroke="#8a5a18" stroke-width="1.5"/><text x="100" y="22" text-anchor="middle" fill="#f3e0a8" font-size="11" font-weight="700" font-family="Georgia,serif">N</text></svg>`;
+  const compassSvg = `<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="rbr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dd95"/><stop offset=".5" stop-color="#c0903a"/><stop offset="1" stop-color="#6e4614"/></linearGradient><radialGradient id="rpa" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#f5e6c0"/><stop offset=".7" stop-color="#dcc08a"/><stop offset="1" stop-color="#b38c52"/></radialGradient><radialGradient id="rhub" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#5a3518"/><stop offset="1" stop-color="#1f1107"/></radialGradient></defs>`
+    + `<circle cx="100" cy="100" r="98" fill="url(#rbr)" stroke="#2e1a0a" stroke-width="2"/><circle cx="100" cy="100" r="86" fill="url(#rpa)" stroke="#5a3a18" stroke-width="1.6"/><circle cx="100" cy="100" r="80" fill="none" stroke="#7a5228" stroke-width="3" stroke-dasharray="1.2 5.08" opacity=".8"/>`
+    + `<g stroke="#3a2210" stroke-width=".7"><polygon points="100,100 139,61 108,108" fill="#7a5228"/><polygon points="100,100 139,61 92,92" fill="#a77a42"/><polygon points="100,100 139,139 92,108" fill="#7a5228"/><polygon points="100,100 139,139 108,92" fill="#a77a42"/><polygon points="100,100 61,139 92,92" fill="#7a5228"/><polygon points="100,100 61,139 108,108" fill="#a77a42"/><polygon points="100,100 61,61 108,92" fill="#7a5228"/><polygon points="100,100 61,61 92,108" fill="#a77a42"/></g>`
+    + `<g stroke="#2e1a0a" stroke-width=".9"><polygon points="100,14 112,100 100,100" fill="#4a2c12"/><polygon points="100,14 88,100 100,100" fill="#e8c36a"/><polygon points="186,100 100,112 100,100" fill="#4a2c12"/><polygon points="186,100 100,88 100,100" fill="#e8c36a"/><polygon points="100,186 88,100 100,100" fill="#4a2c12"/><polygon points="100,186 112,100 100,100" fill="#e8c36a"/><polygon points="14,100 100,88 100,100" fill="#4a2c12"/><polygon points="14,100 100,112 100,100" fill="#e8c36a"/></g>`
+    + `<circle cx="100" cy="100" r="49" fill="url(#rhub)" stroke="url(#rbr)" stroke-width="5"/><circle cx="100" cy="100" r="43" fill="none" stroke="#c99838" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>`
+    + `<g font-family="Georgia,serif" font-weight="700" font-size="12" fill="#2e1a0a" text-anchor="middle" dominant-baseline="central"><text x="100" y="7.5">N</text><text x="192.5" y="100">E</text><text x="100" y="192.5">S</text><text x="7.5" y="100">W</text></g></svg>`;
   const root = document.getElementById("cine");
   let onTap = null, onSkip = null, onBtn = null;
   function show(html) { root.hidden = false; root.innerHTML = html; onTap = onSkip = onBtn = null; }
@@ -2608,6 +2645,7 @@ const Cine = (() => {
     }
     return out;
   }
+  const seenMaps = new Set();
   function map(ep, lv, mo) {
     return new Promise(res => {
       const choice = !!(mo && mo.choice);
@@ -2617,13 +2655,13 @@ const Cine = (() => {
       const PATH = E.path || MAP_PTS;
       const levels = LVS(ep);
       const soon = E.mapSoon !== undefined ? (L.placeholder ? E.mapSoon : "") : E.soon;
-      let fin = false, arrived = false, timers = [], dots = [], i = 0, resizeT = 0;
+      let fin = false, arrived = false, timers = [], dots = [], i = 0, resizeT = 0, ufEnd = 0;
       const done = v => {
         if (fin) return; fin = true; timers.forEach(clearTimeout); clearTimeout(resizeT);
         window.removeEventListener("resize", onResize); window.removeEventListener("orientationchange", onResize);
         Ambience.stop(0.45); res(v || "continue");
       };
-      const finish = () => { if (fin) return; if (choice) { const c = root.querySelector(".mchoice"); if (c) c.classList.add("show"); } else done(); };
+      const finish = () => { if (fin) return; const wait = ufEnd - performance.now(); if (wait > 0) { timers.push(setTimeout(finish, wait + 20)); return; } if (choice) { const c = root.querySelector(".mchoice"); if (c) c.classList.add("show"); } else done(); };
       const arrive = () => { if (arrived) return; arrived = true; const m = root.querySelector(".mk.cur"); if (m) m.classList.add("arrived"); SFX.place(); timers.push(setTimeout(finish, (choice ? 450 : 1200) * Math.max(ANIM, 0.05))); };
       const step = () => {
         if (i < dots.length) { dots[i++].classList.add("on"); SFX.dot(i); Ambience.step(); timers.push(setTimeout(step, 150 * ANIM)); }
@@ -2664,17 +2702,21 @@ const Cine = (() => {
       function render(keepProgress) {
         timers.forEach(clearTimeout); timers = [];
         const prevI = i, prevArrived = arrived, hadProgress = keepProgress;
-        show('<div class="cscreen map"><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 1536 864" preserveAspectRatio="none">' + buildSvg() +
+        const unfurl = !keepProgress, reduced = ANIM < 1 && ANIM >= 0.3;
+        const ufDur = reduced ? 300 : (seenMaps.has(ep) ? 750 : 1000);
+        if (unfurl) { seenMaps.add(ep); ufEnd = performance.now() + ufDur; timers.push(setTimeout(() => { const u = root.querySelector(".munroll"); if (u) u.remove(); }, ufDur + 60)); }
+        show('<div class="cscreen map ' + (unfurl ? "uf" : "noanim") + '"' + (unfurl ? ' style="--uf:' + ufDur + 'ms"' : "") + '><div class="mapbox"><img src="' + ASSET(mapImg + ".webp") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 1536 864" preserveAspectRatio="none">' + buildSvg() +
           '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + (L.mapLabel || L.name) + "</div></div>" +
           (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Star Scoreboard">🏆</button>' +
-          (choice ? '<div class="mchoice"><div class="mcompass">' + compassSvg + '<button class="mcbtn cprimary mcompass-go" data-cine="mcont">Continue ▶</button>' + (showSave ? '<button class="mcbtn sec mcompass-save" data-cine="msave">Save for Later</button>' : "") + "</div></div>" : "") + "</div></div>");
+          (choice ? '<div class="mchoice">' + (showSave ? '<button class="msave-tag" data-cine="msave">Save for Later</button>' : "") + '<button class="mrose cprimary" data-cine="mcont" aria-label="Continue">' + compassSvg + '<span class="mrose-lab">Continue<small>▶</small></span></button></div>' : "") + "</div>" +
+          (unfurl ? '<div class="munroll" aria-hidden="true"><div class="mrw l"><div class="mrod"></div></div><div class="mrw r"><div class="mrod"></div></div></div>' : "") + "</div>");
         dots = Array.from(root.querySelectorAll(".dot.nd"));
         if (hadProgress) {
-          if (prevArrived || prevI >= dots.length) { dots.forEach(d => d.classList.add("on")); i = dots.length; arrive(); }
+          if (prevArrived || prevI >= dots.length) { dots.forEach(d => d.classList.add("on")); i = dots.length; if (prevArrived) finish(); else arrive(); } // after a resize/rotate, put Continue straight back
           else { i = Math.min(prevI, dots.length); arrived = false; for (let k = 0; k < i; k++) dots[k].classList.add("on"); step(); }
         } else {
           i = 0; arrived = false;
-          timers.push(setTimeout(step, 900 * ANIM));
+          timers.push(setTimeout(step, ANIM < 0.3 ? 900 * ANIM : ufDur + 220)); // dots start once the map has unrolled
         }
       }
       const onResize = () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!fin) render(true); }, 140); };
