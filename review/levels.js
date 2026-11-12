@@ -24,7 +24,8 @@ window.LEVELS = [
     code: "02", ep: 1, lv: 2, name: "Tangled Valley",
     intro: [
       { ver: "a", note: "live", v: "../assets/setup-l2.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
-      { ver: "b", note: "new", v: "media/intro-02b.mp4?v=20261112-r12", a: "../assets/music/level-intro.mp3", d: 14.833333 }
+      { ver: "b", note: "later", v: "media/intro-02b.mp4?v=20261112-r12", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "c", note: "new", v: "media/intro-02c.mp4?v=20261112-r17", a: "../assets/music/level-intro.mp3", d: 14.833333 }
     ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-l2.jpg" },
@@ -33,7 +34,8 @@ window.LEVELS = [
     win: [
       { ver: "a", note: "live", v: "../assets/win-l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
       { ver: "b", note: "later", v: "media/win-02b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 },
-      { ver: "c", note: "new", v: "media/win-02c.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 23.000000 }
+      { ver: "c", note: "later", v: "media/win-02c.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 23.000000 },
+      { ver: "d", note: "new", v: "media/win-02d.mp4?v=20261112-r17", a: "../assets/music/main-theme.mp3", d: 25.500000 }
     ]
   },
   {
@@ -57,16 +59,21 @@ window.LEVELS = [
     win: [
       { ver: "a", note: "live", v: "../assets/win-l4.mp4", a: "../assets/music/main-theme.mp3", d: 17.041667 },
       { ver: "b", note: "later", v: "media/win-04b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 30.041667 },
-      { ver: "c", note: "new", v: "media/win-04c.mp4?v=20261112-r13", a: "../assets/music/main-theme.mp3", d: 28.541667 }
+      { ver: "c", note: "later", v: "media/win-04c.mp4?v=20261112-r13", a: "../assets/music/main-theme.mp3", d: 28.541667 },
+      { ver: "d", note: "new", v: "media/win-04d.mp4?v=20261112-r17", a: "../assets/music/main-theme.mp3", d: 30.000000 }
     ]
   },
   {
     code: "05", ep: 2, lv: 1, name: "Ghost Ferry",
-    intro: [ { v: "../assets/setup-e2l1.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-e2l1.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "b", note: "new", v: "media/intro-05b.mp4?v=20261112-r17", a: "../assets/music/level-intro.mp3", d: 14.833333 }
+    ],
     lose: [ { img: "../assets/lose-e2l1.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l1.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-05b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "b", note: "later", v: "media/win-05b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 },
+      { ver: "c", note: "new", v: "media/win-05c.mp4?v=20261112-r17", a: "../assets/music/main-theme.mp3", d: 25.500000 }
     ]
   },
   {
