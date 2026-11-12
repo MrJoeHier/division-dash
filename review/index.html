@@ -37,10 +37,11 @@ button { font:inherit; cursor:pointer; }
 .ep h2 { font-family:"Cinzel MVM", Georgia, serif; color:#f3c65a; font-size:1.1rem; margin:2px 0 8px; }
 .lv { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:7px 0; border-top:1px solid rgba(243,198,90,.15); }
 .lv:first-of-type { border-top:0; }
-.lv .nm { flex:1 1 170px; font-weight:800; color:#fff3d0; }
+.lv .nm { flex:1 1 100%; font-weight:800; color:#fff3d0; }
 .lv .nm small { color:#cdb88f; font-weight:600; }
 .lv button { padding:6px 10px; border-radius:9px; border:1px solid rgba(243,198,90,.6); background:#3a2615; color:#fff3d0; font-weight:700; font-size:.82rem; }
 .lv button.fz { background:#2f6b2a; border-color:#7fb86a; }
+.lv button small { font-weight:600; color:#e3cfa3; }
 #start { position:fixed; inset:0; z-index:9; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; background:rgba(0,0,0,.82); text-align:center; padding:20px; }
 #start.hide { display:none; }
 #start button { padding:14px 32px; font-size:1.3rem; }
@@ -59,14 +60,14 @@ button { font:inherit; cursor:pointer; }
 </div>
 <div id="menu">
   <h1>Man vs. Math · Clip Review</h1>
-  <p class="sub">Every intro and win with its music. Each clip ends on a freeze frame and waits for Continue (or any key). Intros freeze on the music's final downbeat and the intro theme rings out over the freeze; on wins, the main theme keeps going over the freeze. Music fades when you continue.</p>
+  <p class="sub">Grouped by level. Where there are two versions, <b>a</b> is what's in the game now and <b>b</b> is the later one. Play all uses the b versions. Each clip freezes at the end and the music keeps going until you continue.</p>
   <button id="playall" class="gold" type="button">▶ Play all from the start</button>
   <div class="opts"><label><input type="checkbox" id="optlose" checked> Show the lose still between intro and win</label></div>
   <div id="eps"></div>
 </div>
 <div id="start" class="hide"><button class="gold" id="bstart" type="button">▶ Tap to start</button><p>Turn your sound up. Your phone's silent switch can mute it.</p></div>
 <video id="pre" muted playsinline preload="auto" style="display:none"></video>
-<script src="levels.js?v=20261111-2317"></script>
+<script src="levels.js?v=20261112-ab"></script>
 <script>
 (function () {
   "use strict";
@@ -85,12 +86,15 @@ button { font:inherit; cursor:pointer; }
   }
   // Build the play list
   var Q = [];
+  /* When a level has an a and a b version, "Play all" uses the later (b) one. */
+  function last(arr) { return arr[arr.length - 1]; }
+  function secs(d) { return Math.round(d) + "s"; }
   function buildQueue() {
     Q = []; var withLose = document.getElementById("optlose").checked;
     LEVELS.forEach(function (L) {
       Q.push({ kind: "intro", L: L, c: L.intro });
-      if (withLose) Q.push({ kind: "lose", L: L });
-      Q.push({ kind: "win", L: L, c: L.win });
+      if (withLose) Q.push({ kind: "lose", L: L, s: last(L.lose) });
+      Q.push({ kind: "win", L: L, c: last(L.win) });
     });
   }
   // Menu
@@ -98,12 +102,20 @@ button { font:inherit; cursor:pointer; }
   [1, 2, 3].forEach(function (e) {
     html += '<div class="ep"><h2>' + EPN[e] + "</h2>";
     LEVELS.filter(function (L) { return L.ep === e; }).forEach(function (L) {
-      html += '<div class="lv"><div class="nm">' + L.code + " · " + L.name + " <small>(intro " + L.intro.d.toFixed(1) + " s · win " + L.win.d.toFixed(1) + " s)</small></div>" +
-        '<button data-go="' + L.code + ':intro">Intro</button>' +
-        '<button data-go="' + L.code + ':lose">Lose</button>' +
-        '<button data-go="' + L.code + ':win">Win</button>' +
-        '<button class="fz" data-go="' + L.code + ':intro:fz">Intro freeze</button>' +
-        '<button class="fz" data-go="' + L.code + ':win:fz">Win freeze</button></div>';
+      var two = function (arr) { return arr.length > 1; };
+      var b = '<div class="lv"><div class="nm">' + L.code + " · " + L.name + "</div>" +
+        '<button data-go="' + L.code + ':intro">Intro</button>';
+      L.lose.forEach(function (s, k) {
+        b += '<button data-go="' + L.code + ':lose::' + k + '">' + (two(L.lose) ? "Lose " + L.code + s.ver + " <small>" + s.note + "</small>" : "Lose") + "</button>";
+      });
+      L.win.forEach(function (c, k) {
+        b += '<button data-go="' + L.code + ':win::' + k + '">' + (two(L.win) ? "Win " + L.code + c.ver + " <small>" + secs(c.d) + " · " + c.note + "</small>" : "Win") + "</button>";
+      });
+      b += '<button class="fz" data-go="' + L.code + ':intro:fz">Intro freeze</button>';
+      L.win.forEach(function (c, k) {
+        b += '<button class="fz" data-go="' + L.code + ':win:fz:' + k + '">' + (two(L.win) ? "Win " + L.code + c.ver + " freeze" : "Win freeze") + "</button>";
+      });
+      html += b + "</div>";
     });
     html += "</div>";
   });
@@ -153,11 +165,13 @@ button { font:inherit; cursor:pointer; }
   function play(i, toFreeze) {
     var it = Q[i]; if (!it) { return openMenu(); }
     var tok = ++S.token; S.i = i; S.item = it; hideCont(); menu.classList.add("hide");
-    var L = it.L, label = L.code + (it.kind === "intro" ? "a" : it.kind === "lose" ? "b" : "c") + " · " + L.name + " · " + (it.kind === "intro" ? "Intro" : it.kind === "lose" ? "Lose" : "Win");
+    var L = it.L, ver = it.kind === "win" ? it.c : it.kind === "lose" ? it.s : null,
+        label = L.code + (ver && ver.ver ? ver.ver : "") + " · " + L.name + " · " + (it.kind === "intro" ? "Intro" : it.kind === "lose" ? "Lose" : "Win") +
+          (ver && ver.note ? " (" + ver.note + (it.kind === "win" ? ", " + secs(ver.d) : "") + ")" : "");
     setTag(label);
     if (it.kind === "lose") {
       S.state = "frozen"; vid.style.display = "none"; vid.removeAttribute("src"); vid.load();
-      still.src = L.lose; still.style.display = "block"; loseTxt.style.display = "block";
+      still.src = it.s.img; still.style.display = "block"; loseTxt.style.display = "block";
       setTimeout(function () { if (tok === S.token) showCont(false); }, toFreeze ? 0 : 900);
       document.getElementById("bskip").style.visibility = "hidden";
       preloadNext(); return;
@@ -227,8 +241,12 @@ button { font:inherit; cursor:pointer; }
   eps.addEventListener("click", function (e) {
     var b = e.target.closest("button[data-go]"); if (!b) return;
     var p = b.getAttribute("data-go").split(":"); buildQueue();
+    var L = LEVELS.find(function (x) { return x.code === p[0]; }), k = p[3] ? +p[3] : -1;
     var idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === p[1]; });
-    if (idx < 0 && p[1] === "lose") { Q.splice(Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === "win"; }), 0, { kind: "lose", L: LEVELS.find(function (L) { return L.code === p[0]; }) }); idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === "lose"; }); }
+    if (idx < 0 && p[1] === "lose") { idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === "win"; }); Q.splice(idx, 0, { kind: "lose", L: L, s: last(L.lose) }); }
+    /* The exact version that was clicked (a or b) plays; Continue then carries on through the later versions. */
+    if (k >= 0 && p[1] === "lose") Q[idx].s = L.lose[k];
+    if (k >= 0 && p[1] === "win") Q[idx].c = L.win[k];
     startAt(idx, p[2] === "fz");
   });
   buildQueue();
