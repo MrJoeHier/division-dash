@@ -1518,7 +1518,7 @@ function overlayNext() {
     G.probIdx++; startProblem(); return;
   }
   if (o.type === "level") { beginLevel(G.episode, G.level + 1, true, { between: true }); return; }
-  if (o.type === "episode") { beginLevel(G.episode + 1, 0, true, { between: true }); return; }
+  if (o.type === "episode") { beginLevel(G.episode + 1, 0, false, { between: true }); return; }
   if (o.type === "all") { runTitle(); return; }
   if (o.type === "over" || o.type === "timeup") { Progress.lost(G.episode); beginLevel(G.episode, 0, false, { replay: true }); return; }
   if (o.type === "settings") { G.overlay = o.prev || null; render(); return; }
@@ -1787,7 +1787,7 @@ function renderHeader() {
   $("#h-prob").textContent = Math.min(G.probIdx + 1, np) + "/" + np;
   const m = $("#h-meter"), bar = m.querySelector(".fillbar");
   // the bar on screen keeps the pre-bonus value until the level-complete refill animation runs
-  const shown = G.overlay && (G.overlay.type === "level" || G.overlay.type === "all") && G.overlay.from !== undefined && !G.overlay.refilled && !fresh.has("refill") ? G.overlay.from : G.strength;
+  const shown = G.overlay && (G.overlay.type === "level" || G.overlay.type === "episode" || G.overlay.type === "all") && G.overlay.from !== undefined && !G.overlay.refilled && !fresh.has("refill") ? G.overlay.from : G.strength;
   if (fresh.has("refill") && G.overlay) G.overlay.refilled = true;
   bar.style.width = shown + "%"; bar.style.background = meterColor(shown);
   m.querySelector(".pct").textContent = shown + "%";
@@ -1813,8 +1813,9 @@ function epSeg(sel, attr) {
   return '<div class="seg epseg">' + EPISODES.slice(0, cnt).map((E, i) => '<button data-' + attr + '="' + i + '" class="' + (sel === i ? "sel" : "") + '">Episode ' + (i + 1) + '<span class="soon">' + (E.secs / 60) + ":00 per problem</span></button>").join("") + "</div>";
 }
 function refillHtml(o) {
-  const v = o.refilled ? o.to : o.from;
-  return '<div class="refill"><div class="rlbl">Strength bonus +30%</div><div class="meterbar"><div class="fillbar" style="width:' + v + '%;background:' + meterColor(v) + '"></div></div><div class="pct">' + v + "%</div></div>";
+  const v = o.type === "episode" ? (o.to !== undefined ? o.to : 100) : (o.refilled ? o.to : o.from);
+  const label = o.type === "episode" ? "Strength restored to 100%" : "Strength bonus +30%";
+  return '<div class="refill"><div class="rlbl">' + label + '</div><div class="meterbar"><div class="fillbar" style="width:' + v + '%;background:' + meterColor(v) + '"></div></div><div class="pct">' + v + "%</div></div>";
 }
 function starsHtml(n) { let s = ""; for (let i = 0; i < 3; i++) s += '<span class="s' + (i < n ? " on" : "") + '" style="animation-delay:' + (i * 0.15) + 's">★</span>'; return '<div class="stars">' + s + "</div>"; }
 function renderOverlay() {
@@ -1836,9 +1837,10 @@ function renderOverlay() {
     h = "<h1>🏅 " + LVI(G.episode, G.level).name + " survived!</h1><p>Episode " + (G.episode + 1) + " · Level " + (G.level + 1) + " complete</p>" + '<div class="stars" style="font-size:1.6rem">' + G.stars.map(s => "★".repeat(s) + "☆".repeat(3 - s)).join(" ") + "</div><p>" + tot + " of " + G.problems.length * 3 + " stars</p>" + refillHtml(o) +
       '<button class="big" data-act="next">On to Level ' + (G.level + 2) + ": " + LVI(G.episode, G.level + 1).name + " ▶</button>";
   } else if (o.type === "episode") {
-    const tot = G.stars.reduce((a, b) => a + (b || 0), 0), nx = EPISODES[G.episode + 1].secs / 60;
-    h = '<div class="epbadge">🎉</div><h1>Episode ' + (G.episode + 1) + " complete!</h1><p>You escaped " + EP_INFO[G.episode].name.toLowerCase() + "! Level 4: " + tot + " of " + G.problems.length * 3 + " stars.</p>" + refillHtml(o) +
-      '<p class="epnext">Episode ' + (G.episode + 2) + ": " + EP_INFO[G.episode + 1].name + " — same four levels, but only <b>" + nx + ":00</b> per problem.</p>" + '<button class="big" data-act="next">On to Episode ' + (G.episode + 2) + ' ▶</button>';
+    // Episode star total matches the scoreboard: 4 levels × 3 stars = 12, from the saved record (already written in levelPassed).
+    const tot = [0, 1, 2, 3].reduce((a, lv) => a + lvStars(Progress.cur, G.episode + "-" + lv), 0), nx = EPISODES[G.episode + 1].secs / 60;
+    h = '<div class="epbadge">🎉</div><h1>Episode ' + (G.episode + 1) + " complete!</h1><p>You escaped " + EP_INFO[G.episode].name.toLowerCase() + "! " + tot + " of 12 stars.</p>" + refillHtml(o) +
+      '<p class="epnext">Episode ' + (G.episode + 2) + ": " + EP_INFO[G.episode + 1].name + " — only <b>" + nx + ":00</b> per problem.</p>" + '<button class="big" data-act="next">On to Episode ' + (G.episode + 2) + ' ▶</button>';
   } else if (o.type === "timeup") {
     h = '<div class="epbadge">⏰</div><h2>Time\'s up!</h2><p>E' + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". You have " + fmtTime(EPISODES[G.episode].secs) + " per problem. Recharge to 100% and start the episode over from Level 1.</p>" + '<button class="big" data-act="next">Start over from Level 1</button>';
   } else if (o.type === "all") {
@@ -2980,9 +2982,11 @@ async function beginLevel(ep, lv, keep, opts) {
 async function winLevel() {
   const tok = ++flowTok;
   try { preloadLevel(G.level); const nx = LVI(G.episode, G.level + 1); if (nx) { getVideo(nx.setup); getVideo(nx.win); } } catch (e) {}
-  const from = G.strength; G.strength = Math.min(100, G.strength + 30);
+  const from = G.strength;
   const lastLevel = G.level + 1 >= LEVELS.length, lastEp = G.episode + 1 >= EPISODES.length;
   const type = !lastLevel ? "level" : lastEp ? "all" : "episode";
+  // Completing an episode restores full strength for the next one. Mid-episode (and the champion card) still get the +30% bonus.
+  G.strength = type === "episode" ? 100 : Math.min(100, from + 30);
   if (lastLevel && !Progress.cur) store.set("unlocked", Math.max(unlocked(), Math.min(3, G.episode + 2)));
   const wEp = G.episode, wLv = G.level, miss = G.lvMiss || 0;
   const passing = Progress.levelPassed(wEp, wLv, G.strength, miss).catch(e => console.warn("save failed", e));
