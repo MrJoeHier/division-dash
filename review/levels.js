@@ -4,23 +4,31 @@
 window.LEVELS = [
   {
     code: "01", ep: 1, lv: 1, name: "Unspoken River",
-    intro: [ { v: "../assets/setup-l1.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-l1.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "b", note: "new", v: "media/intro-01b.mp4?v=20261112-r12", a: "../assets/music/level-intro.mp3", d: 14.833333 }
+    ],
     lose: [ { img: "../assets/lose-l1.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-l1.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-01b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 25.041667 }
+      { ver: "b", note: "later", v: "media/win-01b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 },
+      { ver: "c", note: "new", v: "media/win-01c.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 }
     ]
   },
   {
     code: "02", ep: 1, lv: 2, name: "Tangled Valley",
-    intro: [ { v: "../assets/setup-l2.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-l2.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "b", note: "new", v: "media/intro-02b.mp4?v=20261112-r12", a: "../assets/music/level-intro.mp3", d: 14.833333 }
+    ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-l2.jpg" },
-      { ver: "b", note: "new", img: "media/lose-02b.jpg?v=20261112-all" }
+      { ver: "b", note: "new", img: "media/lose-02b.jpg?v=20261112-r12" }
     ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-02b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "b", note: "later", v: "media/win-02b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 },
+      { ver: "c", note: "new", v: "media/win-02c.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 23.000000 }
     ]
   },
   {
@@ -29,7 +37,7 @@ window.LEVELS = [
     lose: [ { img: "../assets/lose-l3.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-l3.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-03b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 14.666667 }
+      { ver: "b", note: "later", v: "media/win-03b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 14.666667 }
     ]
   },
   {
@@ -37,11 +45,11 @@ window.LEVELS = [
     intro: [ { v: "../assets/setup-l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-l4.jpg" },
-      { ver: "b", note: "new", img: "media/lose-04b.jpg?v=20261112-all" }
+      { ver: "b", note: "new", img: "media/lose-04b.jpg?v=20261112-r12" }
     ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-l4.mp4", a: "../assets/music/main-theme.mp3", d: 17.041667 },
-      { ver: "b", note: "later", v: "media/win-04b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 30.041667 }
+      { ver: "b", note: "later", v: "media/win-04b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 30.041667 }
     ]
   },
   {
@@ -50,7 +58,7 @@ window.LEVELS = [
     lose: [ { img: "../assets/lose-e2l1.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l1.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-05b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "b", note: "later", v: "media/win-05b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 }
     ]
   },
   {
@@ -58,11 +66,11 @@ window.LEVELS = [
     intro: [ { v: "../assets/setup-e2l2.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e2l2.jpg" },
-      { ver: "b", note: "new", img: "media/lose-06b.jpg?v=20261112-all" }
+      { ver: "b", note: "new", img: "media/lose-06b.jpg?v=20261112-r12" }
     ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-06b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 25.041667 }
+      { ver: "b", note: "later", v: "media/win-06b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 }
     ]
   },
   {
@@ -71,7 +79,7 @@ window.LEVELS = [
     lose: [ { img: "../assets/lose-e2l3.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l3.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-07b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 25.041667 }
+      { ver: "b", note: "later", v: "media/win-07b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 }
     ]
   },
   {
@@ -80,7 +88,7 @@ window.LEVELS = [
     lose: [ { img: "../assets/lose-e2l4.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l4.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-08b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "b", note: "later", v: "media/win-08b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 }
     ]
   },
   {
@@ -88,11 +96,11 @@ window.LEVELS = [
     intro: [ { v: "../assets/setup-e3l1.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e3l1.jpg" },
-      { ver: "b", note: "new", img: "media/lose-09b.jpg?v=20261112-all" }
+      { ver: "b", note: "new", img: "media/lose-09b.jpg?v=20261112-r12" }
     ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e3l1.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-09b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 24.583333 }
+      { ver: "b", note: "later", v: "media/win-09b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 24.583333 }
     ]
   },
   {
@@ -101,7 +109,7 @@ window.LEVELS = [
     lose: [ { img: "../assets/lose-e3l2.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e3l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-10b.mp4?v=20261112-all", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "b", note: "later", v: "media/win-10b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 }
     ]
   },
   {
@@ -109,7 +117,7 @@ window.LEVELS = [
     intro: [ { v: "../assets/setup-e3l3.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e3l3.jpg" },
-      { ver: "b", note: "new", img: "media/lose-11b.jpg?v=20261112-all" }
+      { ver: "b", note: "new", img: "media/lose-11b.jpg?v=20261112-r12" }
     ],
     win: [ { v: "../assets/win-e3l3.mp4", a: "../assets/music/main-theme.mp3", d: 26.041667 } ]
   },
@@ -118,7 +126,7 @@ window.LEVELS = [
     intro: [ { v: "../assets/setup-e3l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e3l4.jpg" },
-      { ver: "b", note: "new", img: "media/lose-12b.jpg?v=20261112-all" }
+      { ver: "b", note: "new", img: "media/lose-12b.jpg?v=20261112-r12" }
     ],
     win: [ { v: "../assets/win-e3l4.mp4", a: "../assets/music/main-theme.mp3", d: 20.625000 } ]
   }
