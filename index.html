@@ -2188,6 +2188,11 @@ const Music = (() => {
 /* ---- Joe's recorded audio: title theme (plays ONCE from 0:00, never loops) + episode-opening voiceover.
    Decoded into AudioBuffers on the shared AudioContext (same path as the pre-rendered cues), straight to the
    speakers at unity so the -16 LUFS masters keep their level. Waits for the first tap/key if autoplay is blocked. ---- */
+/* Final downbeat of Joe's Suno level-intro theme (assets/music/level-intro.mp3 = intro-full.wav, sample-aligned):
+   10.830 s, the bar line where the crescendo peaks (strongest onset in the cue; high band jumps ~6 dB at 10.828 s),
+   after which every beat is weaker and the rest is reverb/fade to 14.8 s. Grid: 100.1 BPM (16ths 0.1498 s from 0.044 s).
+   Intros freeze there; INTRO_BEAT_FRAME is the first 24 fps frame at/after the beat (frame 260 = 10.8333 s). */
+const INTRO_BEAT = 10.830, INTRO_BEAT_FRAME = 260 / 24 + 0.001;
 const RecAudio = (() => {
   const SRC = { theme: "assets/music/main-theme.mp3", intro: "assets/music/level-intro.mp3", n0: "assets/narration/ep1-narration.mp3?v=20261111", n1: "assets/narration/ep2-narration.mp3?v=20261111", n2: "assets/narration/ep3-narration.mp3?v=20261111" };
   const LINES = [
@@ -2234,8 +2239,8 @@ const RecAudio = (() => {
   function duck(on) { if (th.src && th.g) fade(th.g, th.ac, on ? DUCK : 1, on ? 0.35 : 1.0); }
   /* ---------- clip music: Suno level intro on intro clips, Suno main theme on win clips ----------
      Starts with the clip, at the clip's own position (from 0:00 when the video starts), plays once, never loops,
-     and keeps going through the freeze frame until Continue (stopCue). An intro clip shorter than the cue
-     (10a Avalanche, 11.83 s) gets a quick 0.65 s fade that ends with the video. */
+     and keeps going through the freeze frame until Continue (stopCue). Intros freeze on the cue's final
+     downbeat (INTRO_BEAT) and the full cue's reverb/fade tail rings over the freeze; no early end-fade. */
   const CUE_KEY = { intro: "intro", win: "theme" }, CUE_FADE = 0.65;
   const cu = { want: null, name: null, src: null, off: 0, sync: null, end: null };
   function prepCue(name) {
@@ -2265,6 +2270,8 @@ const RecAudio = (() => {
   function cue(name, o) { stopCue(0.05); if (!CUE_KEY[name]) return; o = o || {}; cu.want = name; cu.off = 0; cu.sync = o.sync || null; cu.end = o.end || null; tryCue(); }
   /* video stalled and resumed: keep the music with the picture */
   function resync(t) { if (!cu.src || !cu.want) return; const pos = cu.ac.currentTime - cu.t0; if (Math.abs(pos - t) < 0.35) return; const w = cu.want, sy = cu.sync, en = cu.end; kill(cu, 0.05); cu.want = w; cu.sync = sy; cu.end = en; cu.off = t; tryCue(); }
+  /* heard position of the playing clip cue (s), or -1 when no cue is sounding */
+  function heardPos(name) { if (!cu.src || !cu.ac || cu.ac.state !== "running" || (name && cu.name !== name)) return -1; const lat = (cu.ac.outputLatency || cu.ac.baseLatency || 0); return cu.ac.currentTime - cu.t0 - lat; }
   function stopCue(secs) { const k = cu.want ? CUE_KEY[cu.want] : null; cu.want = null; cu.sync = cu.end = null; cu.off = 0; if (cu.src) kill(cu, secs == null ? 0.4 : secs); if (k === "theme" && !th.src && !th.want) bufs.theme = null; }
   /* ---------- voiceover ---------- */
   const nr = { want: -1, src: null, cb: null, timer: 0, line: -1 };
@@ -2310,7 +2317,7 @@ const RecAudio = (() => {
     kick(); setTimeout(() => { tryTheme(); tryNarr(); tryCue(); }, 60);
   }
   function prefetch() { Object.keys(SRC).forEach(k => { fetchBytes(k).catch(() => {}); }); }
-  return { playTheme, stopTheme, narrate, stopNarr, kick, reboot, prefetch, LINES, cue, prepCue, stopCue, resync,
+  return { playTheme, stopTheme, narrate, stopNarr, kick, reboot, prefetch, LINES, cue, prepCue, stopCue, resync, heardPos,
     get cueName() { return cu.src ? cu.name : null; }, get cueWanted() { return cu.want; }, get cuePos() { return cu.src ? cu.ac.currentTime - cu.t0 : -1; }, get cueLoop() { return cu.src ? cu.src.loop : null; }, get cueGain() { return cu.src ? cu.g.gain.value : null; },
     get themePlaying() { return !!th.src; }, get themeWanted() { return th.want; }, get themePos() { return th.src ? th.ac.currentTime - th.t0 : -1; }, get themeLoop() { return th.src ? th.src.loop : null; },
     get themeGain() { return th.src ? th.g.gain.value : null; }, get narrating() { return !!nr.src; }, get narrPos() { return nr.src ? nr.ac.currentTime - nr.t0 : -1; } };
@@ -2807,7 +2814,7 @@ const Cine = (() => {
       const clearUI = () => { if (loadEl.parentNode) loadEl.remove(); const t = wrap.querySelector(".vtap"); if (t) t.remove(); };
       const showSpinner = () => { if (!loadEl.parentNode) wrap.appendChild(loadEl); const t = wrap.querySelector(".vtap"); if (t) t.remove(); waitingTap = false; };
       const finish = () => {
-        if (fin) return; fin = true; timers.forEach(clearTimeout); clearUI();
+        if (fin) return; fin = true; timers.forEach(clearTimeout); clearUI(); if (beatRaf) { cancelAnimationFrame(beatRaf); beatRaf = 0; }
         v.onended = v.onerror = v.onplaying = v.oncanplay = v.oncanplaythrough = v.onloadeddata = null;
         try { v.pause(); } catch (e) {} res();
       };
@@ -2818,6 +2825,7 @@ const Cine = (() => {
         frozen = true; timers.forEach(clearTimeout); timers.length = 0; clearUI();
         try { v.onended = null; v.pause(); } catch (e) {}
         if (!fell && started) v.style.opacity = "1";
+        if (beatHit && !fell && started) { try { const d = Math.abs(v.currentTime - opts.freezeFrame); if (d > 0.002 && d < 0.3) v.currentTime = opts.freezeFrame; } catch (e) {} } /* land exactly on the beat frame */
         const sc = root.querySelector(".cscreen"); if (sc) sc.classList.add("frozen");
         const sk = root.querySelector(".cskip"); if (sk) sk.remove();
         const b = document.createElement("button"); b.className = "vcont cprimary"; b.dataset.cine = "vcont"; b.textContent = "Continue ▶"; (sc || root).appendChild(b);
@@ -2827,7 +2835,7 @@ const Cine = (() => {
       let musicOn = false;
       const musicGo = () => {
         if (!opts.music || musicOn) return; musicOn = true;
-        try { RecAudio.cue(opts.music, { sync: () => (fell || frozen) ? -1 : v.currentTime, end: () => (fell || opts.music !== "intro") ? 0 : (isFinite(v.duration) ? v.duration : 0) }); } catch (e) {}
+        try { RecAudio.cue(opts.music, { sync: () => (fell || frozen) ? -1 : v.currentTime }); } catch (e) {} /* full cue, no end-fade: the tail plays over the freeze */
       };
       let gateOk = !opts.gate;
       if (opts.gate) Promise.race([opts.gate, new Promise(r => setTimeout(r, 1500))]).then(() => { if (gateOk) return; gateOk = true; if (ready && !started) attemptPlay(); });
@@ -2837,7 +2845,7 @@ const Cine = (() => {
         clearUI();
         wrap.innerHTML = '<img class="cv kb" src="' + poster + '" alt="">';
         musicGo();
-        timers.push(setTimeout(freeze, opts.kind === "win" ? 7000 : 4500));
+        timers.push(setTimeout(freeze, opts.kind === "win" ? 7000 : (opts.freezeAt ? Math.round(opts.freezeAt * 1000) : 4500)));
       };
       const showTap = () => {
         if (fin || fell || started || waitingTap) return; waitingTap = true;
@@ -2856,6 +2864,16 @@ const Cine = (() => {
         tap.addEventListener("click", tryPlay); tap.addEventListener("touchend", tryPlay, { passive: false });
         wrap.appendChild(tap); onTap = tryPlay;
       };
+      /* Freeze at a set point (intros: the music's final downbeat), not at the end of the file. Follows the music
+         as heard (Web Audio clock) when the cue is sounding, otherwise the picture's own clock. */
+      let beatHit = false, beatRaf = 0;
+      const beatPos = () => { let p = -1; try { p = RecAudio.heardPos(opts.music); } catch (e) {} return p >= 0 ? p : v.currentTime; };
+      const beatCheck = () => {
+        beatRaf = 0; if (fin || frozen || fell || !opts.freezeAt) return;
+        if (started && beatPos() >= opts.freezeAt - 0.008) { beatHit = true; freeze(); return; }
+        beatRaf = requestAnimationFrame(beatCheck);
+      };
+      if (opts.freezeAt) { beatRaf = requestAnimationFrame(beatCheck); v.addEventListener("timeupdate", function tu() { if (fin || frozen) { v.removeEventListener("timeupdate", tu); return; } if (!beatRaf) beatCheck(); }); }
       const markPlaying = () => {
         if (started) { if (!frozen && opts.music) try { RecAudio.resync(v.currentTime); } catch (e) {} return; }
         started = true; waitingTap = false; clearUI(); onTap = null;
@@ -2951,7 +2969,7 @@ async function beginLevel(ep, lv, keep, opts) {
   }
   const L = LVI(ep, lv);
   Music.stop(0.4);
-  await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay, music: "intro", gate: RecAudio.prepCue("intro"), freeze: true });
+  await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay, music: "intro", gate: RecAudio.prepCue("intro"), freeze: true, freezeAt: INTRO_BEAT, freezeFrame: INTRO_BEAT_FRAME });
   RecAudio.stopCue(0.35);
   if (tok !== flowTok) return;
   seenSetup.add(ep + ":" + lv);

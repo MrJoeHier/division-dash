@@ -59,7 +59,7 @@ button { font:inherit; cursor:pointer; }
 </div>
 <div id="menu">
   <h1>Man vs. Math · Clip Review</h1>
-  <p class="sub">Every intro and win with its music. Each clip ends on a freeze frame and waits for Continue (or any key). On wins, the main theme keeps going over the freeze and fades when you continue.</p>
+  <p class="sub">Every intro and win with its music. Each clip ends on a freeze frame and waits for Continue (or any key). Intros freeze on the music's final downbeat and the intro theme rings out over the freeze; on wins, the main theme keeps going over the freeze. Music fades when you continue.</p>
   <button id="playall" class="gold" type="button">▶ Play all from the start</button>
   <div class="opts"><label><input type="checkbox" id="optlose" checked> Show the lose still between intro and win</label></div>
   <div id="eps"></div>
@@ -74,7 +74,7 @@ button { font:inherit; cursor:pointer; }
   var vid = document.getElementById("vid"), still = document.getElementById("still"), tag = document.getElementById("tag"),
       cont = document.getElementById("cont"), hint = document.getElementById("hint"), menu = document.getElementById("menu"),
       loseTxt = document.getElementById("lose"), pre = document.getElementById("pre"), startEl = document.getElementById("start");
-  var aud = new Audio(); aud.preload = "auto"; aud.loop = false; aud.setAttribute("playsinline", "");
+  var aud = new Audio(); aud.preload = "auto"; aud.loop = false; aud.setAttribute("playsinline", ""); window.__rvAud = aud;
   var ctx = null, gain = null;
   function ensureCtx() {
     if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
@@ -115,7 +115,7 @@ button { font:inherit; cursor:pointer; }
   var touch = matchMedia("(hover: none)").matches;
   function showCont(isWin) {
     cont.classList.add("show"); document.getElementById("bskip").style.visibility = "hidden";
-    hint.textContent = isWin && !aud.ended && !aud.paused ? "♪ Theme keeps playing · " + (touch ? "tap Continue" : "press any key or Continue") : (touch ? "Tap Continue" : "Press any key or Continue");
+    hint.textContent = isWin && !aud.ended && !aud.paused ? "♪ Music keeps playing · " + (touch ? "tap Continue" : "press any key or Continue") : (touch ? "Tap Continue" : "Press any key or Continue");
     hint.classList.add("show");
   }
   function stopAudio(fade) {
@@ -133,12 +133,23 @@ button { font:inherit; cursor:pointer; }
   function preloadNext() {
     var n = Q[S.i + 1]; if (n && n.c) { pre.src = n.c.v; pre.load(); }
   }
-  function freeze() {
+  /* Intros freeze on the Suno intro theme's final downbeat (10.830 s; first 24 fps frame at/after it = frame 260),
+     not at the end of the file; the music keeps playing its reverb/fade over the freeze until Continue. */
+  var INTRO_BEAT = 10.830, INTRO_BEAT_FRAME = 260 / 24 + 0.001;
+  function freeze(atBeat) {
     if (S.state !== "playing") return;
     S.state = "frozen"; S.frozenAt = aud.currentTime;
     try { vid.pause(); } catch (e) {}
-    showCont(S.item.kind === "win");
+    if (atBeat === true) { try { var dd = Math.abs(vid.currentTime - INTRO_BEAT_FRAME); if (dd > 0.002 && dd < 0.3) vid.currentTime = INTRO_BEAT_FRAME; } catch (e) {} }
+    showCont(S.item.kind === "win" || S.item.kind === "intro");
   }
+  (function beatWatch() {
+    if (S.state === "playing" && S.item && S.item.kind === "intro" && !vid.paused) {
+      var pos = !aud.paused && !aud.ended ? aud.currentTime : vid.currentTime;
+      if (pos >= INTRO_BEAT - 0.008) freeze(true);
+    }
+    requestAnimationFrame(beatWatch);
+  })();
   function play(i, toFreeze) {
     var it = Q[i]; if (!it) { return openMenu(); }
     var tok = ++S.token; S.i = i; S.item = it; hideCont(); menu.classList.add("hide");
@@ -173,11 +184,11 @@ button { font:inherit; cursor:pointer; }
     S.state = "playing";
     var d = it.c.d, tok = S.token;
     try { vid.pause(); } catch (e) {}
-    var target = Math.max(0, (vid.duration || d) - 0.001);
+    var intro = it.kind === "intro", target = intro ? Math.min(INTRO_BEAT_FRAME, (vid.duration || d) - 0.001) : Math.max(0, (vid.duration || d) - 0.001);
     vid.addEventListener("seeked", function () { if (tok === S.token) freeze(); }, { once: true });
     vid.currentTime = target;
-    if (it.kind === "win") {
-      aud.currentTime = d; var p = aud.play(); if (p && p.catch) p.catch(function () { askStart(function () { aud.play(); }); });
+    if (it.kind === "win" || intro) {
+      aud.currentTime = intro ? INTRO_BEAT : d; var p = aud.play(); if (p && p.catch) p.catch(function () { askStart(function () { aud.play(); }); });
     } else { aud.pause(); }
   }
   function advance() {
@@ -192,14 +203,14 @@ button { font:inherit; cursor:pointer; }
   var pendingStart = null;
   function askStart(fn) { pendingStart = fn; startEl.classList.remove("hide"); }
   document.getElementById("bstart").addEventListener("click", function () { startEl.classList.add("hide"); ensureCtx(); var f = pendingStart; pendingStart = null; if (f) f(); });
-  vid.addEventListener("ended", freeze);
+  vid.addEventListener("ended", function () { freeze(); });
   // Safety net: if the picture stalls but time is past the end, freeze anyway
   setInterval(function () {
     if (S.state === "playing" && S.item && S.item.c) {
       if (vid.currentTime >= S.item.c.d - 0.02) freeze();
       else if (!vid.paused && !aud.paused && Math.abs(vid.currentTime - aud.currentTime) > 0.25) vid.currentTime = aud.currentTime;
     }
-    if (S.state === "frozen" && S.item && S.item.kind === "win" && hint.classList.contains("show") && (aud.ended || aud.paused)) hint.textContent = "Theme finished · " + (touch ? "tap Continue" : "press any key or Continue");
+    if (S.state === "frozen" && S.item && S.item.kind !== "lose" && hint.classList.contains("show") && (aud.ended || aud.paused)) hint.textContent = "Music finished · " + (touch ? "tap Continue" : "press any key or Continue");
   }, 200);
   cont.addEventListener("click", function () { ensureCtx(); advance(); });
   document.getElementById("bmenu").addEventListener("click", openMenu);
