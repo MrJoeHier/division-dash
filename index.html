@@ -702,7 +702,7 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 @media (max-height: 460px) { .sb { --bh:34px; --sw:14px; } .sbwrap { gap:4px; padding-top:calc(6px + env(safe-area-inset-top)); } .sbtitle { font-size:1.3rem; } .sbsub { display:none; } .sbgo { min-height:44px; font-size:1.05rem; } .sbt th.sblv small { display:none; } .sbcue { padding:3px 14px; font-size:.9rem; } }
 /* win freeze frame */
 .cscreen.vid.frozen .ccap { bottom:calc(92px + env(safe-area-inset-bottom)); }
-.vcont { position:absolute; z-index:4; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%); min-height:50px; padding:0 26px; border-radius:999px; border:2px solid #f3c65a; background:linear-gradient(#70482a, #3e2612); color:#fff3d0; font:900 1.1rem "Cinzel MVM", Georgia, serif; letter-spacing:.05em; box-shadow:0 5px 0 #1f1208, 0 10px 24px rgba(0,0,0,.6); animation:fadeUp .5s both; }
+.vcont { position:absolute; z-index:4; left:0; right:0; margin:0 auto; width:max-content; bottom:calc(20px + env(safe-area-inset-bottom)); min-height:50px; padding:0 26px; border-radius:999px; border:2px solid #f3c65a; background:linear-gradient(#70482a, #3e2612); color:#fff3d0; font:900 1.1rem "Cinzel MVM", Georgia, serif; letter-spacing:.05em; box-shadow:0 5px 0 #1f1208, 0 10px 24px rgba(0,0,0,.6); animation:fadeUp .5s both; }
 /* login teaser + password dialog */
 .lbtz { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
 .lbtz div { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px; font-weight:800; }
@@ -1879,7 +1879,7 @@ document.addEventListener("click", e => {
   if (t.dataset.format) { if (t.dataset.format !== "remainders") { toast((t.dataset.format === "fractions" ? "Fractions" : "Decimals") + " mode is coming soon"); SFX.nudge(); } return; }
   if (t.dataset.themeBtn) { settings.theme = t.dataset.themeBtn; store.set("theme", settings.theme); document.documentElement.setAttribute("data-theme", settings.theme); $("#overlay-root").dataset.sig = ""; render(); return; }
   if (t.dataset.toggle) { settings[t.dataset.toggle] = !settings[t.dataset.toggle]; store.set(t.dataset.toggle, settings[t.dataset.toggle]);
-    if (t.dataset.toggle === "music" || t.dataset.toggle === "sound") { if (settings.music && settings.sound) { if (G.P && !Cine.visible) Music.play("bed"); } else Music.stop(); if (!settings.music || !settings.sound) { RecAudio.stopTheme(0.3); if (!settings.sound) RecAudio.stopNarr(0.1); } } $("#overlay-root").dataset.sig = ""; if (t.dataset.toggle === "haptics") haptic(30); else SFX.step(); render(); return; }
+    if (t.dataset.toggle === "music" || t.dataset.toggle === "sound") { if (settings.music && settings.sound) { if (G.P && !Cine.visible) Music.play("bed"); } else Music.stop(); if (!settings.music || !settings.sound) { RecAudio.stopTheme(0.3); RecAudio.stopCue(0.3); if (!settings.sound) RecAudio.stopNarr(0.1); } } $("#overlay-root").dataset.sig = ""; if (t.dataset.toggle === "haptics") haptic(30); else SFX.step(); render(); return; }
   if (t.dataset.jump !== undefined) { const ep = G.overlay.jumpEp !== undefined ? G.overlay.jumpEp : G.episode; flowTok++; Cine.hide(); G.overlay = null; G.started = true; G.episode = ep; Music.play("bed"); newLevel(+t.dataset.jump, false); preloadLevel(+t.dataset.jump); return; }
   if (t.dataset.act === "next") return act("next");
   if (t.dataset.act === "yes") return act("yes");
@@ -2189,7 +2189,7 @@ const Music = (() => {
    Decoded into AudioBuffers on the shared AudioContext (same path as the pre-rendered cues), straight to the
    speakers at unity so the -16 LUFS masters keep their level. Waits for the first tap/key if autoplay is blocked. ---- */
 const RecAudio = (() => {
-  const SRC = { theme: "assets/music/main-theme.mp3", n0: "assets/narration/ep1-narration.mp3?v=20261111", n1: "assets/narration/ep2-narration.mp3?v=20261111", n2: "assets/narration/ep3-narration.mp3?v=20261111" };
+  const SRC = { theme: "assets/music/main-theme.mp3", intro: "assets/music/level-intro.mp3", n0: "assets/narration/ep1-narration.mp3?v=20261111", n1: "assets/narration/ep2-narration.mp3?v=20261111", n2: "assets/narration/ep3-narration.mp3?v=20261111" };
   const LINES = [
     [[0.4, 3.106, "I'm Rex Ranger, and this is Man Versus Math."], [3.756, 8.163, "Every explorer has a choice. Turn back or solve the problem in front of them."], [8.813, 10.889, "We have a big challenge in front of us today."], [11.539, 16.021, "We're going to brave a jungle of long division and get through to the other side."], [16.821, 22.632, "If we watch our steps and stay focused, we hope to reach the rendezvous point in one piece!"], [23.432, 26.338, "Hit the continue button to get dropped off at the starting point."], [26.988, 28.269, "Are you ready? Let's go!"]],
     [[0.4, 3.106, "I'm Rex Ranger, and this is Man Versus Math."], [3.756, 8.163, "Every explorer has a choice. Turn back or solve the problem in front of them."], [8.813, 10.889, "We have a big challenge in front of us today."], [11.539, 16.311, "We're going to traverse a long savanna of division and we need to move fast."], [17.111, 24.531, "Every quotient found divides the distance so that, hopefully, we can reach the rendezvous point in one piece!"], [25.331, 28.238, "Hit the continue button to get dropped off at the starting point."], [28.888, 30.169, "Are you ready? Let's go!"]],
@@ -2232,6 +2232,40 @@ const RecAudio = (() => {
   function playTheme() { if (th.src) return; th.want = true; th.off = 0; tryTheme(); }
   function stopTheme(secs) { th.want = false; th.off = 0; if (th.src) { kill(th, secs == null ? 0.6 : secs); } bufs.theme = null; /* free ~57 MB of decoded audio for the iPad while playing */ }
   function duck(on) { if (th.src && th.g) fade(th.g, th.ac, on ? DUCK : 1, on ? 0.35 : 1.0); }
+  /* ---------- clip music: Suno level intro on intro clips, Suno main theme on win clips ----------
+     Starts with the clip, at the clip's own position (from 0:00 when the video starts), plays once, never loops,
+     and keeps going through the freeze frame until Continue (stopCue). An intro clip shorter than the cue
+     (10a Avalanche, 11.83 s) gets a quick 0.65 s fade that ends with the video. */
+  const CUE_KEY = { intro: "intro", win: "theme" }, CUE_FADE = 0.65;
+  const cu = { want: null, name: null, src: null, off: 0, sync: null, end: null };
+  function prepCue(name) {
+    const k = CUE_KEY[name]; if (!k) return Promise.resolve();
+    fetchBytes(k).catch(() => {});
+    const ac = live(); if (!ac || !settings.music || !settings.sound) return Promise.resolve();
+    return load(k, ac).then(() => {}, () => {});
+  }
+  function tryCue() {
+    if (!cu.want || cu.src || !settings.music || !settings.sound) return;
+    const ac = live(); if (!ac) return; /* kick() starts it on the first tap/key */
+    const want = cu.want, k = CUE_KEY[want];
+    load(k, ac).then(b => {
+      if (cu.want !== want || cu.src || AC !== ac || ac.state !== "running" || !settings.music || !settings.sound) return;
+      let off = cu.off || 0; if (cu.sync) { try { const t = +cu.sync(); if (t > 0) off = t; } catch (e) {} } /* follow the picture; frozen/poster clips keep the audio position */
+      if (off >= b.duration - 0.05) { cu.want = null; return; }
+      const src = startBuf(cu, b, ac, off, 1); cu.off = 0; cu.name = want;
+      let end = 0; try { end = cu.end ? +cu.end() || 0 : 0; } catch (e) {}
+      if (end > 0.8 && end < b.duration - 0.3) {
+        const tEnd = cu.t0 + end, tFade = Math.max(ac.currentTime + 0.03, tEnd - CUE_FADE);
+        try { cu.g.gain.setValueAtTime(1, tFade); cu.g.gain.linearRampToValueAtTime(0.0001, Math.max(tFade + 0.05, tEnd)); src.stop(Math.max(tFade + 0.1, tEnd + 0.05)); } catch (e) {}
+      }
+      src.onended = () => { if (cu.src !== src) return; cu.src = null; cu.want = null; try { src.disconnect(); cu.g.disconnect(); } catch (e) {} if (k === "theme" && !th.src && !th.want) bufs.theme = null; };
+    }, e => { try { console.warn("clip music load failed", want, e); } catch (x) {} });
+  }
+  /* o.sync() -> current clip position (s); o.end() -> clip length (s) */
+  function cue(name, o) { stopCue(0.05); if (!CUE_KEY[name]) return; o = o || {}; cu.want = name; cu.off = 0; cu.sync = o.sync || null; cu.end = o.end || null; tryCue(); }
+  /* video stalled and resumed: keep the music with the picture */
+  function resync(t) { if (!cu.src || !cu.want) return; const pos = cu.ac.currentTime - cu.t0; if (Math.abs(pos - t) < 0.35) return; const w = cu.want, sy = cu.sync, en = cu.end; kill(cu, 0.05); cu.want = w; cu.sync = sy; cu.end = en; cu.off = t; tryCue(); }
+  function stopCue(secs) { const k = cu.want ? CUE_KEY[cu.want] : null; cu.want = null; cu.sync = cu.end = null; cu.off = 0; if (cu.src) kill(cu, secs == null ? 0.4 : secs); if (k === "theme" && !th.src && !th.want) bufs.theme = null; }
   /* ---------- voiceover ---------- */
   const nr = { want: -1, src: null, cb: null, timer: 0, line: -1 };
   function tick() {
@@ -2263,19 +2297,21 @@ const RecAudio = (() => {
   function stopNarr(secs) { if (nr.src) kill(nr, secs == null ? 0.25 : secs); if (nr.cb || nr.timer || nr.want >= 0) endNarr(false); }
   /* first tap/key (autoplay blocked) or a resumed context: start whatever is waiting */
   function kick() {
-    if (!(th.want && !th.src) && !(nr.want >= 0 && !nr.src)) return;
+    if (!(th.want && !th.src) && !(nr.want >= 0 && !nr.src) && !(cu.want && !cu.src)) return;
     const ac = AC; if (!ac) return;
-    if (ac.state === "running") { tryTheme(); tryNarr(); return; }
-    try { const p = ac.resume(); if (p && p.then) p.then(() => { if (AC === ac && ac.state === "running") { tryTheme(); tryNarr(); } }, () => {}); } catch (e) {}
+    if (ac.state === "running") { tryTheme(); tryNarr(); tryCue(); return; }
+    try { const p = ac.resume(); if (p && p.then) p.then(() => { if (AC === ac && ac.state === "running") { tryTheme(); tryNarr(); tryCue(); } }, () => {}); } catch (e) {}
   }
   /* AudioContext was rebuilt (iPad recovery): carry on from the same spot on the new context, never from the top */
   function reboot() {
     if (th.src) { const off = th.ac.currentTime - th.t0, s = th.src; th.src = null; try { s.onended = null; s.stop(); s.disconnect(); th.g.disconnect(); } catch (e) {} th.want = true; th.off = Math.max(0, off); }
     if (nr.src) { const off = nr.ac.currentTime - nr.t0, s = nr.src; nr.src = null; clearInterval(nr.timer); nr.timer = 0; try { s.onended = null; s.stop(); s.disconnect(); nr.g.disconnect(); } catch (e) {} nr.want = nr.ep; nr.off = Math.max(0, off); }
-    kick(); setTimeout(() => { tryTheme(); tryNarr(); }, 60);
+    if (cu.src) { const off = cu.ac.currentTime - cu.t0, s = cu.src; cu.src = null; try { s.onended = null; s.stop(); s.disconnect(); cu.g.disconnect(); } catch (e) {} cu.off = Math.max(0, off); }
+    kick(); setTimeout(() => { tryTheme(); tryNarr(); tryCue(); }, 60);
   }
   function prefetch() { Object.keys(SRC).forEach(k => { fetchBytes(k).catch(() => {}); }); }
-  return { playTheme, stopTheme, narrate, stopNarr, kick, reboot, prefetch, LINES,
+  return { playTheme, stopTheme, narrate, stopNarr, kick, reboot, prefetch, LINES, cue, prepCue, stopCue, resync,
+    get cueName() { return cu.src ? cu.name : null; }, get cueWanted() { return cu.want; }, get cuePos() { return cu.src ? cu.ac.currentTime - cu.t0 : -1; }, get cueLoop() { return cu.src ? cu.src.loop : null; }, get cueGain() { return cu.src ? cu.g.gain.value : null; },
     get themePlaying() { return !!th.src; }, get themeWanted() { return th.want; }, get themePos() { return th.src ? th.ac.currentTime - th.t0 : -1; }, get themeLoop() { return th.src ? th.src.loop : null; },
     get themeGain() { return th.src ? th.g.gain.value : null; }, get narrating() { return !!nr.src; }, get narrPos() { return nr.src ? nr.ac.currentTime - nr.t0 : -1; } };
 })();
@@ -2560,8 +2596,8 @@ const Cine = (() => {
     + `<g font-family="Georgia,serif" font-weight="700" font-size="12" fill="#2e1a0a" text-anchor="middle" dominant-baseline="central"><text x="100" y="7.5">N</text><text x="192.5" y="100">E</text><text x="100" y="192.5">S</text><text x="7.5" y="100">W</text></g></svg>`;
   const root = document.getElementById("cine");
   let onTap = null, onSkip = null, onBtn = null;
-  function show(html) { root.hidden = false; root.innerHTML = html; onTap = onSkip = onBtn = null; }
-  function hide() { root.hidden = true; root.innerHTML = ""; onTap = onSkip = onBtn = null; }
+  function show(html) { try { RecAudio.stopCue(0.4); } catch (e) {} root.hidden = false; root.innerHTML = html; onTap = onSkip = onBtn = null; }
+  function hide() { try { RecAudio.stopCue(0.4); } catch (e) {} root.hidden = true; root.innerHTML = ""; onTap = onSkip = onBtn = null; }
   root.addEventListener("click", e => {
     audio();
     const b = e.target.closest("[data-cine]");
@@ -2751,7 +2787,7 @@ const Cine = (() => {
         v.onended = v.onerror = v.onplaying = v.oncanplay = v.oncanplaythrough = v.onloadeddata = null;
         try { v.pause(); } catch (e) {} res();
       };
-      // Win clips stop on their last frame; a small Continue (or any key) moves on.
+      // Clips stop on their last frame; a small Continue (or any key) moves on. The music keeps going until then.
       let frozen = false;
       const freeze = () => {
         if (fin || frozen) return; if (!opts.freeze) { finish(); return; }
@@ -2763,11 +2799,20 @@ const Cine = (() => {
         const b = document.createElement("button"); b.className = "vcont cprimary"; b.dataset.cine = "vcont"; b.textContent = "Continue ▶"; (sc || root).appendChild(b);
         onTap = null; onSkip = finish; onBtn = k => { if (k === "vcont") { SFX.step(); finish(); } };
       };
+      // Joe's recorded music for this clip (separate track, so the freeze frame can hold it), started with the picture.
+      let musicOn = false;
+      const musicGo = () => {
+        if (!opts.music || musicOn) return; musicOn = true;
+        try { RecAudio.cue(opts.music, { sync: () => (fell || frozen) ? -1 : v.currentTime, end: () => (fell || opts.music !== "intro") ? 0 : (isFinite(v.duration) ? v.duration : 0) }); } catch (e) {}
+      };
+      let gateOk = !opts.gate;
+      if (opts.gate) Promise.race([opts.gate, new Promise(r => setTimeout(r, 1500))]).then(() => { if (gateOk) return; gateOk = true; if (ready && !started) attemptPlay(); });
       const hardFallback = () => {
         if (fin || fell) return; fell = true; try { v.pause(); } catch (e) {}
         try { v.dataset.bad = "1"; } catch (e) {}
         clearUI();
         wrap.innerHTML = '<img class="cv kb" src="' + poster + '" alt="">';
+        musicGo();
         timers.push(setTimeout(freeze, opts.kind === "win" ? 7000 : 4500));
       };
       const showTap = () => {
@@ -2788,11 +2833,12 @@ const Cine = (() => {
         wrap.appendChild(tap); onTap = tryPlay;
       };
       const markPlaying = () => {
-        if (started) return; started = true; waitingTap = false; clearUI(); onTap = null;
-        v.style.opacity = "1";
+        if (started) { if (!frozen && opts.music) try { RecAudio.resync(v.currentTime); } catch (e) {} return; }
+        started = true; waitingTap = false; clearUI(); onTap = null;
+        v.style.opacity = "1"; musicGo();
       };
       const attemptPlay = () => {
-        if (fin || fell || started || waitingTap) return;
+        if (fin || fell || started || waitingTap || !gateOk) return;
         if (v.error) { onDecodeError(); return; }
         let p; try { p = v.play(); } catch (e) { showTap(); return; }
         if (p && p.catch) p.catch(err => {
@@ -2839,7 +2885,7 @@ const Cine = (() => {
       // Still waiting long after that: keep offering tap, do NOT still-frame.
       timers.push(setTimeout(() => { if (!started && !fell && !waitingTap) showTap(); }, TUNE.clipStall + 15000));
       timers.push(setTimeout(freeze, TUNE.clipCap));
-      onSkip = freeze;
+      onSkip = opts.kind === "setup" ? finish : freeze;
     });
   }
   function lose(lv, reason) {
@@ -2871,6 +2917,7 @@ async function beginLevel(ep, lv, keep, opts) {
     await Cine.epOpen(ep); if (tok !== flowTok) return;
   }
   RecAudio.stopTheme(0.8);
+  try { RecAudio.prepCue("intro"); } catch (e) {}
   if (!opts.noMap) {
     const showSave = !(ep === 0 && lv === 0);
     // Strength power-up plays over the map so the +30% is impossible to miss.
@@ -2879,8 +2926,9 @@ async function beginLevel(ep, lv, keep, opts) {
     if (ch === "save") { const who = Progress.cur ? Progress.cur.name : ""; await Progress.saveLater(ep, lv, G.strength); Progress.logout(); alertToast("Saved! See you next time" + (who ? ", " + who : "") + "."); runTitle(); return; }
   }
   const L = LVI(ep, lv);
-  Music.play("suspense");
-  await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay });
+  Music.stop(0.4);
+  await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay, music: "intro", gate: RecAudio.prepCue("intro"), freeze: true });
+  RecAudio.stopCue(0.35);
   if (tok !== flowTok) return;
   seenSetup.add(ep + ":" + lv);
   Cine.hide(); G.started = true; Music.play("bed");
@@ -2897,12 +2945,12 @@ async function winLevel() {
   const wEp = G.episode, wLv = G.level, miss = G.lvMiss || 0;
   const passing = Progress.levelPassed(wEp, wLv, G.strength, miss).catch(e => console.warn("save failed", e));
   G.overlay = { type: "cine" }; render();
-  Music.play("win");
+  Music.stop(0.3);
   const WL = LVI(wEp, wLv);
-  await Cine.clip(WL.win, { kind: "win", cap: WL.winCap, freeze: true });
+  await Cine.clip(WL.win, { kind: "win", cap: WL.winCap, music: "win", gate: RecAudio.prepCue("win"), freeze: true });
+  // Continue pressed on the freeze frame: Joe's main theme fades out quickly as the scoreboard comes up.
+  RecAudio.stopCue(0.4);
   if (tok !== flowTok) return;
-  // Continue pressed on the freeze frame: the win music fades out quickly as the scoreboard comes up.
-  try { Music.stop(0.35); } catch (e) {}
   await passing; if (tok !== flowTok) return;
   await showBoard({ win: { ep: wEp, lv: wLv, stars: starsFor(miss), miss } });
   if (tok !== flowTok) return;
