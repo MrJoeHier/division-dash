@@ -678,8 +678,15 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .nbx .nm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; flex:1; }
 .nbx em { font-style:normal; flex:none; font-size:.68rem; font-weight:900; letter-spacing:.06em; padding:3px 7px; border-radius:999px; background:#f3c65a; color:#2a1c10; }
 .bx { width:var(--bw); height:var(--bh); border-radius:9px; display:flex; align-items:center; justify-content:center; gap:1px; box-sizing:border-box; transition:background .3s; }
-.sbr.g .bx { background:rgba(178,226,158,.2); border:1.5px solid rgba(190,235,170,.28); } .sbr.b .bx { background:rgba(236,196,146,.18); border:1.5px solid rgba(240,205,160,.26); }
-.sbr.g .bx.on { background:#132a12; border-color:#0b1a0a; } .sbr.b .bx.on { background:#241307; border-color:#160b03; }
+.bx.e1 { background:rgba(178,226,158,.2); border:1.5px solid rgba(190,235,170,.28); }
+.bx.e1.on { background:#132a12; border-color:#0b1a0a; }
+.bx.e2 { background:rgba(236,196,146,.18); border:1.5px solid rgba(240,205,160,.26); }
+.bx.e2.on { background:#241307; border-color:#160b03; }
+.bx.e3 { background:rgba(255,255,255,.88); border:1.5px solid rgba(255,255,255,.95); }
+.bx.e3.on { background:linear-gradient(180deg, #f3f5f7 0%, #c2c8d0 42%, #8b939b 100%); border-color:#6a727a; box-shadow:inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 3px rgba(40,45,50,.28); }
+.bx.e3 svg path { stroke:rgba(90,70,30,.45); }
+.bx.e3.on svg path { stroke:rgba(70,55,20,.5); }
+.bx.e3 svg.lit path { fill:#f6c64a; stroke:#a8741c; stroke-width:1.2; filter:drop-shadow(0 0 2px rgba(255,210,90,.6)); }
 .bx svg { width:var(--sw); height:var(--sw); flex:none; }
 .bx svg path { fill:none; stroke:rgba(255,236,180,.5); stroke-width:1.6; stroke-linejoin:round; }
 .bx.on svg path { stroke:rgba(243,198,90,.45); }
@@ -3457,7 +3464,7 @@ function showBoard(o) {
       const body = list.length ? list.map((r, i) => {
         const me = meId && r.uid === meId;
         return '<tr class="sbr ' + (i % 2 ? "b" : "g") + (me ? " me" : "") + '"' + (me ? ' id="sbme"' : "") + '><td class="sbrk">' + (i + 1) + '</td><td class="sbnm"><div class="nbx"><span class="nm">' + escH(r.name) + "</span>" + (me ? "<em>YOU</em>" : "") + "</div></td>" +
-          LV_KEYS.map(k => { const n = r.stars[k] || 0, L = LVI(+k[0], +k[2]); return '<td><div class="bx' + (n ? " on" : "") + (me && k === newK ? " new" : "") + '" title="' + escH("Episode " + (+k[0] + 1) + ", Level " + (+k[2] + 1) + ": " + L.name) + '" aria-label="' + escH(L.name + ": " + (n ? n + " of 3 stars" : "not passed yet")) + '">' + [0, 1, 2].map(j => starSvg(j < n)).join("") + "</div></td>"; }).join("") +
+          LV_KEYS.map(k => { const n = r.stars[k] || 0, L = LVI(+k[0], +k[2]), ep = +k[0] + 1; return '<td class="sbl e' + ep + '"><div class="bx e' + ep + (n ? " on" : "") + (me && k === newK ? " new" : "") + '" title="' + escH("Episode " + (+k[0] + 1) + ", Level " + (+k[2] + 1) + ": " + L.name) + '" aria-label="' + escH(L.name + ": " + (n ? n + " of 3 stars" : "not passed yet")) + '">' + [0, 1, 2].map(j => starSvg(j < n)).join("") + "</div></td>"; }).join("") +
           '<td class="sbtot"><div class="tbx" aria-label="' + r.total + ' stars in all">' + r.total + starSvg(true) + "</div></td></tr>";
       }).join("") : '<tr><td colspan="15"><div class="sbempty">No explorers yet — be the first!</div></td></tr>';
       const sc = el.querySelector(".sbscroll"), keep = sc ? [sc.scrollLeft, sc.scrollTop] : null;
