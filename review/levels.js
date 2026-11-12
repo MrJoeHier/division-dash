@@ -143,15 +143,24 @@ window.LEVELS = [
       { ver: "a", note: "live", img: "../assets/lose-e3l3.jpg", go: "left" },
       { ver: "b", note: "new", img: "media/lose-11b.jpg?v=20261112-r16", go: "left" }
     ],
-    win: [ { v: "../assets/win-e3l3.mp4", a: "../assets/music/main-theme.mp3", d: 26.041667 } ]
+    win: [
+      { ver: "a", note: "live", v: "../assets/win-e3l3.mp4", a: "../assets/music/main-theme.mp3", d: 26.041667 },
+      { ver: "b", note: "new", v: "media/win-11b.mp4?v=20261112-r20", a: "../assets/music/main-theme.mp3", sfx: "media/win-11b-growls.wav?v=20261112-r20", d: 26.041667 }
+    ]
   },
   {
     code: "12", ep: 3, lv: 4, name: "Rendezvous Point",
-    intro: [ { v: "../assets/setup-e3l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-e3l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "b", note: "new", v: "media/intro-12b.mp4?v=20261112-r20", a: "../assets/music/level-intro.mp3", d: 14.833333 }
+    ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e3l4.jpg" },
       { ver: "b", note: "new", img: "media/lose-12b.jpg?v=20261112-r12" }
     ],
-    win: [ { v: "../assets/win-e3l4.mp4", a: "../assets/music/main-theme.mp3", d: 20.625000 } ]
+    win: [
+      { ver: "a", note: "live", v: "../assets/win-e3l4.mp4", a: "../assets/music/main-theme.mp3", d: 20.625000 },
+      { ver: "b", note: "new", v: "media/win-12b.mp4?v=20261112-r20", a: "../assets/music/main-theme.mp3", d: 40.125000 }
+    ]
   }
 ];
