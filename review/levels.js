@@ -42,7 +42,7 @@ window.LEVELS = [
   },
   {
     code: "03", ep: 1, lv: 3, name: "Forgotten Ridge",
-    intro: [ { v: "../assets/setup-l3.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [ { v: "../assets/setup-l3.mp4", a: "../assets/music/level-intro.mp3", sfx: "media/intro-03-roar.wav?v=20261112-r23", d: 14.833333 } ],
     lose: [ { img: "../assets/lose-l3.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-l3.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
