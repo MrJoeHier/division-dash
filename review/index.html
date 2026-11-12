@@ -60,14 +60,14 @@ button { font:inherit; cursor:pointer; }
 </div>
 <div id="menu">
   <h1>Man vs. Math · Clip Review</h1>
-  <p class="sub">Grouped by level. Where there are two versions, <b>a</b> is what's in the game now and <b>b</b> is the later one. Play all uses the b versions. Each clip freezes at the end and the music keeps going until you continue.</p>
+  <p class="sub">Grouped by level. Where a clip or still has more than one version, <b>a</b> is what's in the game now and <b>b</b> is the later one (a/b only marks the version). <b>Play all</b> and <b>Continue</b> go through every version, level by level: intro, then the lose stills (a, then b), then the wins (a, then b), then the next level. Nothing is skipped. Each clip freezes at the end and the music keeps going until you continue.</p>
   <button id="playall" class="gold" type="button">▶ Play all from the start</button>
-  <div class="opts"><label><input type="checkbox" id="optlose" checked> Show the lose still between intro and win</label></div>
+  <div class="opts"><label><input type="checkbox" id="optlose" checked> Show the lose stills (every version) between intro and win</label></div>
   <div id="eps"></div>
 </div>
 <div id="start" class="hide"><button class="gold" id="bstart" type="button">▶ Tap to start</button><p>Turn your sound up. Your phone's silent switch can mute it.</p></div>
 <video id="pre" muted playsinline preload="auto" style="display:none"></video>
-<script src="levels.js?v=20261112-ab"></script>
+<script src="levels.js?v=20261112-all"></script>
 <script>
 (function () {
   "use strict";
@@ -86,32 +86,38 @@ button { font:inherit; cursor:pointer; }
   }
   // Build the play list
   var Q = [];
-  /* When a level has an a and a b version, "Play all" uses the later (b) one. */
-  function last(arr) { return arr[arr.length - 1]; }
+  /* Every version of every clip, grouped by level: all intros (a, b...), all lose stills (a, b...) when the option is on,
+     then all wins (a, b, c...), then the next level. Nothing is skipped. */
   function secs(d) { return Math.round(d) + "s"; }
-  function buildQueue() {
+  function arr(x) { return Array.isArray(x) ? x : x ? [x] : []; }
+  function buildQueue(forceLoseFor) {
     Q = []; var withLose = document.getElementById("optlose").checked;
     LEVELS.forEach(function (L) {
-      Q.push({ kind: "intro", L: L, c: L.intro });
-      if (withLose) Q.push({ kind: "lose", L: L, s: last(L.lose) });
-      Q.push({ kind: "win", L: L, c: last(L.win) });
+      arr(L.intro).forEach(function (c, k) { Q.push({ kind: "intro", L: L, k: k, c: c }); });
+      if (withLose || forceLoseFor === L.code) arr(L.lose).forEach(function (s, k) { Q.push({ kind: "lose", L: L, k: k, s: s }); });
+      arr(L.win).forEach(function (c, k) { Q.push({ kind: "win", L: L, k: k, c: c }); });
     });
+    window.__rvQ = Q;
   }
   // Menu
   var eps = document.getElementById("eps"), html = "";
   [1, 2, 3].forEach(function (e) {
     html += '<div class="ep"><h2>' + EPN[e] + "</h2>";
     LEVELS.filter(function (L) { return L.ep === e; }).forEach(function (L) {
-      var two = function (arr) { return arr.length > 1; };
-      var b = '<div class="lv"><div class="nm">' + L.code + " · " + L.name + "</div>" +
-        '<button data-go="' + L.code + ':intro">Intro</button>';
+      var two = function (a) { return a.length > 1; }, intros = arr(L.intro);
+      var b = '<div class="lv"><div class="nm">' + L.code + " · " + L.name + "</div>";
+      intros.forEach(function (c, k) {
+        b += '<button data-go="' + L.code + ':intro::' + k + '">' + (two(intros) ? "Intro " + L.code + c.ver + (c.note ? " <small>" + c.note + "</small>" : "") : "Intro") + "</button>";
+      });
       L.lose.forEach(function (s, k) {
         b += '<button data-go="' + L.code + ':lose::' + k + '">' + (two(L.lose) ? "Lose " + L.code + s.ver + " <small>" + s.note + "</small>" : "Lose") + "</button>";
       });
       L.win.forEach(function (c, k) {
         b += '<button data-go="' + L.code + ':win::' + k + '">' + (two(L.win) ? "Win " + L.code + c.ver + " <small>" + secs(c.d) + " · " + c.note + "</small>" : "Win") + "</button>";
       });
-      b += '<button class="fz" data-go="' + L.code + ':intro:fz">Intro freeze</button>';
+      intros.forEach(function (c, k) {
+        b += '<button class="fz" data-go="' + L.code + ':intro:fz:' + k + '">' + (two(intros) ? "Intro " + L.code + c.ver + " freeze" : "Intro freeze") + "</button>";
+      });
       L.win.forEach(function (c, k) {
         b += '<button class="fz" data-go="' + L.code + ':win:fz:' + k + '">' + (two(L.win) ? "Win " + L.code + c.ver + " freeze" : "Win freeze") + "</button>";
       });
@@ -165,7 +171,7 @@ button { font:inherit; cursor:pointer; }
   function play(i, toFreeze) {
     var it = Q[i]; if (!it) { return openMenu(); }
     var tok = ++S.token; S.i = i; S.item = it; hideCont(); menu.classList.add("hide");
-    var L = it.L, ver = it.kind === "win" ? it.c : it.kind === "lose" ? it.s : null,
+    var L = it.L, ver = it.kind === "lose" ? it.s : it.c,
         label = L.code + (ver && ver.ver ? ver.ver : "") + " · " + L.name + " · " + (it.kind === "intro" ? "Intro" : it.kind === "lose" ? "Lose" : "Win") +
           (ver && ver.note ? " (" + ver.note + (it.kind === "win" ? ", " + secs(ver.d) : "") + ")" : "");
     setTag(label);
@@ -240,13 +246,12 @@ button { font:inherit; cursor:pointer; }
   document.getElementById("playall").addEventListener("click", function () { buildQueue(); startAt(0); });
   eps.addEventListener("click", function (e) {
     var b = e.target.closest("button[data-go]"); if (!b) return;
-    var p = b.getAttribute("data-go").split(":"); buildQueue();
-    var L = LEVELS.find(function (x) { return x.code === p[0]; }), k = p[3] ? +p[3] : -1;
-    var idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === p[1]; });
-    if (idx < 0 && p[1] === "lose") { idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === "win"; }); Q.splice(idx, 0, { kind: "lose", L: L, s: last(L.lose) }); }
-    /* The exact version that was clicked (a or b) plays; Continue then carries on through the later versions. */
-    if (k >= 0 && p[1] === "lose") Q[idx].s = L.lose[k];
-    if (k >= 0 && p[1] === "win") Q[idx].c = L.win[k];
+    var p = b.getAttribute("data-go").split(":"), k = p[3] ? +p[3] : 0;
+    /* A lose button works even with the lose option off: that level's lose stills are added to the queue. */
+    buildQueue(p[1] === "lose" ? p[0] : null);
+    /* The exact version that was clicked plays; Continue then goes through every remaining item in the full queue. */
+    var idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === p[1] && q.k === k; });
+    if (idx < 0) return;
     startAt(idx, p[2] === "fz");
   });
   buildQueue();
