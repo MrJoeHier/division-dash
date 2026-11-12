@@ -69,7 +69,7 @@ button { font:inherit; cursor:pointer; }
 </div>
 <div id="start" class="hide"><button class="gold" id="bstart" type="button">▶ Tap to start</button><p>Turn your sound up. Your phone's silent switch can mute it.</p></div>
 <video id="pre" muted playsinline preload="auto" style="display:none"></video>
-<script src="levels.js?v=20261112-r17"></script>
+<script src="levels.js?v=20261112-r18"></script>
 <script>
 (function () {
   "use strict";
@@ -78,6 +78,8 @@ button { font:inherit; cursor:pointer; }
       cont = document.getElementById("cont"), hint = document.getElementById("hint"), menu = document.getElementById("menu"),
       loseTxt = document.getElementById("lose"), pre = document.getElementById("pre"), startEl = document.getElementById("start");
   var aud = new Audio(); aud.preload = "auto"; aud.loop = false; aud.setAttribute("playsinline", ""); window.__rvAud = aud;
+  /* SFX is a second Audio element: video stays muted, music is `aud`, SFX plays with the music and is never used to duck it. */
+  var sfx = new Audio(); sfx.preload = "auto"; sfx.loop = false; sfx.setAttribute("playsinline", ""); window.__rvSfx = sfx;
   var ctx = null, gain = null;
   function ensureCtx() {
     if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
@@ -138,8 +140,13 @@ button { font:inherit; cursor:pointer; }
     hint.textContent = isWin && !aud.ended && !aud.paused ? "♪ Music keeps playing · " + (touch ? "tap Continue" : "press any key or Continue") : (touch ? "Tap Continue" : "Press any key or Continue");
     hint.classList.add("show");
   }
+  function stopSfx() {
+    try { sfx.pause(); } catch (e) {}
+    try { sfx.removeAttribute("src"); sfx.load(); } catch (e) {}
+  }
   function stopAudio(fade) {
     return new Promise(function (res) {
+      stopSfx();
       if (aud.paused || aud.ended || !fade) { aud.pause(); if (gain) gain.gain.value = 1; return res(); }
       if (gain && ctx) {
         var t = ctx.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(0, t + 0.5);
@@ -229,17 +236,26 @@ button { font:inherit; cursor:pointer; }
     resetLoseTitle();
     S.state = "loading";
     vid.src = it.c.v; aud.src = it.c.a; vid.load(); aud.load();
-    var need = 2, go = function () {
+    var hasSfx = !!it.c.sfx;
+    var need = hasSfx ? 3 : 2, go = function () {
       if (--need || tok !== S.token) return;
       S.state = "playing";
       if (toFreeze) { skipToFreeze(); return; }
       vid.currentTime = 0; aud.currentTime = 0;
+      if (hasSfx) { try { sfx.currentTime = 0; } catch (e) {} }
       var p1 = vid.play(), p2 = aud.play();
       if (p2 && p2.catch) p2.catch(function () { askStart(function () { play(i, toFreeze); }); });
       if (p1 && p1.catch) p1.catch(function () {});
+      if (hasSfx) { var p3 = sfx.play(); if (p3 && p3.catch) p3.catch(function () {}); }
     };
     vid.addEventListener("loadeddata", go, { once: true });
     aud.addEventListener("canplay", go, { once: true });
+    if (hasSfx) {
+      sfx.addEventListener("canplay", go, { once: true });
+      sfx.addEventListener("error", go, { once: true });
+      sfx.src = it.c.sfx;
+      sfx.load();
+    } else { stopSfx(); }
     preloadNext();
   }
   function skipToFreeze() {
@@ -252,6 +268,10 @@ button { font:inherit; cursor:pointer; }
     vid.currentTime = target;
     if (it.kind === "win" || intro) {
       aud.currentTime = intro ? INTRO_BEAT : d; var p = aud.play(); if (p && p.catch) p.catch(function () { askStart(function () { aud.play(); }); });
+      if (it.c.sfx) {
+        try { sfx.currentTime = intro ? INTRO_BEAT : Math.max(0, (sfx.duration || d) - 0.05); } catch (e) {}
+        var ps = sfx.play(); if (ps && ps.catch) ps.catch(function () {});
+      }
     } else { aud.pause(); }
   }
   function advance() {
@@ -272,6 +292,9 @@ button { font:inherit; cursor:pointer; }
     if (S.state === "playing" && S.item && S.item.c) {
       if (vid.currentTime >= S.item.c.d - 0.02) freeze();
       else if (!vid.paused && !aud.paused && Math.abs(vid.currentTime - aud.currentTime) > 0.25) vid.currentTime = aud.currentTime;
+      if (S.item.c.sfx && !sfx.paused && !sfx.ended && !aud.paused && !aud.ended && Math.abs(sfx.currentTime - aud.currentTime) > 0.25) {
+        try { sfx.currentTime = aud.currentTime; } catch (e) {}
+      }
     }
     if (S.state === "frozen" && S.item && S.item.kind !== "lose" && hint.classList.contains("show") && (aud.ended || aud.paused)) hint.textContent = "Music finished · " + (touch ? "tap Continue" : "press any key or Continue");
   }, 200);

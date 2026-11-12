@@ -99,11 +99,15 @@ window.LEVELS = [
   },
   {
     code: "08", ep: 2, lv: 4, name: "Rendezvous Point",
-    intro: [ { v: "../assets/setup-e2l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-e2l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "b", note: "new", v: "media/intro-08b.mp4?v=20261112-r18", a: "../assets/music/level-intro.mp3", sfx: "media/intro-08b-hooves.wav?v=20261112-r18", d: 14.833333 }
+    ],
     lose: [ { img: "../assets/lose-e2l4.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l4.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-08b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "b", note: "later", v: "media/win-08b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 },
+      { ver: "c", note: "new", v: "media/win-08c.mp4?v=20261112-r18", a: "../assets/music/main-theme.mp3", sfx: "media/win-08c-hooves.wav?v=20261112-r18", d: 31.708333 }
     ]
   },
   {
@@ -120,11 +124,15 @@ window.LEVELS = [
   },
   {
     code: "10", ep: 3, lv: 2, name: "White Shroud",
-    intro: [ { v: "../assets/setup-e3l2.mp4", a: "../assets/music/level-intro.mp3", d: 11.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-e3l2.mp4", a: "../assets/music/level-intro.mp3", d: 11.833333 },
+      { ver: "b", note: "new", v: "media/intro-10b.mp4?v=20261112-r18", a: "../assets/music/level-intro.mp3", sfx: "media/intro-10b-sfx.wav?v=20261112-r18", d: 10.833333 }
+    ],
     lose: [ { img: "../assets/lose-e3l2.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e3l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-10b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "b", note: "later", v: "media/win-10b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 },
+      { ver: "c", note: "new", v: "media/win-10c.mp4?v=20261112-r18", a: "../assets/music/main-theme.mp3", sfx: "media/win-10c-sfx.wav?v=20261112-r18", d: 25.000000 }
     ]
   },
   {
