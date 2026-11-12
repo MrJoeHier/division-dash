@@ -25,6 +25,8 @@ button { font:inherit; cursor:pointer; }
 #hint { position:absolute; left:0; right:0; margin:0 auto; width:max-content; max-width:90vw; padding:4px 12px; border-radius:10px; background:rgba(0,0,0,.6); text-align:center; bottom:calc(80px + env(safe-area-inset-bottom)); font-size:.8rem; color:#fff3d0; opacity:0; transition:opacity .35s; pointer-events:none; text-shadow:0 1px 3px #000; }
 #hint.show { opacity:1; }
 #lose { position:absolute; left:0; right:0; top:14%; text-align:center; font-family:"Arcade MVM", monospace; font-size:clamp(1.1rem,4vw,2.4rem); color:#ffd43b; text-shadow:3px 3px 0 #a3201b, 0 0 18px rgba(0,0,0,.8); display:none; pointer-events:none; animation:blink 1s steps(2) infinite; }
+/* 11 Widow's Camp: stack GAME OVER in the upper-left sky, clear of Rex's face */
+#lose.go-left { top:3.5%; left:3%; right:auto; width:32%; text-align:center; line-height:1.2; font-size:clamp(1.3rem,4.4vw,2.8rem); }
 @keyframes blink { 50% { opacity:.25; } }
 #menu { position:fixed; inset:0; overflow:auto; background:radial-gradient(ellipse at top, #3e2612, #1f1208 70%); padding:calc(18px + env(safe-area-inset-top)) 14px calc(30px + env(safe-area-inset-bottom)); box-sizing:border-box; z-index:5; -webkit-overflow-scrolling:touch; }
 #menu.hide { display:none; }
@@ -67,7 +69,7 @@ button { font:inherit; cursor:pointer; }
 </div>
 <div id="start" class="hide"><button class="gold" id="bstart" type="button">▶ Tap to start</button><p>Turn your sound up. Your phone's silent switch can mute it.</p></div>
 <video id="pre" muted playsinline preload="auto" style="display:none"></video>
-<script src="levels.js?v=20261112-r15"></script>
+<script src="levels.js?v=20261112-r16"></script>
 <script>
 (function () {
   "use strict";
@@ -168,6 +170,45 @@ button { font:inherit; cursor:pointer; }
     }
     requestAnimationFrame(beatWatch);
   })();
+
+  function resetLoseTitle() {
+    loseTxt.classList.remove("go-left");
+    loseTxt.style.top = "";
+    loseTxt.style.left = "";
+    loseTxt.style.right = "";
+    loseTxt.style.width = "";
+    loseTxt.style.textAlign = "";
+    loseTxt.innerHTML = "GAME OVER";
+  }
+  function layoutLoseTitle(it) {
+    resetLoseTitle();
+    var go = (it && it.s && it.s.go) || (it && it.L && it.L.loseGo) || "";
+    if (go !== "left") return;
+    loseTxt.classList.add("go-left");
+    loseTxt.innerHTML = "GAME<br>OVER";
+    var apply = function () {
+      if (S.item !== it) return;
+      var stageEl = document.getElementById("stage");
+      var stage = stageEl.getBoundingClientRect();
+      var box = still.getBoundingClientRect();
+      if (!box.width) return;
+      /* object-fit:contain — use the visible still, not the element's letterbox box */
+      var r = box, nw = still.naturalWidth, nh = still.naturalHeight;
+      if (nw && nh) {
+        var sc = Math.min(box.width / nw, box.height / nh);
+        var w = nw * sc, h = nh * sc;
+        r = { left: box.left + (box.width - w) / 2, top: box.top + (box.height - h) / 2, width: w, height: h };
+      }
+      loseTxt.style.top = (r.top - stage.top + r.height * 0.035) + "px";
+      loseTxt.style.left = (r.left - stage.left + r.width * 0.03) + "px";
+      loseTxt.style.right = "auto";
+      loseTxt.style.width = (r.width * 0.30) + "px";
+      loseTxt.style.textAlign = "center";
+    };
+    if (still.complete && still.naturalWidth) apply();
+    still.addEventListener("load", apply, { once: true });
+    requestAnimationFrame(function () { requestAnimationFrame(apply); });
+  }
   function play(i, toFreeze) {
     var it = Q[i]; if (!it) { return openMenu(); }
     var tok = ++S.token; S.i = i; S.item = it; hideCont(); menu.classList.add("hide");
@@ -178,12 +219,14 @@ button { font:inherit; cursor:pointer; }
     if (it.kind === "lose") {
       S.state = "frozen"; vid.style.display = "none"; vid.removeAttribute("src"); vid.load();
       still.src = it.s.img; still.style.display = "block"; loseTxt.style.display = "block";
+      layoutLoseTitle(it);
       setTimeout(function () { if (tok === S.token) showCont(false); }, toFreeze ? 0 : 900);
       document.getElementById("bskip").style.visibility = "hidden";
       preloadNext(); return;
     }
     document.getElementById("bskip").style.visibility = "visible";
     still.style.display = "none"; loseTxt.style.display = "none"; vid.style.display = "block";
+    resetLoseTitle();
     S.state = "loading";
     vid.src = it.c.v; aud.src = it.c.a; vid.load(); aud.load();
     var need = 2, go = function () {
@@ -253,6 +296,9 @@ button { font:inherit; cursor:pointer; }
     var idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === p[1] && q.k === k; });
     if (idx < 0) return;
     startAt(idx, p[2] === "fz");
+  });
+  window.addEventListener("resize", function () {
+    if (S.state === "frozen" && S.item && S.item.kind === "lose") layoutLoseTitle(S.item);
   });
   buildQueue();
 })();

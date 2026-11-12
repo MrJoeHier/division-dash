@@ -124,8 +124,8 @@ window.LEVELS = [
     code: "11", ep: 3, lv: 3, name: "Widow's Camp",
     intro: [ { v: "../assets/setup-e3l3.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
     lose: [
-      { ver: "a", note: "live", img: "../assets/lose-e3l3.jpg" },
-      { ver: "b", note: "new", img: "media/lose-11b.jpg?v=20261112-r12" }
+      { ver: "a", note: "live", img: "../assets/lose-e3l3.jpg", go: "left" },
+      { ver: "b", note: "new", img: "media/lose-11b.jpg?v=20261112-r16", go: "left" }
     ],
     win: [ { v: "../assets/win-e3l3.mp4", a: "../assets/music/main-theme.mp3", d: 26.041667 } ]
   },
