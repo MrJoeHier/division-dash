@@ -79,14 +79,18 @@ window.LEVELS = [
   },
   {
     code: "06", ep: 2, lv: 2, name: "Needle Gap",
-    intro: [ { v: "../assets/setup-e2l2.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-e2l2.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "c", note: "new", v: "media/intro-06c.mp4?v=20261112-r21", a: "../assets/music/level-intro.mp3", sfx: "media/intro-06c-sfx.wav?v=20261112-r21", d: 14.833333 }
+    ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e2l2.jpg" },
       { ver: "b", note: "new", img: "media/lose-06b.jpg?v=20261112-r12" }
     ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-06b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 }
+      { ver: "b", note: "later", v: "media/win-06b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 },
+      { ver: "c", note: "new", v: "media/win-06c.mp4?v=20261112-r21", a: "../assets/music/main-theme.mp3", d: 25.000000 }
     ]
   },
   {
