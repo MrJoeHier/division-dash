@@ -2386,7 +2386,7 @@ document.addEventListener("visibilitychange", () => { acHidden = document.hidden
 const ASSET = n => "assets/" + n;
 const DEV = /[?&]dev=1\b/.test(location.search);
 const EP_INFO = [
-  { name: "The Jungle", filter: "", soon: "", map: "map-jungle-wide", rendezvous: "Rendezvous Point", startLabel: "Drop-off Point",
+  { name: "The Jungle", filter: "", soon: "", map: "map-jungle-wide", rendezvous: "Rendezvous Point", startLabel: "Drop-off Location",
     pts: [[743, 801], [636, 665], [328, 464], [1116, 303], [761, 184]],
     lab: [[110, 0], [120, 0], [-115, 45], [90, -45], [-40, 52]],
     path: [
@@ -2429,7 +2429,7 @@ const EP_INFO = [
       [843,205],[837,204],[831,202],[825,201],[819,199],[814,198],[808,196],[802,194],
       [796,192],[791,191],[785,189],[779,188],[773,186],[767,185],[761,184]
     ] },
-  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", rendezvous: "Rendezvous Point",
+  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", rendezvous: "Rendezvous Point", startLabel: "Drop-off Location",
     pts: [[776, 804], [761, 659], [1252, 410], [419, 351], [577, 182]],
     lab: [[110, 0], [125, 5], [118, 8], [-110, 10], [-10, -45]],
     path: [
@@ -2494,7 +2494,7 @@ const EP_INFO = [
       [654,190],[648,189],[642,189],[636,188],[630,187],[624,186],[618,186],[612,185],
       [606,185],[600,185],[594,184],[589,183],[583,183],[577,182]
     ] },
-  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", rendezvous: "Rendezvous Point",
+  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", rendezvous: "Rendezvous Point", startLabel: "Drop-off Location",
     pts: [[687, 795], [450, 602], [1101, 467], [520, 320], [1218, 354]],
     lab: [[-110, 0], [-120, -45], [110, 0], [-60, 50], [30, 42]],
     path: [
@@ -2767,10 +2767,14 @@ const Cine = (() => {
           }
         }
         // Start label
-        const startNm = E.startLabel || "Start";
+        const startNm = E.startLabel || "Drop-off Location";
         const soff = labs[0] || [110, 10];
         const stw = Math.max(96, startNm.length * 11.5 + 28);
-        svg += '<g class="mlab done" transform="translate(' + (MAP_PTS[0][0] + soff[0]) + "," + (MAP_PTS[0][1] + soff[1]) + ')"><rect x="' + (-stw / 2) + '" y="-16" width="' + stw + '" height="32"/><text style="font-size:18px">' + startNm.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text></g>";
+        let sox = soff[0];
+        if (sox && Math.abs(soff[1]) < 40) { const need = stw / 2 + 32; if (Math.abs(sox) < need) sox = Math.sign(sox) * need; }
+        const slx = Math.max(stw / 2 + 24, Math.min(1536 - stw / 2 - 24, MAP_PTS[0][0] + sox));
+        const sly = MAP_PTS[0][1] + soff[1];
+        svg += '<g class="mlab done" transform="translate(' + slx + "," + sly + ')"><rect x="' + (-stw / 2) + '" y="-16" width="' + stw + '" height="32"/><text style="font-size:18px">' + startNm.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text></g>";
         for (let n = 1; n <= 4; n++) {
           const isRv = n === 4;
           const Lv = levels[n - 1] || {};
