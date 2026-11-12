@@ -932,7 +932,7 @@ body.ep-snow .cell.quo { position:relative; z-index:3; }
 <body>
 <div id="app">
   <header>
-    <div class="brand"><span class="mvm">MAN <i>vs.</i> MATH</span> <small id="h-lvname">The Unspoken River</small></div>
+    <div class="brand"><span class="mvm">MAN <i>vs.</i> MATH</span> <small id="h-lvname">Unspoken River</small></div>
     <div class="chips">
       <div class="chip"><span id="h-level">E1 · L1</span></div>
       <div class="pie timer" id="h-time" aria-label="Time left"><div class="wedge"></div><span class="tv">4:00</span></div>
@@ -2369,7 +2369,7 @@ const EP_INFO = [
       [843,205],[837,204],[831,202],[825,201],[819,199],[814,198],[808,196],[802,194],
       [796,192],[791,191],[785,189],[779,188],[773,186],[767,185],[761,184]
     ] },
-  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", rendezvous: "The Ravine",
+  { name: "The Savanna", filter: "", soon: "", map: "map-savanna-wide", rendezvous: "Rendezvous Point",
     pts: [[776, 804], [761, 659], [1116, 484], [419, 351], [577, 182]],
     lab: [[110, 0], [125, 5], [-120, 0], [-110, 10], [-10, -45]],
     path: [
@@ -2421,7 +2421,7 @@ const EP_INFO = [
       [666,191],[660,190],[654,190],[648,189],[642,189],[636,188],[630,187],[624,186],
       [618,186],[612,185],[606,185],[600,185],[594,184],[589,183],[583,183],[577,182]
     ] },
-  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", rendezvous: "The Summit",
+  { name: "Mountain Crossing", filter: "", soon: "", map: "map-mountain-wide", rendezvous: "Rendezvous Point",
     pts: [[687, 795], [450, 602], [1101, 467], [520, 320], [881, 143]],
     lab: [[-110, 0], [-120, -45], [110, 0], [-60, 50], [110, 10]],
     path: [
@@ -2475,24 +2475,24 @@ const EP_INFO = [
     ] }
 ];
 const LV_INFO = [
-  { name: "The Unspoken River", mapLabel: "The Unspoken River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across the Unspoken River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
-  { name: "The Green Mouth", mapLabel: "The Green Mouth", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2", win: "win-l2", lose: "lose-l2" },
-  { name: "The Watching Ridge", mapLabel: "The Watching Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
-  { name: "The Far Light", mapLabel: "The Far Light", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
+  { name: "Unspoken River", mapLabel: "Unspoken River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across the Unspoken River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
+  { name: "Tangled Valley", mapLabel: "Tangled Valley", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2", win: "win-l2", lose: "lose-l2" },
+  { name: "Forgotten Ridge", mapLabel: "Forgotten Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
+  { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
 ];
 const JUNGLE_PTS = EP_INFO[0].pts;
 const EP_LV = {
   1: [
-    { name: "The Still Ford", mapLabel: "The Still Ford", brief: "Solve 4 problems to pole past the hippos!", winCap: "Across the Still Ford!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
-    { name: "The Needle Gap", mapLabel: "The Needle Gap", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2", win: "win-e2l2", lose: "lose-e2l2" },
-    { name: "The Waiting Grass", mapLabel: "The Waiting Grass", brief: "Solve 4 problems to face down the lion!", winCap: "The Waiting Grass conquered!", setup: "setup-e2l3", win: "win-e2l3", lose: "lose-e2l3" },
-    { name: "The Shaking Hollow", mapLabel: "The Shaking Hollow", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4", win: "win-e2l4", lose: "lose-e2l4", loseLay: "left" }
+    { name: "Ghost Ferry", mapLabel: "Ghost Ferry", brief: "Solve 4 problems to pole past the hippos!", winCap: "Ghost Ferry crossed!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
+    { name: "Needle Gap", mapLabel: "Needle Gap", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2", win: "win-e2l2", lose: "lose-e2l2" },
+    { name: "King's Crossing", mapLabel: "King's Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "King's Crossing conquered!", setup: "setup-e2l3", win: "win-e2l3", lose: "lose-e2l3" },
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4", win: "win-e2l4", lose: "lose-e2l4", loseLay: "left" }
   ],
   2: [
-    { name: "The White Stair", mapLabel: "The White Stair", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1", win: "win-e3l1", lose: "lose-e3l1", loseLay: "mount" },
-    { name: "The Held Breath", mapLabel: "The Held Breath", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2", win: "win-e3l2", lose: "lose-e3l2" },
-    { name: "The Last Embers", mapLabel: "The Last Embers", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3", win: "win-e3l3", lose: "lose-e3l3" },
-    { name: "The Long White", mapLabel: "The Long White", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4", win: "win-e3l4", lose: "lose-e3l4", loseSplit: true }
+    { name: "Razorback Ridge", mapLabel: "Razorback Ridge", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1", win: "win-e3l1", lose: "lose-e3l1", loseLay: "mount" },
+    { name: "White Shroud", mapLabel: "White Shroud", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2", win: "win-e3l2", lose: "lose-e3l2" },
+    { name: "Widow's Camp", mapLabel: "Widow's Camp", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3", win: "win-e3l3", lose: "lose-e3l3" },
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4", win: "win-e3l4", lose: "lose-e3l4", loseSplit: true }
   ]
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
