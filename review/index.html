@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Man vs. Math: clip review</title>
+<link rel="icon" href="../assets/icon-180.jpg">
+<style>
+@font-face { font-family:"Cinzel MVM"; src:url(../assets/fonts/cinzel-900.woff2) format("woff2"); font-weight:900; font-display:swap; }
+@font-face { font-family:"Arcade MVM"; src:url(../assets/fonts/press-start-2p.woff2) format("woff2"); font-display:swap; }
+html,body { margin:0; height:100%; background:#000; color:#fff3d0; font-family:-apple-system, "Segoe UI", system-ui, sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+button { font:inherit; cursor:pointer; }
+.gold { border:2px solid #f3c65a; background:linear-gradient(#70482a, #3e2612); color:#fff3d0; font-family:"Cinzel MVM", Georgia, serif; font-weight:900; letter-spacing:.06em; box-shadow:0 5px 0 #1f1208, 0 10px 26px rgba(0,0,0,.6); border-radius:14px; }
+.gold:active { transform:translateY(3px); box-shadow:0 2px 0 #1f1208; }
+#stage { position:fixed; inset:0; background:#000; }
+#stage video, #stage img.still { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; }
+#stage img.still { display:none; }
+#tag { position:absolute; left:calc(12px + env(safe-area-inset-left)); top:calc(10px + env(safe-area-inset-top)); padding:6px 12px; border-radius:10px; background:rgba(0,0,0,.55); font-weight:800; font-size:clamp(.8rem,1.8vw,1rem); transition:opacity .6s; pointer-events:none; text-shadow:0 1px 2px #000; }
+#tag.dim { opacity:0; }
+#tools { position:absolute; right:calc(10px + env(safe-area-inset-right)); top:calc(10px + env(safe-area-inset-top)); display:flex; gap:8px; }
+#tools button { padding:7px 12px; border-radius:10px; border:1px solid rgba(243,198,90,.7); background:rgba(31,18,8,.72); color:#fff3d0; font-weight:700; font-size:.85rem; }
+#cont { position:absolute; left:0; right:0; margin:0 auto; bottom:calc(22px + env(safe-area-inset-bottom)); width:min(210px, 56vw); min-height:48px; font-size:1.05rem; opacity:0; transform:translateY(10px); pointer-events:none; transition:opacity .35s, transform .35s; }
+#cont.show { opacity:1; transform:none; pointer-events:auto; }
+#hint { position:absolute; left:0; right:0; margin:0 auto; width:max-content; max-width:90vw; padding:4px 12px; border-radius:10px; background:rgba(0,0,0,.6); text-align:center; bottom:calc(80px + env(safe-area-inset-bottom)); font-size:.8rem; color:#fff3d0; opacity:0; transition:opacity .35s; pointer-events:none; text-shadow:0 1px 3px #000; }
+#hint.show { opacity:1; }
+#lose { position:absolute; left:0; right:0; top:14%; text-align:center; font-family:"Arcade MVM", monospace; font-size:clamp(1.1rem,4vw,2.4rem); color:#ffd43b; text-shadow:3px 3px 0 #a3201b, 0 0 18px rgba(0,0,0,.8); display:none; pointer-events:none; animation:blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity:.25; } }
+#menu { position:fixed; inset:0; overflow:auto; background:radial-gradient(ellipse at top, #3e2612, #1f1208 70%); padding:calc(18px + env(safe-area-inset-top)) 14px calc(30px + env(safe-area-inset-bottom)); box-sizing:border-box; z-index:5; -webkit-overflow-scrolling:touch; }
+#menu.hide { display:none; }
+#menu h1 { font-family:"Cinzel MVM", Georgia, serif; color:#f3c65a; text-align:center; margin:4px 0 2px; font-size:clamp(1.4rem,4.5vw,2.3rem); text-shadow:0 3px 0 #1f1208; }
+#menu .sub { text-align:center; color:#e3cfa3; font-size:.92rem; margin:0 auto 14px; max-width:640px; line-height:1.4; }
+#playall { display:block; margin:0 auto 10px; padding:12px 26px; font-size:1.15rem; }
+.opts { text-align:center; font-size:.9rem; color:#f6e7c4; margin-bottom:14px; }
+.opts label { margin:0 8px; white-space:nowrap; }
+.ep { max-width:860px; margin:0 auto 14px; background:rgba(0,0,0,.25); border:1px solid rgba(243,198,90,.35); border-radius:14px; padding:10px 12px; }
+.ep h2 { font-family:"Cinzel MVM", Georgia, serif; color:#f3c65a; font-size:1.1rem; margin:2px 0 8px; }
+.lv { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:7px 0; border-top:1px solid rgba(243,198,90,.15); }
+.lv:first-of-type { border-top:0; }
+.lv .nm { flex:1 1 170px; font-weight:800; color:#fff3d0; }
+.lv .nm small { color:#cdb88f; font-weight:600; }
+.lv button { padding:6px 10px; border-radius:9px; border:1px solid rgba(243,198,90,.6); background:#3a2615; color:#fff3d0; font-weight:700; font-size:.82rem; }
+.lv button.fz { background:#2f6b2a; border-color:#7fb86a; }
+#start { position:fixed; inset:0; z-index:9; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; background:rgba(0,0,0,.82); text-align:center; padding:20px; }
+#start.hide { display:none; }
+#start button { padding:14px 32px; font-size:1.3rem; }
+#start p { max-width:420px; color:#e3cfa3; line-height:1.4; margin:0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="vid" playsinline muted preload="auto" disablepictureinpicture></video>
+  <img class="still" id="still" alt="">
+  <div id="lose">GAME OVER</div>
+  <div id="tag"></div>
+  <div id="tools"><button id="bskip" type="button">⏭ Skip to freeze</button><button id="bmenu" type="button">☰ Levels</button></div>
+  <div id="hint">Music keeps playing · press any key or Continue</div>
+  <button id="cont" class="gold" type="button">Continue ▶</button>
+</div>
+<div id="menu">
+  <h1>Man vs. Math · Clip Review</h1>
+  <p class="sub">Every intro and win with its music. Each clip ends on a freeze frame and waits for Continue (or any key). On wins, the main theme keeps going over the freeze and fades when you continue.</p>
+  <button id="playall" class="gold" type="button">▶ Play all from the start</button>
+  <div class="opts"><label><input type="checkbox" id="optlose" checked> Show the lose still between intro and win</label></div>
+  <div id="eps"></div>
+</div>
+<div id="start" class="hide"><button class="gold" id="bstart" type="button">▶ Tap to start</button><p>Turn your sound up. Your phone's silent switch can mute it.</p></div>
+<video id="pre" muted playsinline preload="auto" style="display:none"></video>
+<script src="levels.js"></script>
+<script>
+(function () {
+  "use strict";
+  var EPN = { 1: "Episode 1 · The Jungle", 2: "Episode 2 · The Savanna", 3: "Episode 3 · The Frozen Mountain" };
+  var vid = document.getElementById("vid"), still = document.getElementById("still"), tag = document.getElementById("tag"),
+      cont = document.getElementById("cont"), hint = document.getElementById("hint"), menu = document.getElementById("menu"),
+      loseTxt = document.getElementById("lose"), pre = document.getElementById("pre"), startEl = document.getElementById("start");
+  var aud = new Audio(); aud.preload = "auto"; aud.loop = false; aud.setAttribute("playsinline", "");
+  var ctx = null, gain = null;
+  function ensureCtx() {
+    if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; ctx = new AC();
+      gain = ctx.createGain(); ctx.createMediaElementSource(aud).connect(gain); gain.connect(ctx.destination);
+    } catch (e) { ctx = null; gain = null; }
+  }
+  // Build the play list
+  var Q = [];
+  function buildQueue() {
+    Q = []; var withLose = document.getElementById("optlose").checked;
+    LEVELS.forEach(function (L) {
+      Q.push({ kind: "intro", L: L, c: L.intro });
+      if (withLose) Q.push({ kind: "lose", L: L });
+      Q.push({ kind: "win", L: L, c: L.win });
+    });
+  }
+  // Menu
+  var eps = document.getElementById("eps"), html = "";
+  [1, 2, 3].forEach(function (e) {
+    html += '<div class="ep"><h2>' + EPN[e] + "</h2>";
+    LEVELS.filter(function (L) { return L.ep === e; }).forEach(function (L) {
+      html += '<div class="lv"><div class="nm">' + L.code + " · " + L.name + " <small>(intro " + L.intro.d.toFixed(1) + " s · win " + L.win.d.toFixed(1) + " s)</small></div>" +
+        '<button data-go="' + L.code + ':intro">Intro</button>' +
+        '<button data-go="' + L.code + ':lose">Lose</button>' +
+        '<button data-go="' + L.code + ':win">Win</button>' +
+        '<button class="fz" data-go="' + L.code + ':intro:fz">Intro freeze</button>' +
+        '<button class="fz" data-go="' + L.code + ':win:fz">Win freeze</button></div>';
+    });
+    html += "</div>";
+  });
+  eps.innerHTML = html;
+  var S = { i: -1, state: "menu", item: null, frozenAt: null, token: 0 };
+  window.__rv = S;
+  function setTag(t) { tag.textContent = t; tag.classList.remove("dim"); clearTimeout(setTag.t); setTag.t = setTimeout(function () { tag.classList.add("dim"); }, 3500); }
+  function hideCont() { cont.classList.remove("show"); hint.classList.remove("show"); }
+  var touch = matchMedia("(hover: none)").matches;
+  function showCont(isWin) {
+    cont.classList.add("show"); document.getElementById("bskip").style.visibility = "hidden";
+    hint.textContent = isWin && !aud.ended && !aud.paused ? "♪ Theme keeps playing · " + (touch ? "tap Continue" : "press any key or Continue") : (touch ? "Tap Continue" : "Press any key or Continue");
+    hint.classList.add("show");
+  }
+  function stopAudio(fade) {
+    return new Promise(function (res) {
+      if (aud.paused || aud.ended || !fade) { aud.pause(); if (gain) gain.gain.value = 1; return res(); }
+      if (gain && ctx) {
+        var t = ctx.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(0, t + 0.5);
+        setTimeout(function () { aud.pause(); gain.gain.cancelScheduledValues(ctx.currentTime); gain.gain.value = 1; res(); }, 520);
+      } else {
+        var v0 = aud.volume, t0 = performance.now();
+        (function step() { var k = (performance.now() - t0) / 500; if (k >= 1) { aud.pause(); aud.volume = v0; return res(); } aud.volume = v0 * (1 - k); requestAnimationFrame(step); })();
+      }
+    });
+  }
+  function preloadNext() {
+    var n = Q[S.i + 1]; if (n && n.c) { pre.src = n.c.v; pre.load(); }
+  }
+  function freeze() {
+    if (S.state !== "playing") return;
+    S.state = "frozen"; S.frozenAt = aud.currentTime;
+    try { vid.pause(); } catch (e) {}
+    showCont(S.item.kind === "win");
+  }
+  function play(i, toFreeze) {
+    var it = Q[i]; if (!it) { return openMenu(); }
+    var tok = ++S.token; S.i = i; S.item = it; hideCont(); menu.classList.add("hide");
+    var L = it.L, label = L.code + (it.kind === "intro" ? "a" : it.kind === "lose" ? "b" : "c") + " · " + L.name + " · " + (it.kind === "intro" ? "Intro" : it.kind === "lose" ? "Lose" : "Win");
+    setTag(label);
+    if (it.kind === "lose") {
+      S.state = "frozen"; vid.style.display = "none"; vid.removeAttribute("src"); vid.load();
+      still.src = L.lose; still.style.display = "block"; loseTxt.style.display = "block";
+      setTimeout(function () { if (tok === S.token) showCont(false); }, toFreeze ? 0 : 900);
+      document.getElementById("bskip").style.visibility = "hidden";
+      preloadNext(); return;
+    }
+    document.getElementById("bskip").style.visibility = "visible";
+    still.style.display = "none"; loseTxt.style.display = "none"; vid.style.display = "block";
+    S.state = "loading";
+    vid.src = it.c.v; aud.src = it.c.a; vid.load(); aud.load();
+    var need = 2, go = function () {
+      if (--need || tok !== S.token) return;
+      S.state = "playing";
+      if (toFreeze) { skipToFreeze(); return; }
+      vid.currentTime = 0; aud.currentTime = 0;
+      var p1 = vid.play(), p2 = aud.play();
+      if (p2 && p2.catch) p2.catch(function () { askStart(function () { play(i, toFreeze); }); });
+      if (p1 && p1.catch) p1.catch(function () {});
+    };
+    vid.addEventListener("loadeddata", go, { once: true });
+    aud.addEventListener("canplay", go, { once: true });
+    preloadNext();
+  }
+  function skipToFreeze() {
+    var it = S.item; if (!it || !it.c || (S.state !== "playing" && S.state !== "loading")) return;
+    S.state = "playing";
+    var d = it.c.d, tok = S.token;
+    try { vid.pause(); } catch (e) {}
+    var target = Math.max(0, (vid.duration || d) - 0.001);
+    vid.addEventListener("seeked", function () { if (tok === S.token) freeze(); }, { once: true });
+    vid.currentTime = target;
+    if (it.kind === "win") {
+      aud.currentTime = d; var p = aud.play(); if (p && p.catch) p.catch(function () { askStart(function () { aud.play(); }); });
+    } else { aud.pause(); }
+  }
+  function advance() {
+    if (S.state !== "frozen") return;
+    S.state = "leaving"; hideCont();
+    stopAudio(true).then(function () { play(S.i + 1); });
+  }
+  function openMenu() {
+    S.token++; S.state = "menu"; hideCont(); stopAudio(false); try { vid.pause(); } catch (e) {}
+    menu.classList.remove("hide");
+  }
+  var pendingStart = null;
+  function askStart(fn) { pendingStart = fn; startEl.classList.remove("hide"); }
+  document.getElementById("bstart").addEventListener("click", function () { startEl.classList.add("hide"); ensureCtx(); var f = pendingStart; pendingStart = null; if (f) f(); });
+  vid.addEventListener("ended", freeze);
+  // Safety net: if the picture stalls but time is past the end, freeze anyway
+  setInterval(function () {
+    if (S.state === "playing" && S.item && S.item.c) {
+      if (vid.currentTime >= S.item.c.d - 0.02) freeze();
+      else if (!vid.paused && !aud.paused && Math.abs(vid.currentTime - aud.currentTime) > 0.25) vid.currentTime = aud.currentTime;
+    }
+    if (S.state === "frozen" && S.item && S.item.kind === "win" && hint.classList.contains("show") && (aud.ended || aud.paused)) hint.textContent = "Theme finished · " + (touch ? "tap Continue" : "press any key or Continue");
+  }, 200);
+  cont.addEventListener("click", function () { ensureCtx(); advance(); });
+  document.getElementById("bmenu").addEventListener("click", openMenu);
+  document.getElementById("bskip").addEventListener("click", function () { ensureCtx(); skipToFreeze(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    ensureCtx();
+    if (!menu.classList.contains("hide")) return;
+    if (e.key === "Escape") { openMenu(); return; }
+    if (S.state === "frozen") { e.preventDefault(); advance(); }
+  });
+  function startAt(i, fz) { ensureCtx(); play(i, fz); }
+  document.getElementById("playall").addEventListener("click", function () { buildQueue(); startAt(0); });
+  eps.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-go]"); if (!b) return;
+    var p = b.getAttribute("data-go").split(":"); buildQueue();
+    var idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === p[1]; });
+    if (idx < 0 && p[1] === "lose") { Q.splice(Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === "win"; }), 0, { kind: "lose", L: LEVELS.find(function (L) { return L.code === p[0]; }) }); idx = Q.findIndex(function (q) { return q.L.code === p[0] && q.kind === "lose"; }); }
+    startAt(idx, p[2] === "fz");
+  });
+  buildQueue();
+})();
+</script>
+</body>
+</html>
