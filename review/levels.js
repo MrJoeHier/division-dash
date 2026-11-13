@@ -18,7 +18,8 @@ window.LEVELS = [
       { ver: "b", note: "later", v: "media/win-01b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 },
       { ver: "c", note: "later", v: "media/win-01c.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 },
       { ver: "d", note: "later", v: "media/win-01d.mp4?v=20261112-r15", a: "../assets/music/main-theme.mp3", d: 25.000000 },
-      { ver: "e", note: "new", v: "media/win-01e.mp4?v=20261112-r22", a: "../assets/music/main-theme.mp3", d: 18.791667 }
+      { ver: "e", note: "later", v: "media/win-01e.mp4?v=20261112-r22", a: "../assets/music/main-theme.mp3", d: 18.791667 },
+      { ver: "f", note: "new", v: "media/win-01f.mp4?v=20261112-r29", a: "../assets/music/main-theme.mp3", d: 23.958333 }
     ]
   },
   {
@@ -83,7 +84,8 @@ window.LEVELS = [
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l1.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
       { ver: "b", note: "later", v: "media/win-05b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.000000 },
-      { ver: "c", note: "new", v: "media/win-05c.mp4?v=20261112-r17", a: "../assets/music/main-theme.mp3", d: 25.500000 }
+      { ver: "c", note: "later", v: "media/win-05c.mp4?v=20261112-r17", a: "../assets/music/main-theme.mp3", d: 25.500000 },
+      { ver: "d", note: "new", v: "media/win-05d.mp4?v=20261112-r29", a: "../assets/music/main-theme.mp3", d: 25.166667 }
     ]
   },
   {
