@@ -2220,7 +2220,7 @@ const RecAudio = (() => {
   const DUCK = 0.42; /* about -7.5 dB under the voice */
   const bytes = {}, bufs = {}, decoding = {};
   function fetchBytes(k) {
-    if (!bytes[k]) bytes[k] = fetch(SRC[k]).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); });
+    if (!bytes[k]) bytes[k] = fetch(SRC[k] || k).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); });
     bytes[k].catch(() => { delete bytes[k]; });
     return bytes[k];
   }
@@ -2260,12 +2260,35 @@ const RecAudio = (() => {
      downbeat (INTRO_BEAT) and the full cue's reverb/fade tail rings over the freeze; no early end-fade. */
   const CUE_KEY = { intro: "intro", win: "theme" }, CUE_FADE = 0.65;
   const cu = { want: null, name: null, src: null, off: 0, sync: null, end: null };
-  function prepCue(name) {
+  function prepCue(name, sfxUrl) {
     const k = CUE_KEY[name]; if (!k) return Promise.resolve();
-    fetchBytes(k).catch(() => {});
-    const ac = live(); if (!ac || !settings.music || !settings.sound) return Promise.resolve();
-    return load(k, ac).then(() => {}, () => {});
+    fetchBytes(k).catch(() => {}); if (sfxUrl) fetchBytes(sfxUrl).catch(() => {});
+    const ac = live(); if (!ac || !settings.sound) return Promise.resolve();
+    const ps = [];
+    if (settings.music) ps.push(load(k, ac).then(() => {}, () => {}));
+    if (sfxUrl) ps.push(load(sfxUrl, ac).then(() => {}, () => {}));
+    return Promise.all(ps).then(() => {});
   }
+  /* ---------- per-clip SFX (review page `sfx:` track): a second buffer started with the clip at the picture's position,
+     at unity gain alongside the music (never ducks it), kept over the freeze, stopped with the music on Continue.
+     Plays when sound is on, even with music off. ---------- */
+  const sx = { want: null, src: null, off: 0, sync: null };
+  function trySfx() {
+    if (!sx.want || sx.src || !settings.sound) return;
+    const ac = live(); if (!ac) return;
+    const url = sx.want;
+    load(url, ac).then(b => {
+      if (sx.want !== url || sx.src || AC !== ac || ac.state !== "running" || !settings.sound) return;
+      let off = sx.off || 0;
+      if (sx.sync) { let t = 0; try { t = +sx.sync(); } catch (e) {} if (t < 0) { sx.want = null; return; } /* frozen/poster before it could start */ if (t > 0) off = t; }
+      if (off >= b.duration - 0.05) { sx.want = null; return; }
+      const src = startBuf(sx, b, ac, off, 1); sx.off = 0;
+      src.onended = () => { if (sx.src !== src) return; sx.src = null; sx.want = null; try { src.disconnect(); sx.g.disconnect(); } catch (e) {} };
+    }, e => { try { console.warn("clip sfx load failed", url, e); } catch (x) {} });
+  }
+  function stopSfx(secs) { const u = sx.want || sx.url; sx.want = null; sx.sync = null; sx.off = 0; if (sx.src) kill(sx, secs == null ? 0.05 : secs); sx.url = null; if (u) delete bufs[u]; /* free the decoded buffer; the bytes stay cached */ }
+  function sfxCue(url, sync) { stopSfx(0.05); if (!url) return; sx.want = url; sx.url = url; sx.off = 0; sx.sync = sync || null; trySfx(); }
+  function prefetchSfx(url) { if (url) fetchBytes(url).catch(() => {}); }
   function tryCue() {
     if (!cu.want || cu.src || !settings.music || !settings.sound) return;
     const ac = live(); if (!ac) return; /* kick() starts it on the first tap/key */
@@ -2284,12 +2307,13 @@ const RecAudio = (() => {
     }, e => { try { console.warn("clip music load failed", want, e); } catch (x) {} });
   }
   /* o.sync() -> current clip position (s); o.end() -> clip length (s) */
-  function cue(name, o) { stopCue(0.05); if (!CUE_KEY[name]) return; o = o || {}; cu.want = name; cu.off = 0; cu.sync = o.sync || null; cu.end = o.end || null; tryCue(); }
+  function cue(name, o) { stopCue(0.05); if (!CUE_KEY[name]) return; o = o || {}; cu.want = name; cu.off = 0; cu.sync = o.sync || null; cu.end = o.end || null; tryCue(); if (o.sfx) sfxCue(o.sfx, o.sync); }
   /* video stalled and resumed: keep the music with the picture */
-  function resync(t) { if (!cu.src || !cu.want) return; const pos = cu.ac.currentTime - cu.t0; if (Math.abs(pos - t) < 0.35) return; const w = cu.want, sy = cu.sync, en = cu.end; kill(cu, 0.05); cu.want = w; cu.sync = sy; cu.end = en; cu.off = t; tryCue(); }
+  function resync(t) { if (sx.src && sx.want) { const sp = sx.ac.currentTime - sx.t0; if (Math.abs(sp - t) >= 0.35) { const w = sx.want, sy = sx.sync; kill(sx, 0.05); sx.want = w; sx.sync = sy; sx.off = t; trySfx(); } }
+    if (!cu.src || !cu.want) return; const pos = cu.ac.currentTime - cu.t0; if (Math.abs(pos - t) < 0.35) return; const w = cu.want, sy = cu.sync, en = cu.end; kill(cu, 0.05); cu.want = w; cu.sync = sy; cu.end = en; cu.off = t; tryCue(); }
   /* heard position of the playing clip cue (s), or -1 when no cue is sounding */
   function heardPos(name) { if (!cu.src || !cu.ac || cu.ac.state !== "running" || (name && cu.name !== name)) return -1; const lat = (cu.ac.outputLatency || cu.ac.baseLatency || 0); return cu.ac.currentTime - cu.t0 - lat; }
-  function stopCue(secs) { const k = cu.want ? CUE_KEY[cu.want] : null; cu.want = null; cu.sync = cu.end = null; cu.off = 0; if (cu.src) kill(cu, secs == null ? 0.4 : secs); if (k === "theme" && !th.src && !th.want) bufs.theme = null; }
+  function stopCue(secs) { stopSfx(0.05); const k = cu.want ? CUE_KEY[cu.want] : null; cu.want = null; cu.sync = cu.end = null; cu.off = 0; if (cu.src) kill(cu, secs == null ? 0.4 : secs); if (k === "theme" && !th.src && !th.want) bufs.theme = null; }
   /* ---------- voiceover ---------- */
   const nr = { want: -1, src: null, cb: null, timer: 0, line: -1 };
   function tick() {
@@ -2321,20 +2345,22 @@ const RecAudio = (() => {
   function stopNarr(secs) { if (nr.src) kill(nr, secs == null ? 0.25 : secs); if (nr.cb || nr.timer || nr.want >= 0) endNarr(false); }
   /* first tap/key (autoplay blocked) or a resumed context: start whatever is waiting */
   function kick() {
-    if (!(th.want && !th.src) && !(nr.want >= 0 && !nr.src) && !(cu.want && !cu.src)) return;
+    if (!(th.want && !th.src) && !(nr.want >= 0 && !nr.src) && !(cu.want && !cu.src) && !(sx.want && !sx.src)) return;
     const ac = AC; if (!ac) return;
-    if (ac.state === "running") { tryTheme(); tryNarr(); tryCue(); return; }
-    try { const p = ac.resume(); if (p && p.then) p.then(() => { if (AC === ac && ac.state === "running") { tryTheme(); tryNarr(); tryCue(); } }, () => {}); } catch (e) {}
+    if (ac.state === "running") { tryTheme(); tryNarr(); tryCue(); trySfx(); return; }
+    try { const p = ac.resume(); if (p && p.then) p.then(() => { if (AC === ac && ac.state === "running") { tryTheme(); tryNarr(); tryCue(); trySfx(); } }, () => {}); } catch (e) {}
   }
   /* AudioContext was rebuilt (iPad recovery): carry on from the same spot on the new context, never from the top */
   function reboot() {
     if (th.src) { const off = th.ac.currentTime - th.t0, s = th.src; th.src = null; try { s.onended = null; s.stop(); s.disconnect(); th.g.disconnect(); } catch (e) {} th.want = true; th.off = Math.max(0, off); }
     if (nr.src) { const off = nr.ac.currentTime - nr.t0, s = nr.src; nr.src = null; clearInterval(nr.timer); nr.timer = 0; try { s.onended = null; s.stop(); s.disconnect(); nr.g.disconnect(); } catch (e) {} nr.want = nr.ep; nr.off = Math.max(0, off); }
     if (cu.src) { const off = cu.ac.currentTime - cu.t0, s = cu.src; cu.src = null; try { s.onended = null; s.stop(); s.disconnect(); cu.g.disconnect(); } catch (e) {} cu.off = Math.max(0, off); }
-    kick(); setTimeout(() => { tryTheme(); tryNarr(); tryCue(); }, 60);
+    if (sx.src) { const off = sx.ac.currentTime - sx.t0, s = sx.src; sx.src = null; try { s.onended = null; s.stop(); s.disconnect(); sx.g.disconnect(); } catch (e) {} sx.off = Math.max(0, off); }
+    kick(); setTimeout(() => { tryTheme(); tryNarr(); tryCue(); trySfx(); }, 60);
   }
   function prefetch() { Object.keys(SRC).forEach(k => { fetchBytes(k).catch(() => {}); }); }
-  return { playTheme, stopTheme, narrate, stopNarr, kick, reboot, prefetch, LINES, cue, prepCue, stopCue, resync, heardPos,
+  return { playTheme, stopTheme, narrate, stopNarr, kick, reboot, prefetch, prefetchSfx, LINES, cue, prepCue, stopCue, resync, heardPos,
+    get sfxPlaying() { return !!sx.src; }, get sfxWanted() { return sx.want; }, get sfxPos() { return sx.src ? sx.ac.currentTime - sx.t0 : -1; },
     get cueName() { return cu.src ? cu.name : null; }, get cueWanted() { return cu.want; }, get cuePos() { return cu.src ? cu.ac.currentTime - cu.t0 : -1; }, get cueLoop() { return cu.src ? cu.src.loop : null; }, get cueGain() { return cu.src ? cu.g.gain.value : null; },
     get themePlaying() { return !!th.src; }, get themeWanted() { return th.want; }, get themePos() { return th.src ? th.ac.currentTime - th.t0 : -1; }, get themeLoop() { return th.src ? th.src.loop : null; },
     get themeGain() { return th.src ? th.g.gain.value : null; }, get narrating() { return !!nr.src; }, get narrPos() { return nr.src ? nr.ac.currentTime - nr.t0 : -1; } };
@@ -2559,24 +2585,24 @@ const EP_INFO = [
     ] }
 ];
 const LV_INFO = [
-  { name: "Unspoken River", mapLabel: "Unspoken River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across the Unspoken River!", setup: "setup-l1", win: "win-l1", lose: "lose-l1" },
-  { name: "Tangled Valley", mapLabel: "Tangled Valley", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2", win: "win-l2", lose: "lose-l2" },
-  { name: "Forgotten Ridge", mapLabel: "Forgotten Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", win: "win-l3", lose: "lose-l3" },
-  { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4", win: "win-l4", lose: "lose-l4" }
+  { name: "Unspoken River", mapLabel: "Unspoken River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across the Unspoken River!", setup: "setup-l1-01c", win: "win-l1-01f", lose: "lose-l1-01b" },
+  { name: "Tangled Valley", mapLabel: "Tangled Valley", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2-02d", win: "win-l2-02d", lose: "lose-l2-02b" },
+  { name: "Forgotten Ridge", mapLabel: "Forgotten Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", setupSfx: "sfx/setup-l3-03b.m4a", win: "win-l3-03d", lose: "lose-l3" },
+  { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4-04b", setupSfx: "sfx/setup-l4-04b.m4a", win: "win-l4-04e", lose: "lose-l4-04c" }
 ];
 const JUNGLE_PTS = EP_INFO[0].pts;
 const EP_LV = {
   1: [
-    { name: "Ghost Ferry", mapLabel: "Ghost Ferry", brief: "Solve 4 problems to pole past the hippos!", winCap: "Ghost Ferry crossed!", setup: "setup-e2l1", win: "win-e2l1", lose: "lose-e2l1" },
-    { name: "Needle Gap", mapLabel: "Needle Gap", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2", win: "win-e2l2", lose: "lose-e2l2" },
-    { name: "King's Crossing", mapLabel: "King's Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "King's Crossing conquered!", setup: "setup-e2l3", win: "win-e2l3", lose: "lose-e2l3" },
-    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4", win: "win-e2l4", lose: "lose-e2l4", loseLay: "left" }
+    { name: "Ghost Ferry", mapLabel: "Ghost Ferry", brief: "Solve 4 problems to pole past the hippos!", winCap: "Ghost Ferry crossed!", setup: "setup-e2l1-05b", win: "win-e2l1-05d", lose: "lose-e2l1-05b" },
+    { name: "Needle Gap", mapLabel: "Needle Gap", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2-06d", setupSfx: "sfx/setup-e2l2-06d.m4a", win: "win-e2l2-06e", winSfx: "sfx/win-e2l2-06e.m4a", lose: "lose-e2l2-06c" },
+    { name: "King's Crossing", mapLabel: "King's Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "King's Crossing conquered!", setup: "setup-e2l3-07b", setupSfx: "sfx/setup-e2l3-07b.m4a", win: "win-e2l3-07c", winSfx: "sfx/win-e2l3-07c.m4a", lose: "lose-e2l3" },
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4-08c", setupSfx: "sfx/setup-e2l4-08c.m4a", win: "win-e2l4-08d", winSfx: "sfx/win-e2l4-08d.m4a", lose: "lose-e2l4", loseLay: "left" }
   ],
   2: [
-    { name: "Razorback Ridge", mapLabel: "Razorback Ridge", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1", win: "win-e3l1", lose: "lose-e3l1", loseLay: "mount" },
-    { name: "White Shroud", mapLabel: "White Shroud", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2", win: "win-e3l2", lose: "lose-e3l2" },
-    { name: "Widow's Camp", mapLabel: "Widow's Camp", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3", win: "win-e3l3", lose: "lose-e3l3" },
-    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4", win: "win-e3l4", lose: "lose-e3l4", loseSplit: true }
+    { name: "Razorback Ridge", mapLabel: "Razorback Ridge", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1", win: "win-e3l1", lose: "lose-e3l1-09b", loseLay: "mount" },
+    { name: "White Shroud", mapLabel: "White Shroud", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2-10b", setupSfx: "sfx/setup-e3l2-10b.m4a", win: "win-e3l2-10d", winSfx: "sfx/win-e3l2-10d.m4a", lose: "lose-e3l2" },
+    { name: "Widow's Camp", mapLabel: "Widow's Camp", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3-11b", setupSfx: "sfx/setup-e3l3-11b.m4a", win: "win-e3l3-11b", winSfx: "sfx/win-e3l3-11b.m4a", lose: "lose-e3l3-11b", loseSplit: true },
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4-12e", setupSfx: "sfx/setup-e3l4-12e.m4a", win: "win-e3l4-12b", winSfx: "sfx/win-e3l4-12b.m4a", lose: "lose-e3l4-12b", loseSplit: true }
   ]
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
@@ -2622,7 +2648,7 @@ function getVideo(name, bust) {
 function unlockMedia() {
   unlockAudio();
   try {
-    const v = getVideo("setup-l1");
+    const v = getVideo(LV_INFO[0].setup);
     const p = v.play();
     if (p && p.then) p.then(() => { try { v.pause(); v.currentTime = 0; } catch (e) {} }).catch(() => {});
   } catch (e) {}
@@ -2630,10 +2656,11 @@ function unlockMedia() {
 function preloadLevel(lv) {
   const L = LVI(G.episode, lv); if (!L) return;
   getVideo(L.setup); getVideo(L.win); const im = new Image(); im.src = ASSET(L.lose + ".jpg");
+  try { RecAudio.prefetchSfx(L.setupSfx && ASSET(L.setupSfx)); RecAudio.prefetchSfx(L.winSfx && ASSET(L.winSfx)); } catch (e) {}
   const nx = LVI(G.episode, lv + 1); if (nx) { getVideo(nx.setup); getVideo(nx.win); }
 }
 function preloadBoot() {
-  try { getVideo("setup-l1"); getVideo("win-l1"); } catch (e) {}
+  try { getVideo(LV_INFO[0].setup); getVideo(LV_INFO[0].win); } catch (e) {}
 }
 const Cine = (() => {
   const compassSvg = `<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="rbr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dd95"/><stop offset=".5" stop-color="#c0903a"/><stop offset="1" stop-color="#6e4614"/></linearGradient><radialGradient id="rpa" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#f5e6c0"/><stop offset=".7" stop-color="#dcc08a"/><stop offset="1" stop-color="#b38c52"/></radialGradient><radialGradient id="rhub" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#5a3518"/><stop offset="1" stop-color="#1f1107"/></radialGradient></defs>`
@@ -2856,7 +2883,7 @@ const Cine = (() => {
       let musicOn = false;
       const musicGo = () => {
         if (!opts.music || musicOn) return; musicOn = true;
-        try { RecAudio.cue(opts.music, { sync: () => (fell || frozen) ? -1 : v.currentTime }); } catch (e) {} /* full cue, no end-fade: the tail plays over the freeze */
+        try { RecAudio.cue(opts.music, { sync: () => (fell || frozen) ? -1 : v.currentTime, sfx: opts.sfx || null }); } catch (e) {} /* full cue, no end-fade: the tail plays over the freeze */
       };
       let gateOk = !opts.gate;
       if (opts.gate) Promise.race([opts.gate, new Promise(r => setTimeout(r, 1500))]).then(() => { if (gateOk) return; gateOk = true; if (ready && !started) attemptPlay(); });
@@ -2947,7 +2974,15 @@ const Cine = (() => {
       timers.push(setTimeout(() => { if (!started && !waitingTap && !fell) { if (ready || v.readyState >= 2) showTap(); } }, TUNE.clipStall));
       // Still waiting long after that: keep offering tap, do NOT still-frame.
       timers.push(setTimeout(() => { if (!started && !fell && !waitingTap) showTap(); }, TUNE.clipStall + 15000));
-      timers.push(setTimeout(freeze, TUNE.clipCap));
+      /* Safety cap: wins now run up to ~40 s, so while a started clip is still playing toward its end the cap waits for it (hard stop at 90 s). */
+      const capT0 = Date.now();
+      const capCheck = () => {
+        if (fin || frozen) return;
+        let d = 0, t = 0; try { d = v.duration; t = v.currentTime; } catch (e) {}
+        if (started && !fell && isFinite(d) && d > 0 && t < d - 0.1 && Date.now() - capT0 < 90000) { timers.push(setTimeout(capCheck, Math.max(500, (d - t) * 1000 + 3000))); return; }
+        freeze();
+      };
+      timers.push(setTimeout(capCheck, TUNE.clipCap));
       onSkip = opts.kind === "setup" ? finish : freeze;
     });
   }
@@ -2990,7 +3025,7 @@ async function beginLevel(ep, lv, keep, opts) {
   }
   const L = LVI(ep, lv);
   Music.stop(0.4);
-  await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay, music: "intro", gate: RecAudio.prepCue("intro"), freeze: true, freezeAt: INTRO_BEAT, freezeFrame: INTRO_BEAT_FRAME });
+  await Cine.clip(L.setup, { kind: "setup", cap: "Level " + (lv + 1) + " · " + L.name + "<small>" + L.brief + "</small>", skippable: seenSetup.has(ep + ":" + lv) || !!opts.replay, music: "intro", sfx: L.setupSfx ? ASSET(L.setupSfx) : null, gate: RecAudio.prepCue("intro", L.setupSfx ? ASSET(L.setupSfx) : null), freeze: true, freezeAt: INTRO_BEAT, freezeFrame: INTRO_BEAT_FRAME });
   RecAudio.stopCue(0.35);
   if (tok !== flowTok) return;
   seenSetup.add(ep + ":" + lv);
@@ -3012,7 +3047,7 @@ async function winLevel() {
   G.overlay = { type: "cine" }; render();
   Music.stop(0.3);
   const WL = LVI(wEp, wLv);
-  await Cine.clip(WL.win, { kind: "win", cap: WL.winCap, music: "win", gate: RecAudio.prepCue("win"), freeze: true });
+  await Cine.clip(WL.win, { kind: "win", cap: WL.winCap, music: "win", sfx: WL.winSfx ? ASSET(WL.winSfx) : null, gate: RecAudio.prepCue("win", WL.winSfx ? ASSET(WL.winSfx) : null), freeze: true });
   // Continue pressed on the freeze frame: Joe's main theme fades out quickly as the scoreboard comes up.
   RecAudio.stopCue(0.4);
   if (tok !== flowTok) return;
