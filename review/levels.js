@@ -92,16 +92,19 @@ window.LEVELS = [
     code: "06", ep: 2, lv: 2, name: "Needle Gap",
     intro: [
       { ver: "a", note: "live", v: "../assets/setup-e2l2.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
-      { ver: "c", note: "new", v: "media/intro-06c.mp4?v=20261112-r21", a: "../assets/music/level-intro.mp3", sfx: "media/intro-06c-sfx.wav?v=20261112-r21", d: 14.833333 }
+      { ver: "c", note: "later", v: "media/intro-06c.mp4?v=20261112-r21", a: "../assets/music/level-intro.mp3", sfx: "media/intro-06c-sfx.wav?v=20261112-r21", d: 14.833333 },
+      { ver: "d", note: "new", v: "media/intro-06d.mp4?v=20261112-r31", a: "../assets/music/level-intro.mp3", sfx: "media/intro-06d-sfx.wav?v=20261112-r31", d: 14.833333 }
     ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e2l2.jpg" },
-      { ver: "b", note: "new", img: "media/lose-06b.jpg?v=20261112-r12" }
+      { ver: "b", note: "later", img: "media/lose-06b.jpg?v=20261112-r12" },
+      { ver: "c", note: "new", img: "media/lose-06c.jpg?v=20261112-r31" }
     ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
       { ver: "b", note: "later", v: "media/win-06b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 },
-      { ver: "c", note: "new", v: "media/win-06c.mp4?v=20261112-r21", a: "../assets/music/main-theme.mp3", d: 25.000000 }
+      { ver: "c", note: "later", v: "media/win-06c.mp4?v=20261112-r21", a: "../assets/music/main-theme.mp3", d: 25.000000 },
+      { ver: "d", note: "new", v: "media/win-06d.mp4?v=20261112-r31", a: "../assets/music/main-theme.mp3", sfx: "media/win-06d-sfx.wav?v=20261112-r31", d: 25.000000 }
     ]
   },
   {
@@ -130,7 +133,10 @@ window.LEVELS = [
   },
   {
     code: "09", ep: 3, lv: 1, name: "Razorback Ridge",
-    intro: [ { v: "../assets/setup-e3l1.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-e3l1.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "b", note: "earlier", v: "media/intro-09b.mp4?v=20261112-r31", a: "../assets/music/level-intro.mp3", d: 9.916667 }
+    ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e3l1.jpg" },
       { ver: "b", note: "new", img: "media/lose-09b.jpg?v=20261112-r12" }
@@ -177,7 +183,7 @@ window.LEVELS = [
     ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e3l4.mp4", a: "../assets/music/main-theme.mp3", d: 20.625000 },
-      { ver: "b", note: "new", v: "media/win-12b.mp4?v=20261112-r20", a: "../assets/music/main-theme.mp3", d: 40.125000 }
+      { ver: "b", note: "new", v: "media/win-12b.mp4?v=20261112-r20", a: "../assets/music/main-theme.mp3", sfx: "media/win-12b-sfx.wav?v=20261112-r31", d: 40.125000 }
     ]
   }
 ];
