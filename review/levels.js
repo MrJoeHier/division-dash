@@ -121,7 +121,8 @@ window.LEVELS = [
     code: "08", ep: 2, lv: 4, name: "Rendezvous Point",
     intro: [
       { ver: "a", note: "live", v: "../assets/setup-e2l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
-      { ver: "b", note: "new", v: "media/intro-08b.mp4?v=20261112-r18", a: "../assets/music/level-intro.mp3", sfx: "media/intro-08b-hooves.wav?v=20261112-r18", d: 14.833333 }
+      { ver: "b", note: "later", v: "media/intro-08b.mp4?v=20261112-r18", a: "../assets/music/level-intro.mp3", sfx: "media/intro-08b-hooves.wav?v=20261112-r18", d: 14.833333 },
+      { ver: "c", note: "new", v: "media/intro-08c.mp4?v=20261112-r35", a: "../assets/music/level-intro.mp3", sfx: "media/intro-08c-hooves.wav?v=20261112-r35", d: 14.833333 }
     ],
     lose: [ { img: "../assets/lose-e2l4.jpg" } ],
     win: [
