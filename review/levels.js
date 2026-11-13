@@ -104,7 +104,8 @@ window.LEVELS = [
       { ver: "a", note: "live", v: "../assets/win-e2l2.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
       { ver: "b", note: "later", v: "media/win-06b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 },
       { ver: "c", note: "later", v: "media/win-06c.mp4?v=20261112-r21", a: "../assets/music/main-theme.mp3", d: 25.000000 },
-      { ver: "d", note: "new", v: "media/win-06d.mp4?v=20261112-r31", a: "../assets/music/main-theme.mp3", sfx: "media/win-06d-sfx.wav?v=20261112-r31", d: 25.000000 }
+      { ver: "d", note: "later", v: "media/win-06d.mp4?v=20261112-r31", a: "../assets/music/main-theme.mp3", sfx: "media/win-06d-sfx.wav?v=20261112-r31", d: 25.000000 },
+      { ver: "e", note: "new", v: "media/win-06e.mp4?v=20261112-r38", a: "../assets/music/main-theme.mp3", sfx: "media/win-06e-sfx.wav?v=20261112-r38", d: 25.000000 }
     ]
   },
   {
