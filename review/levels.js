@@ -108,7 +108,8 @@ window.LEVELS = [
     lose: [ { img: "../assets/lose-e2l3.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l3.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
-      { ver: "b", note: "later", v: "media/win-07b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 }
+      { ver: "b", note: "later", v: "media/win-07b.mp4?v=20261112-r12", a: "../assets/music/main-theme.mp3", d: 25.041667 },
+      { ver: "c", note: "new", v: "media/win-07c.mp4?v=20261112-r28", a: "../assets/music/main-theme.mp3", d: 22.291667 }
     ]
   },
   {
