@@ -109,7 +109,10 @@ window.LEVELS = [
   },
   {
     code: "07", ep: 2, lv: 3, name: "King's Crossing",
-    intro: [ { v: "../assets/setup-e2l3.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 } ],
+    intro: [
+      { ver: "a", note: "live", v: "../assets/setup-e2l3.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "b", note: "new", v: "media/intro-07b.mp4?v=20261112-r36", a: "../assets/music/level-intro.mp3", sfx: "media/intro-07b-roar.wav?v=20261112-r36", d: 14.833333 }
+    ],
     lose: [ { img: "../assets/lose-e2l3.jpg" } ],
     win: [
       { ver: "a", note: "live", v: "../assets/win-e2l3.mp4", a: "../assets/music/main-theme.mp3", d: 16.041667 },
@@ -180,7 +183,8 @@ window.LEVELS = [
     code: "12", ep: 3, lv: 4, name: "Rendezvous Point",
     intro: [
       { ver: "a", note: "live", v: "../assets/setup-e3l4.mp4", a: "../assets/music/level-intro.mp3", d: 14.833333 },
-      { ver: "b", note: "new", v: "media/intro-12b.mp4?v=20261112-r20", a: "../assets/music/level-intro.mp3", d: 14.833333 }
+      { ver: "b", note: "later", v: "media/intro-12b.mp4?v=20261112-r20", a: "../assets/music/level-intro.mp3", d: 14.833333 },
+      { ver: "c", note: "new", v: "media/intro-12c.mp4?v=20261112-r36", a: "../assets/music/level-intro.mp3", sfx: "media/intro-12c-sfx.wav?v=20261112-r36", d: 14.833333 }
     ],
     lose: [
       { ver: "a", note: "live", img: "../assets/lose-e3l4.jpg" },
