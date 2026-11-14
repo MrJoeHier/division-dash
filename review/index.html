@@ -24,10 +24,23 @@ button { font:inherit; cursor:pointer; }
 #cont.show { opacity:1; transform:none; pointer-events:auto; }
 #hint { position:absolute; left:0; right:0; margin:0 auto; width:max-content; max-width:90vw; padding:4px 12px; border-radius:10px; background:rgba(0,0,0,.6); text-align:center; bottom:calc(80px + env(safe-area-inset-bottom)); font-size:.8rem; color:#fff3d0; opacity:0; transition:opacity .35s; pointer-events:none; text-shadow:0 1px 3px #000; }
 #hint.show { opacity:1; }
-#lose { position:absolute; left:0; right:0; top:14%; text-align:center; font-family:"Arcade MVM", monospace; font-size:clamp(1.1rem,4vw,2.4rem); color:#ffd43b; text-shadow:3px 3px 0 #a3201b, 0 0 18px rgba(0,0,0,.8); display:none; pointer-events:none; animation:blink 1s steps(2) infinite; }
-/* 11 Widow's Camp: stack GAME OVER in the upper-left sky, clear of Rex's face */
-#lose.go-left { top:3.5%; left:3%; right:auto; width:32%; text-align:center; line-height:1.2; font-size:clamp(1.3rem,4.4vw,2.8rem); }
-@keyframes blink { 50% { opacity:.25; } }
+#lbox { display:none; position:absolute; pointer-events:none; z-index:2; }
+#lbox.show { display:block; }
+#lose { position:absolute; left:0; right:0; top:6%; text-align:center; font-family:"Arcade MVM", "Courier New", monospace; font-size:clamp(2.6rem, 8.6vw, 6.4rem); line-height:1.1;
+  color:#ffd43b; text-shadow:4px 4px 0 #c1121f, 8px 8px 0 #3a0a06, 0 0 34px rgba(0,0,0,.8); letter-spacing:.04em; pointer-events:none;
+  animation:yloseIn .7s .25s cubic-bezier(.2,1.8,.4,1) both, yloseWob 1.4s 1.1s ease-in-out infinite; }
+@keyframes yloseIn { from { opacity:0; transform:scale(3) rotate(-8deg); } to { opacity:1; transform:none; } }
+@keyframes yloseWob { 0%,100% { transform:rotate(-2deg) scale(1); } 50% { transform:rotate(2deg) scale(1.04); } }
+#lose.lay-left, #lose.lay-mount { font-size:calc(var(--iw) * .058); white-space:nowrap; }
+#lose.lay-left { left:3%; width:42%; top:4%; right:auto; text-align:center; }
+#lose.lay-mount { left:0; width:100%; top:2.5%; right:auto; text-align:center; }
+#lose.split { left:0; right:0; top:6%; height:0; animation:none; }
+#lose.split > span { position:absolute; top:0; transform-origin:center; font-size:min(clamp(2.6rem, 8.6vw, 6.4rem), calc(var(--iw) * .062)); white-space:nowrap;
+  animation:yloseIn .7s .25s cubic-bezier(.2,1.8,.4,1) both, yloseWob 1.4s 1.1s ease-in-out infinite; }
+#lose.split > .w1 { left:19%; transform:translateX(-50%); }
+#lose.split > .w2 { left:83.5%; transform:translateX(-50%); }
+#menu .arch { text-align:center; margin:-4px auto 14px; font-size:.88rem; }
+#menu .arch a { color:#f3c65a; }
 #menu { position:fixed; inset:0; overflow:auto; background:radial-gradient(ellipse at top, #3e2612, #1f1208 70%); padding:calc(18px + env(safe-area-inset-top)) 14px calc(30px + env(safe-area-inset-bottom)); box-sizing:border-box; z-index:5; -webkit-overflow-scrolling:touch; }
 #menu.hide { display:none; }
 #menu h1 { font-family:"Cinzel MVM", Georgia, serif; color:#f3c65a; text-align:center; margin:4px 0 2px; font-size:clamp(1.4rem,4.5vw,2.3rem); text-shadow:0 3px 0 #1f1208; }
@@ -54,7 +67,7 @@ button { font:inherit; cursor:pointer; }
 <div id="stage">
   <video id="vid" playsinline muted preload="auto" disablepictureinpicture></video>
   <img class="still" id="still" alt="">
-  <div id="lose">GAME OVER</div>
+  <div id="lbox"><div id="lose">YOU LOSE</div></div>
   <div id="tag"></div>
   <div id="tools"><button id="bskip" type="button">⏭ Skip to freeze</button><button id="bmenu" type="button">☰ Levels</button></div>
   <div id="hint">Music keeps playing · press any key or Continue</div>
@@ -62,14 +75,15 @@ button { font:inherit; cursor:pointer; }
 </div>
 <div id="menu">
   <h1>Man vs. Math · Clip Review</h1>
-  <p class="sub">Grouped by level. Where a clip or still has more than one version, <b>a</b> is what's in the game now and <b>b</b>, <b>c</b> are later ones (the letter only marks the version). <b>Play all</b> and <b>Continue</b> go through every version, level by level: intros (a, b), then the lose stills (a, b), then the wins (a, b, c), then the next level. Nothing is skipped. Each clip freezes at the end and the music keeps going until you continue.</p>
+  <p class="sub">The intro clips, lose stills, and win clips that are in the live game, grouped by level. <b>Play all</b> and <b>Continue</b> go through every level: intro, then the lose still, then the win. Each clip freezes at the end and the music keeps going until you continue.</p>
   <button id="playall" class="gold" type="button">▶ Play all from the start</button>
-  <div class="opts"><label><input type="checkbox" id="optlose" checked> Show the lose stills (every version) between intro and win</label></div>
+  <p class="arch"><a href="../review-archive/">Earlier versions (archive)</a></p>
+  <div class="opts"><label><input type="checkbox" id="optlose" checked> Show the lose stills between intro and win</label></div>
   <div id="eps"></div>
 </div>
 <div id="start" class="hide"><button class="gold" id="bstart" type="button">▶ Tap to start</button><p>Turn your sound up. Your phone's silent switch can mute it.</p></div>
 <video id="pre" muted playsinline preload="auto" style="display:none"></video>
-<script src="levels.js?v=20261112-r43"></script>
+<script src="levels.js?v=20261114-r44"></script>
 <script>
 (function () {
   "use strict";
@@ -90,8 +104,7 @@ button { font:inherit; cursor:pointer; }
   }
   // Build the play list
   var Q = [];
-  /* Every version of every clip, grouped by level: all intros (a, b...), all lose stills (a, b...) when the option is on,
-     then all wins (a, b, c...), then the next level. Nothing is skipped. */
+  /* One intro, one lose still (when the option is on), and one win per level, then the next level. */
   function secs(d) { return Math.round(d) + "s"; }
   function arr(x) { return Array.isArray(x) ? x : x ? [x] : []; }
   function buildQueue(forceLoseFor) {
@@ -108,22 +121,22 @@ button { font:inherit; cursor:pointer; }
   [1, 2, 3].forEach(function (e) {
     html += '<div class="ep"><h2>' + EPN[e] + "</h2>";
     LEVELS.filter(function (L) { return L.ep === e; }).forEach(function (L) {
-      var two = function (a) { return a.length > 1; }, intros = arr(L.intro);
+      var intros = arr(L.intro);
       var b = '<div class="lv"><div class="nm">' + L.code + " · " + L.name + "</div>";
       intros.forEach(function (c, k) {
-        b += '<button data-go="' + L.code + ':intro::' + k + '">' + (two(intros) ? "Intro " + L.code + c.ver + (c.note ? " <small>" + c.note + "</small>" : "") : "Intro") + "</button>";
+        b += '<button data-go="' + L.code + ':intro::' + k + '">intro ' + L.code + "</button>";
       });
       L.lose.forEach(function (s, k) {
-        b += '<button data-go="' + L.code + ':lose::' + k + '">' + (two(L.lose) ? "Lose " + L.code + s.ver + " <small>" + s.note + "</small>" : "Lose") + "</button>";
+        b += '<button data-go="' + L.code + ':lose::' + k + '">lose ' + L.code + "</button>";
       });
       L.win.forEach(function (c, k) {
-        b += '<button data-go="' + L.code + ':win::' + k + '">' + (two(L.win) ? "Win " + L.code + c.ver + " <small>" + secs(c.d) + " · " + c.note + "</small>" : "Win") + "</button>";
+        b += '<button data-go="' + L.code + ':win::' + k + '">win ' + L.code + "</button>";
       });
       intros.forEach(function (c, k) {
-        b += '<button class="fz" data-go="' + L.code + ':intro:fz:' + k + '">' + (two(intros) ? "Intro " + L.code + c.ver + " freeze" : "Intro freeze") + "</button>";
+        b += '<button class="fz" data-go="' + L.code + ':intro:fz:' + k + '">intro ' + L.code + " freeze</button>";
       });
       L.win.forEach(function (c, k) {
-        b += '<button class="fz" data-go="' + L.code + ':win:fz:' + k + '">' + (two(L.win) ? "Win " + L.code + c.ver + " freeze" : "Win freeze") + "</button>";
+        b += '<button class="fz" data-go="' + L.code + ':win:fz:' + k + '">win ' + L.code + " freeze</button>";
       });
       html += b + "</div>";
     });
@@ -178,21 +191,16 @@ button { font:inherit; cursor:pointer; }
     requestAnimationFrame(beatWatch);
   })();
 
+  var lbox = document.getElementById("lbox");
   function resetLoseTitle() {
-    loseTxt.classList.remove("go-left");
-    loseTxt.style.top = "";
-    loseTxt.style.left = "";
-    loseTxt.style.right = "";
-    loseTxt.style.width = "";
-    loseTxt.style.textAlign = "";
-    loseTxt.innerHTML = "GAME OVER";
+    loseTxt.className = "";
+    loseTxt.removeAttribute("style");
+    loseTxt.innerHTML = "YOU LOSE";
+    lbox.className = "";
+    lbox.removeAttribute("style");
   }
   function layoutLoseTitle(it) {
     resetLoseTitle();
-    var go = (it && it.s && it.s.go) || (it && it.L && it.L.loseGo) || "";
-    if (go !== "left") return;
-    loseTxt.classList.add("go-left");
-    loseTxt.innerHTML = "GAME<br>OVER";
     var apply = function () {
       if (S.item !== it) return;
       var stageEl = document.getElementById("stage");
@@ -206,11 +214,21 @@ button { font:inherit; cursor:pointer; }
         var w = nw * sc, h = nh * sc;
         r = { left: box.left + (box.width - w) / 2, top: box.top + (box.height - h) / 2, width: w, height: h };
       }
-      loseTxt.style.top = (r.top - stage.top + r.height * 0.035) + "px";
-      loseTxt.style.left = (r.left - stage.left + r.width * 0.03) + "px";
-      loseTxt.style.right = "auto";
-      loseTxt.style.width = (r.width * 0.30) + "px";
-      loseTxt.style.textAlign = "center";
+      lbox.style.left = (r.left - stage.left) + "px";
+      lbox.style.top = (r.top - stage.top) + "px";
+      lbox.style.width = r.width + "px";
+      lbox.style.height = r.height + "px";
+      lbox.style.setProperty("--iw", r.width + "px");
+      lbox.className = "show";
+      var s = it && it.s || {};
+      if (s.loseSplit) {
+        loseTxt.className = "split";
+        loseTxt.innerHTML = '<span class="w1">YOU</span><span class="w2">LOSE</span>';
+      } else if (s.loseLay === "left") {
+        loseTxt.className = "lay-left";
+      } else if (s.loseLay === "mount") {
+        loseTxt.className = "lay-mount";
+      }
     };
     if (still.complete && still.naturalWidth) apply();
     still.addEventListener("load", apply, { once: true });
@@ -219,20 +237,19 @@ button { font:inherit; cursor:pointer; }
   function play(i, toFreeze) {
     var it = Q[i]; if (!it) { return openMenu(); }
     var tok = ++S.token; S.i = i; S.item = it; hideCont(); menu.classList.add("hide");
-    var L = it.L, ver = it.kind === "lose" ? it.s : it.c,
-        label = L.code + (ver && ver.ver ? ver.ver : "") + " · " + L.name + " · " + (it.kind === "intro" ? "Intro" : it.kind === "lose" ? "Lose" : "Win") +
-          (ver && ver.note ? " (" + ver.note + (it.kind === "win" ? ", " + secs(ver.d) : "") + ")" : "");
+    var L = it.L,
+        label = (it.kind === "intro" ? "intro " : it.kind === "lose" ? "lose " : "win ") + L.code + " · " + L.name;
     setTag(label);
     if (it.kind === "lose") {
       S.state = "frozen"; vid.style.display = "none"; vid.removeAttribute("src"); vid.load();
-      still.src = it.s.img; still.style.display = "block"; loseTxt.style.display = "block";
+      still.src = it.s.img; still.style.display = "block"; lbox.classList.add("show");
       layoutLoseTitle(it);
       setTimeout(function () { if (tok === S.token) showCont(false); }, toFreeze ? 0 : 900);
       document.getElementById("bskip").style.visibility = "hidden";
       preloadNext(); return;
     }
     document.getElementById("bskip").style.visibility = "visible";
-    still.style.display = "none"; loseTxt.style.display = "none"; vid.style.display = "block";
+    still.style.display = "none"; vid.style.display = "block";
     resetLoseTitle();
     S.state = "loading";
     vid.src = it.c.v; aud.src = it.c.a; vid.load(); aud.load();
