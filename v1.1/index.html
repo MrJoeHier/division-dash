@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- v1.1 test copy 7f0ca01 firebase-config; assets load from ../assets/ -->
+<!-- v1.1 test copy 6ddb286 teacher-no-pin; assets load from ../assets/ -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3734,6 +3734,9 @@ function resumeScreen(r) {
 }
 async function teacherFlow() {
   await dbReady;
+  // Online accounts: skip the device PIN and go straight to teacher-account sign-in.
+  // If this session (or a persisted Firebase login) is already a teacher, teacherCloudScreen opens the roster.
+  if (cloudMode()) { await teacherCloudScreen(); return; }
   if (!window.crypto || !crypto.subtle) { await ask({ title: "Teacher", text: "Teacher tools need the secure (https) game page.", cancel: null }); return; }
   let rec = await DB.getPin().catch(() => null);
   if (!rec) {
@@ -3749,7 +3752,7 @@ async function teacherFlow() {
     if (ok === false) return;
     if (rec.v !== 2) { try { await DB.setPin(await makeSecret(ok)); } catch (e) {} }
   }
-  await (cloudMode() ? teacherCloudScreen() : teacherScreen());
+  await teacherScreen();
 }
 function rosterCsv(players) {
   const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
