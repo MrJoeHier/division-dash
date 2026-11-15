@@ -13,8 +13,9 @@ Once a config is in, the start screen becomes:
   and furthest episode. Never usernames, emails or real names.
 - Progress follows the student to any device. If the internet drops mid-game, saves are kept on the device and
   sent when the connection comes back. If Firebase can't be reached at all, guest play still works.
-- The **Teacher** button (PIN on each device, stored only as a salted hash) opens a screen where you sign in with
-  your teacher account to **rename**, **hide/show** or **remove** any student's scoreboard entry and export a CSV.
+- The **Teacher** button opens a screen where you sign in with your teacher account to **rename**, **hide/show**
+  or **remove** any student's scoreboard entry and export a CSV. (When Firebase is not set up, Teacher instead
+  uses a device PIN and a roster saved on that device.)
 
 Behind the scenes, a username like `sam_t` signs in to Firebase as `sam_t@mvm.local`. That address is never shown,
 can't receive mail, and isn't stored anywhere else.
@@ -57,7 +58,7 @@ Commit and push. The start screen then shows **Sign in / Create account**.
 2. Firebase console → **Authentication → Users** → copy the **User UID** of `mrhier@mvm.local`.
 3. **Firestore Database → Data → + Start collection** → Collection ID `admins` → **Next** →
    Document ID: paste the UID → add a field `note` (string) `teacher` → **Save**.
-4. In the game tap **Teacher** → create (or enter) the device PIN → sign in with `mrhier` and your password.
+4. In the game tap **Teacher** → sign in with `mrhier` and your password.
 
 The teacher account plays like any other account. To keep yourself off the scoreboard, tap **Hide** next to your name.
 
@@ -78,8 +79,9 @@ The teacher account plays like any other account. To keep yourself off the score
   To block an account completely: Firebase console → Authentication → Users → ⋮ → **Disable account**.
 - **Forgotten password:** there's no email to reset it. The student makes a new account (you can Hide the old row),
   or you delete the old user in Authentication → Users so they can re-register the same username.
-- **Forgot the teacher PIN:** it lives only on that device. Open the game with `?dev=1` at the end of the address
-  and tap **Clear teacher PIN** in the DEV bar, then tap Teacher to make a new one.
+- **Forgot the teacher PIN (only when Firebase is not set up):** the PIN lives only on that device. Open the game
+  with `?dev=1` at the end of the address and tap **Clear teacher PIN** in the DEV bar, then tap Teacher to make a
+  new one. With online accounts turned on, Teacher uses your teacher username and password, not a device PIN.
 
 ## Testing locally (optional, for developers)
 
