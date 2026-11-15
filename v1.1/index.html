@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- v1.1 test copy 8cdbac1 reset-score; assets load from ../assets/ -->
+<!-- v1.1 test copy 7f0ca01 firebase-config; assets load from ../assets/ -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3111,7 +3111,10 @@ async function runTitle() {
 // ONLINE ACCOUNTS + PUBLIC SCOREBOARD: paste your Firebase web-app config here (see FIREBASE_SETUP.md).
 // Leave it empty and the game keeps working as before, saving everything on this device (localStorage).
 const FIREBASE_CONFIG = {
-  // apiKey: "", authDomain: "", projectId: "", appId: ""
+  apiKey: "AIzaSyDcZ1XqvYAf1EBHN8qkW3SD9UWFftmbja4",
+  authDomain: "man-vs-math.firebaseapp.com",
+  projectId: "man-vs-math",
+  appId: "1:482940249931:web:5e5cf17987ddf9b8fd2ace"
 };
 const FB_VER = "11.10.0";
 // ?emu=1 on localhost talks to the Firebase emulators (for testing; never used on the live site).
@@ -3336,6 +3339,22 @@ function CloudDB() {
     },
     async setMod(uid, patch) { await S.updateDoc(S.doc(db, "leaderboard", uid), patch); },
     async removeStudent(uid) { await Promise.all([S.deleteDoc(S.doc(db, "leaderboard", uid)), S.deleteDoc(S.doc(db, "users", uid))]); },
+    // Teacher reset of one student's progress. Keeps username, name, password (Auth) and created date.
+    // Current published rules reject this write (teachers can only delete, or change hidden/modName). Once
+    // the proposed rules are published, this succeeds; until then the teacher sees a clear error.
+    async resetStudentScore(row) {
+      const now = Date.now();
+      const rec = { username: row.username, name: cleanNick(row.name).slice(0, 16), episode: 0, level: 0, strength: 100, unlocked: 1, passed: {}, done: false, ts: now, created: Math.round(row.created || now) };
+      const entry = C.entryOf(rec);
+      if (row.entry) { entry.name = row.entry.name || entry.name; entry.hidden = !!row.entry.hidden; entry.modName = row.entry.modName == null ? null : row.entry.modName; }
+      try {
+        await S.setDoc(S.doc(db, "users", row.uid), rec);
+        if (row.entry) await S.setDoc(S.doc(db, "leaderboard", row.uid), entry);
+      } catch (e) {
+        if (/permission/i.test((e && (e.code || e.message)) || "")) throw new Error("Reset score for online accounts isn't allowed by the current Firestore rules yet. For now, use Remove (they can sign in and start over), or Hide their name on the board.");
+        throw e;
+      }
+    },
     getPin: () => LocalDB.getPin(), setPin: v => LocalDB.setPin(v)
   };
   return C;
@@ -3800,7 +3819,7 @@ function teacherCloudScreen() {
         (err ? '<div class="lgmsg bad">' + escH(err) + "</div>" : "") +
         '<div class="tchtable"><table><thead><tr><th>Scoreboard name</th><th>Username</th><th>Reached</th><th>Levels</th><th>Last played</th><th>On board</th><th></th></tr></thead><tbody>' +
         (list.length ? list.map(r => { const e = r.entry || {}, hid = !!e.hidden; return '<tr class="' + (hid ? "hid" : "") + '"><td><b>' + escH(shown(r)) + "</b>" + (e.modName && e.name ? '<div class="tchwas">chose “' + escH(e.name) + "”</div>" : "") + "</td><td>" + escH(r.username || "—") + "</td><td>" + escH(r.episode != null ? reachTxt(r) : "—") + "</td><td>" + (r.passed ? passedCount(r) : e.levels || 0) + " / 12</td><td>" + escH(fmtWhen(r.ts || e.ts)) + "</td><td>" + (hid ? "Hidden" : "Shown") +
-          '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + escH(r.uid) + '">Rename</button>' + (r.entry ? '<button data-pg="t-hide" data-id="' + escH(r.uid) + '">' + (hid ? "Show" : "Hide") + "</button>" : "") + '<button data-pg="t-del" data-id="' + escH(r.uid) + '" class="danger">Remove</button></td></tr>'; }).join("")
+          '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + escH(r.uid) + '">Rename</button>' + (r.entry ? '<button data-pg="t-hide" data-id="' + escH(r.uid) + '">' + (hid ? "Show" : "Hide") + "</button>" : "") + (r.username || r.passed ? '<button data-pg="t-score" data-id="' + escH(r.uid) + '">Reset score</button>' : "") + '<button data-pg="t-del" data-id="' + escH(r.uid) + '" class="danger">Remove</button></td></tr>'; }).join("")
           : '<tr><td colspan="7" class="empty">No accounts yet. Students appear here after they create an account.</td></tr>') + "</tbody></table></div></div></div>");
     };
     const guard = async fn => { try { await fn(); } catch (e) { await ask({ title: "That didn't work", text: String((e && (e.code || e.message)) || e), cancel: null }); } await load(); };
@@ -3815,6 +3834,7 @@ function teacherCloudScreen() {
       }
       if (k === "t-ren" && r) { await ask({ title: "No scoreboard entry", text: "This account has no scoreboard row yet; it appears after the student plays.", cancel: null }); return; }
       if (k === "t-hide" && r && r.entry) { await guard(() => DB.setMod(r.uid, { hidden: !r.entry.hidden })); return; }
+      if (k === "t-score" && r) { const v = await ask({ title: "Reset " + shown(r) + "'s score?", text: "Their stars and levels go back to the start. Their name and password stay.", ok: "Reset score", danger: true }); if (v !== false) await guard(() => DB.resetStudentScore(r)); return; }
       if (k === "t-del" && r) { const v = await ask({ title: "Remove " + shown(r) + "?", text: "Deletes this student's saved progress and scoreboard row. They can still sign in and start over. To keep a name off the board, use Hide instead.", ok: "Remove", danger: true }); if (v !== false) await guard(() => DB.removeStudent(r.uid)); return; }
       if (k === "t-csv") {
         const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
