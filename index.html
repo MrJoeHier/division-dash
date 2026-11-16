@@ -3200,6 +3200,65 @@ function checkNick(n, opts) {
   if (opts && opts.taken && opts.taken(n)) return "Someone already uses that name. Try adding a number or a letter.";
   return null;
 }
+// Cloud accounts: one visible name (e.g. "Sam T." or "Mister H.") is both the scoreboard name
+// and what you type to sign in. Firebase usernames are derived from it ("sam_t", "mister_h")
+// and stay inside the published rules. A plain legacy username like "mrhier" still works.
+function accountUser(raw) {
+  const s = String(raw || "").trim().toLowerCase().replace(/[.\s]+/g, "_").replace(/[^a-z0-9_.-]+/g, "");
+  return s.replace(/_+/g, "_").replace(/^_+|_+$/g, "");
+}
+function accountUserCandidates(raw) {
+  const derived = accountUser(raw), plain = normUser(raw), out = [];
+  if (derived) out.push(derived);
+  if (plain && plain !== derived && /^[a-z0-9][a-z0-9_.-]{0,19}$/.test(plain)) out.push(plain);
+  return out;
+}
+function prettyAccountName(raw) {
+  const s = cleanNick(raw);
+  const m = s.match(/^(.*\S)\s+([A-Za-z])\.?$/);
+  if (m) {
+    const first = m[1].split(" ").filter(Boolean).map(w => (w.length <= 3 && w === w.toUpperCase()) ? w : (w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())).join(" ");
+    return first + " " + m[2].toUpperCase() + ".";
+  }
+  return s;
+}
+function suggestAccountName(n) {
+  const base = prettyAccountName(n).replace(/\.$/, "");
+  const taken = x => { try { return !!(DB && DB.nickTaken && DB.nickTaken(x)); } catch (e) { return false; } };
+  for (let i = 2; i <= 20; i++) {
+    const cand = (base + i).slice(0, 16);
+    if (cand.length >= 2 && /^[A-Za-z0-9][A-Za-z0-9 _.-]*$/.test(cand) && accountUser(cand).length >= 3 && accountUser(cand).length <= 20 && !taken(cand)) return cand;
+  }
+  return (base + "2").slice(0, 16);
+}
+function checkAccountName(n, opts) {
+  n = prettyAccountName(n);
+  if (n.length < 2) return "Type your first name and last initial, like Sam T.";
+  if (n.length > 16) return "Names can be up to 16 characters.";
+  if (!/^[A-Za-z0-9][A-Za-z0-9 _.-]*$/.test(n)) return "Use only letters, numbers, spaces, or a period.";
+  if (/\d{6,}/.test(n)) return "Please don't put long numbers in your name.";
+  if (badWords(n)) return "That name isn't allowed. Please pick a different one.";
+  const u = accountUser(n);
+  if (!u || u.length < 3) return "Type your first name and last initial, like Sam T.";
+  if (u.length > 20) return "That name is too long. Try a shorter one.";
+  if (!/^[a-z0-9][a-z0-9_.-]*$/.test(u)) return "Use only letters, numbers, spaces, or a period.";
+  if (opts && opts.taken && opts.taken(n)) {
+    const sug = suggestAccountName(n);
+    return sug ? "That name is taken. Try " + sug + "." : "That name is taken. Try adding a number, like Sam T2.";
+  }
+  return null;
+}
+async function cloudSignIn(name, password) {
+  const cands = accountUserCandidates(name);
+  if (!cands.length) { const e = new Error("Type your first name and last initial, like Sam T."); e.code = "invalid-email"; throw e; }
+  const badCred = e => /invalid-credential|wrong-password|user-not-found|invalid-login|invalid-email/.test((e && e.code) || "");
+  let last = null;
+  for (let i = 0; i < cands.length; i++) {
+    try { await DB.signIn(cands[i], password); return; }
+    catch (e) { last = e; if (i < cands.length - 1 && badCred(e)) continue; throw e; }
+  }
+  throw last;
+}
 const posOf = r => r && r.done ? 1e3 : ((r && r.episode) || 0) * 4 + ((r && r.level) || 0);
 // Merge guest progress played on this device into an account: keep every level passed, the furthest spot reached.
 function mergeRecs(acct, guest) {
@@ -3252,8 +3311,8 @@ function CloudDB() {
   const boardSubs = new Set();
   const authErr = e => {
     const c = (e && e.code) || "";
-    if (/email-already-in-use/.test(c)) return "That username is taken. Try another one.";
-    if (/invalid-credential|wrong-password|user-not-found|invalid-login|invalid-email/.test(c)) return "That username or password isn't right.";
+    if (/email-already-in-use/.test(c)) return "That name is taken. Try adding a number, like Sam T2.";
+    if (/invalid-credential|wrong-password|user-not-found|invalid-login|invalid-email/.test(c)) return "That name or password isn't right.";
     if (/weak-password/.test(c)) return "Passwords need at least 6 characters.";
     if (/too-many-requests/.test(c)) return "Too many tries. Wait a minute and try again.";
     if (/network-request-failed|unavailable/.test(c)) return "Can't reach the internet. Check the connection, or play as a guest.";
@@ -3667,13 +3726,13 @@ function accountScreen(startTab) {
         '<div class="lghint">You can still play as a guest. Your progress stays on this device, and it\'s added to your account the next time you sign in here.</div>' +
         '<div class="lgacts"><button class="lgbtn" data-pg="guest">Play as guest ▶</button><button class="rsalt" data-pg="retry">Try again</button></div></div>';
       const tabs = '<div class="lgtabs" role="tablist"><button role="tab" data-pg="tab-in" class="' + (tab === "in" ? "sel" : "") + '" aria-selected="' + (tab === "in") + '">Sign in</button><button role="tab" data-pg="tab-up" class="' + (tab === "up" ? "sel" : "") + '" aria-selected="' + (tab === "up") + '">Create account</button></div>';
+      const nameAttrs = 'name="username" autocomplete="username" autocapitalize="words" autocorrect="off" spellcheck="false" maxlength="20" placeholder="e.g. Sam T."';
       const form = tab === "in"
-        ? '<form id="acform" class="acform" autocomplete="on">' + field("acuser", "Username", 'name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" placeholder="e.g. jungle_sam"') +
+        ? '<form id="acform" class="acform" autocomplete="on">' + field("acname", "First name and last initial", nameAttrs) +
           field("acpass", "Password", 'type="password" name="password" autocomplete="current-password" maxlength="64" placeholder="Your password"') + '<button class="lgbtn" type="submit">Sign in ▶</button></form>'
-        : '<form id="acform" class="acform" autocomplete="on">' + field("acuser", "Pick a username <small>(to sign in)</small>", 'name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" placeholder="e.g. jungle_sam"') +
+        : '<form id="acform" class="acform" autocomplete="on">' + field("acname", "First name and last initial", nameAttrs.replace('maxlength="20"', 'maxlength="16"')) +
           field("acpass", "Make a password <small>(6+ characters)</small>", 'type="password" name="password" autocomplete="new-password" maxlength="64" placeholder="At least 6 characters"') +
-          field("acnick", "Scoreboard name <small>(everyone sees this)</small>", 'name="nickname" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="16" placeholder="e.g. Sam the Brave"') +
-          '<div class="lghint sm">Use a nickname, not your full name. Write your username and password down somewhere safe.</div><button class="lgbtn" type="submit">Create account ▶</button></form>';
+          '<div class="lghint sm">This is the name everyone sees on the scoreboard, like <b>Sam T.</b> or <b>Mister H.</b> Write your name and password down somewhere safe.</div><button class="lgbtn" type="submit">Create account ▶</button></form>';
       return '<div class="lgcard acct">' + tabs + form + '<div class="lgmsg" id="lgmsg" role="status" aria-live="polite"></div>' +
         '<div class="lgor"><span>or</span></div><button class="rsalt lgguest" data-pg="guest">Play as guest' + (guestHas ? " (keep going)" : "") + "</button>" +
         '<div class="lgnote">Signed in, your scores are saved online and follow you to any device. Guest progress stays on this device until you sign in.</div></div>';
@@ -3681,27 +3740,30 @@ function accountScreen(startTab) {
     const draw = () => {
       Cine.show(loginShell(left(), lbHtml({})));
       const f = document.getElementById("acform"); if (f) f.addEventListener("submit", submit);
-      const u = document.getElementById("acuser"); if (u && !matchMedia("(pointer: coarse)").matches) setTimeout(() => u.focus(), 50);
+      const u = document.getElementById("acname"); if (u && !matchMedia("(pointer: coarse)").matches) setTimeout(() => u.focus(), 50);
     };
     const say = (t, cls) => { const m = document.getElementById("lgmsg"); if (m) { m.className = "lgmsg " + (cls || ""); m.textContent = t; } };
     const finish = r => { if (offBoard) offBoard(); pgHandler = null; res(r); };
     async function submit(e) {
       e.preventDefault(); if (busy) return;
-      const u = document.getElementById("acuser").value, p = document.getElementById("acpass").value, nEl = document.getElementById("acnick");
-      const uErr = checkUsername(u); if (uErr && tab === "up") { say(uErr, "bad"); return; }
-      if (!normUser(u) || !p) { say("Type your username and password.", "bad"); return; }
+      const raw = (document.getElementById("acname") || {}).value || "", p = document.getElementById("acpass").value;
+      const name = prettyAccountName(raw);
       if (tab === "up") {
+        const nErr = checkAccountName(raw, { taken: n => DB.nickTaken(n) }); if (nErr) { say(nErr, "bad"); return; }
+        if (!p) { say("Type a password.", "bad"); return; }
         if (p.length < 6) { say("Passwords need at least 6 characters.", "bad"); return; }
-        const nErr = checkNick(nEl.value, { taken: n => DB.nickTaken(n) }); if (nErr) { say(nErr, "bad"); nEl.focus(); return; }
+      } else {
+        if (!accountUserCandidates(raw).length || !p) { say("Type your first name and last initial, and your password.", "bad"); return; }
       }
       busy = true; say(tab === "up" ? "Creating your account…" : "Signing in…", "ok"); unlockMedia();
       document.querySelectorAll("#acform button, #acform input").forEach(x => x.disabled = true);
       try {
-        if (tab === "up") await DB.signUp(u, p, nEl.value); else await DB.signIn(u, p);
+        if (tab === "up") await DB.signUp(accountUser(name), p, name); else await cloudSignIn(raw, p);
         finish({ cloud: true });
       } catch (err) {
         busy = false; document.querySelectorAll("#acform button, #acform input").forEach(x => x.disabled = false);
-        say(DB.authErr(err), "bad");
+        if (tab === "up" && /email-already-in-use/.test((err && err.code) || "")) say("That name is taken. Try " + suggestAccountName(name) + ".", "bad");
+        else say(DB.authErr(err), "bad");
       }
     }
     pgHandler = k => {
@@ -3803,20 +3865,20 @@ function teacherCloudScreen() {
         '<button data-pg="t-close" class="tbtn sec">Done</button></div>';
       if (!DB.teacher) {
         Cine.show('<div class="cscreen teacher"><div class="tchwrap">' + head + '<div class="lgcard tchlogin"><h2>Sign in with the teacher account</h2>' +
-          '<div class="lghint">Use the game username and password of the account you listed in Firebase as a teacher (see FIREBASE_SETUP.md).</div>' +
-          '<form id="tform" class="acform" autocomplete="on"><label class="lgfield" for="tuser"><span>Username</span><input id="tuser" class="lgin" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20"></label>' +
+          '<div class="lghint">Type the first name and last initial of the account you listed in Firebase as a teacher (see FIREBASE_SETUP.md), like <b>Mister H.</b> An older username such as mrhier still works.</div>' +
+          '<form id="tform" class="acform" autocomplete="on"><label class="lgfield" for="tuser"><span>First name and last initial</span><input id="tuser" class="lgin" autocomplete="username" autocapitalize="words" autocorrect="off" spellcheck="false" maxlength="20" placeholder="e.g. Mister H."></label>' +
           '<label class="lgfield" for="tpass"><span>Password</span><input id="tpass" class="lgin" type="password" autocomplete="current-password" maxlength="64"></label><button class="lgbtn" type="submit">Sign in ▶</button></form>' +
           '<div class="lgmsg bad" id="tmsg">' + escH(err) + "</div></div></div></div>");
         document.getElementById("tform").addEventListener("submit", async e => {
           e.preventDefault(); if (busy) return; busy = true; const m = document.getElementById("tmsg"); m.className = "lgmsg ok"; m.textContent = "Signing in…";
-          try { await DB.signIn(document.getElementById("tuser").value, document.getElementById("tpass").value); if (!DB.teacher) { await DB.signOut(); err = "That account isn't set up as a teacher account."; } else err = ""; }
+          try { await cloudSignIn(document.getElementById("tuser").value, document.getElementById("tpass").value); if (!DB.teacher) { await DB.signOut(); err = "That account isn't set up as a teacher account."; } else err = ""; }
           catch (x) { err = DB.authErr(x); }
           busy = false; await load();
         });
         return;
       }
       Cine.show('<div class="cscreen teacher"><div class="tchwrap">' + head +
-        '<div class="tchauth">Signed in as teacher <b>' + escH(DB.username) + "</b>. Hidden names never show on the public scoreboard.</div>" +
+        '<div class="tchauth">Signed in as teacher <b>' + escH((rows[DB.user && DB.user.uid] && (rows[DB.user.uid].name || (rows[DB.user.uid].entry && rows[DB.user.uid].entry.name))) || DB.username) + "</b>. Hidden names never show on the public scoreboard.</div>" +
         '<div class="tchact"><button data-pg="t-csv" class="tbtn">⬇ Export CSV</button><button data-pg="t-refresh" class="tbtn sec">↻ Refresh</button><button data-pg="t-out" class="tbtn sec">Sign out teacher</button></div>' +
         (err ? '<div class="lgmsg bad">' + escH(err) + "</div>" : "") +
         '<div class="tchtable"><table><thead><tr><th>Scoreboard name</th><th>Username</th><th>Reached</th><th>Levels</th><th>Last played</th><th>On board</th><th></th></tr></thead><tbody>' +
@@ -3848,7 +3910,7 @@ function teacherCloudScreen() {
     load();
   });
 }
-window.__MVM_AUTH = { checkUsername, checkNick, badWords, mergeRecs, userEmail, get DB() { return DB; }, Progress, accountScreen, openBoard, showBoard, starsFor, starTotal, boardRows };
+window.__MVM_AUTH = { checkUsername, checkNick, checkAccountName, prettyAccountName, accountUser, accountUserCandidates, suggestAccountName, badWords, mergeRecs, userEmail, get DB() { return DB; }, Progress, accountScreen, openBoard, showBoard, starsFor, starTotal, boardRows };
 
 
 /* ================= dev tools (?dev=1) ================= */
