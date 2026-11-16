@@ -607,6 +607,9 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .cscreen.login img.hero, .cscreen.resume img.hero { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:68% 50%; }
 .lgwrap { position:absolute; inset:0; overflow:auto; display:flex; flex-direction:column; align-items:center; gap:2vh; padding:calc(4vh + env(safe-area-inset-top)) 20px calc(64px + env(safe-area-inset-bottom)); }
 .lghead { text-align:center; }
+/* Login/sign-in: keep the title with the cards, left of Rex's face */
+.cscreen.login .lghead { width:min(1080px, 100%); text-align:left; }
+.cscreen.login .lghead .tlogo, .cscreen.login .lghead .tsub { margin-left:0; margin-right:0; }
 .tlogo.sm { font-size:clamp(2.4rem, 7vw, 5.4rem); }
 .lgcols { display:grid; grid-template-columns:1fr; gap:16px; width:min(1080px, 100%); margin-top:auto; margin-bottom:auto; }
 @media (min-aspect-ratio: 1/1) { .lgcols { grid-template-columns:1fr 1.15fr; align-items:start; } }
