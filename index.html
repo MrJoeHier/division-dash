@@ -42,7 +42,11 @@ html, body { height:100%; margin:0; overscroll-behavior:none; background:var(--a
 body { touch-action:manipulation; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none;
   font-family: -apple-system, "Segoe UI", system-ui, sans-serif; color:var(--ink); overflow:hidden; }
 button { font:inherit; color:inherit; touch-action:manipulation; -webkit-tap-highlight-color:transparent; cursor:pointer; }
-#app { display:flex; flex-direction:column; height:100vh; height:100dvh; padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+#app { display:flex; flex-direction:column; height:100vh; height:100dvh; max-height:100svh; box-sizing:border-box; padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); overflow:hidden; }
+@supports (height: 100svh) {
+  html, body { height:100svh; max-height:100dvh; }
+  #app { height:100svh; max-height:100dvh; }
+}
 /* Boot cover: hide the math board from first paint until the start screen is up */
 html.booting, html.booting body { background:#0b0805; }
 html.booting #app, html.booting #overlay-root { visibility:hidden; }
@@ -206,6 +210,14 @@ button:disabled { opacity:.38; cursor:default; background:var(--key-off); box-sh
   .steps { align-self:stretch; }
   .step { min-height:calc(var(--kh, 54px) * 1.55); }
   #input { --kh: min(54px, 7.4vh); }
+}
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 800px) {
+  header { min-height:44px; padding:4px 12px; padding-top:calc(4px + env(safe-area-inset-top)); gap:8px; }
+  #input { --kh: min(46px, 6.2vh); padding:6px 10px calc(6px + env(safe-area-inset-bottom)); }
+  #inner { gap:6px; }
+  .pad, .steps { gap:6px; }
+  .step { min-height:calc(var(--kh, 46px) * 1.3); }
+  [data-theme="journal"] #work { margin:4px 10px 4px; }
 }
 @media (orientation: portrait) { #input { --kh: min(60px, 6.2vh); } }
 
@@ -1644,14 +1656,14 @@ function toast(msg) {
 function layout() {
   const P = G.P, work = $("#work");
   const cb = document.getElementById("cmpbar"), cbH = cb && !cb.hidden ? cb.offsetHeight + 8 : 0; // fit as if the compare bar were not there, so the paper does not jump
-  const W = work.clientWidth - 18, H = work.clientHeight - 38 + cbH; // leave room for a scrollbar so nothing scrolls sideways
+  const W = work.clientWidth - 18, H = Math.max(80, work.clientHeight - 38 + cbH); // leave room for the prompt; don't let a 28px floor clip the top
   const dl = P.ds.length, n = P.n;
   const sideCols = Math.max(dl, String(9 * P.d).length) + 1.8;
   const remCols = dl + 1.6; // "R" + up to dl digits (only shown after the side problem is gone)
   const totalCols = 1.0 + dl + 1.1 + n + 0.8 + Math.max(sideCols, remCols) + 0.4;
   const rowsFull = 2 + 2 * P.A.cycles.length + 1.2;
-  let cw = Math.floor(Math.min(W / totalCols, H / ((rowsFull + 1.5) * 1.16)));
-  cw = Math.max(28, Math.min(84, cw));
+  let cw = Math.floor(Math.min(W / totalCols, H / ((rowsFull + 1.7) * 1.16)));
+  cw = Math.max(18, Math.min(84, cw));
   const rh = Math.round(cw * 1.16);
   const contentW = totalCols * cw;
   const left = Math.max(cw * 1.0, (W - contentW) / 2 + cw * 1.0);
@@ -1807,9 +1819,16 @@ function render() {
   }
   // prompt
   const pr = $("#prompt"); pr.className = P.msgCls || ""; pr.textContent = P.msg || defaultPrompt();
-  // keep the active spot visible
+  // Keep the active spot visible, but never scroll the quotient / bracket under the sticky prompt.
   const act = board.querySelector(".slot, .nudge, .cmpnum");
-  if (act && act.scrollIntoView) { try { act.scrollIntoView({ block: "nearest", inline: "nearest" }); } catch (e) {} }
+  const workEl = $("#work");
+  if (act && workEl && workEl.scrollHeight > workEl.clientHeight) {
+    const promptH = (pr && pr.offsetHeight) || 38;
+    const wr = workEl.getBoundingClientRect(), ar = act.getBoundingClientRect();
+    const topKeep = wr.top + promptH + 4;
+    const room = ar.top - topKeep;
+    if (ar.bottom > wr.bottom - 4 && room > 0) workEl.scrollTop = Math.min(workEl.scrollTop + (ar.bottom - wr.bottom + 4), workEl.scrollTop + room);
+  }
   fresh.forEach(f => { if (f.startsWith("heart:")) return; }); fresh.clear();
 }
 function defaultPrompt() {
