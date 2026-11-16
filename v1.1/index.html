@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="booting">
 <head>
-<!-- v1.1 test copy 3ea85b7 ipad-landscape; assets load from ../assets/ -->
+<!-- v1.1 test copy 36d022b restart-timeout; assets load from ../assets/ -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1581,7 +1581,8 @@ function overlayNext() {
   if (o.type === "level") { beginLevel(G.episode, G.level + 1, true, { between: true }); return; }
   if (o.type === "episode") { beginLevel(G.episode + 1, 0, false, { between: true }); return; }
   if (o.type === "all") { runTitle(); return; }
-  if (o.type === "over" || o.type === "timeup") { Progress.lost(G.episode); beginLevel(G.episode, 0, false, { replay: true }); return; }
+  if (o.type === "timeup") { const lv = G.level, keep = G.strength > 0, str = keep ? G.strength : 100; Progress.lost(G.episode, { level: lv, strength: str }); if (!keep) G.strength = 100; beginLevel(G.episode, lv, true, { replay: true }); return; }
+  if (o.type === "over") { Progress.lost(G.episode, { level: 0, strength: 100 }); beginLevel(G.episode, 0, false, { replay: true }); return; }
   if (o.type === "settings") { G.overlay = o.prev || null; render(); return; }
 }
 
@@ -1910,11 +1911,11 @@ function renderOverlay() {
     h = '<div class="epbadge">🎉</div><h1>Episode ' + (G.episode + 1) + " complete!</h1><p>You escaped " + EP_INFO[G.episode].name.toLowerCase() + "! " + tot + " of 12 stars.</p>" + refillHtml(o) +
       '<p class="epnext">Episode ' + (G.episode + 2) + ": " + EP_INFO[G.episode + 1].name + " — only <b>" + nx + ":00</b> per problem.</p>" + '<button class="big" data-act="next">On to Episode ' + (G.episode + 2) + ' ▶</button>';
   } else if (o.type === "timeup") {
-    h = '<div class="epbadge">⏰</div><h2>Time\'s up!</h2><p>E' + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". You have " + fmtTime(EPISODES[G.episode].secs) + " per problem. Recharge to 100% and start the episode over from Level 1.</p>" + '<button class="big" data-act="next">Start over from Level 1</button>';
+    h = '<div class="epbadge">⏰</div><h2>Time\'s up!</h2><p>Try Level ' + (G.level + 1) + " again — " + LEVELS[G.level].name + ". You have " + fmtTime(EPISODES[G.episode].secs) + " per problem. Your strength stays at " + Math.round(G.strength) + "%.</p>" + '<button class="big" data-act="next">Try Level ' + (G.level + 1) + " again ▶</button>";
   } else if (o.type === "all") {
     h = '<div class="epbadge">🏆</div><h1>Man vs. Math Champion!</h1><p>You survived all three episodes — every level, against the clock.</p>' + refillHtml(o) + '<button class="big" data-act="next">Back to the title</button>';
   } else if (o.type === "over") {
-    h = "<h2>Out of strength</h2>" + '<div class="refill"><div class="meterbar"><div class="fillbar" style="width:0%"></div></div><div class="pct">0%</div></div>' + "<p>E" + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". Recharge to 100% and start the episode over from Level 1.</p>" + '<button class="big" data-act="next">Start over from Level 1</button>';
+    h = "<h2>Out of strength</h2>" + '<div class="refill"><div class="meterbar"><div class="fillbar" style="width:0%"></div></div><div class="pct">0%</div></div>' + "<p>E" + (G.episode + 1) + " · Level " + (G.level + 1) + " — " + LEVELS[G.level].name + ". Recharge to 100% and go back to the start of Episode " + (G.episode + 1) + ".</p>" + '<button class="big" data-act="next">Start Episode ' + (G.episode + 1) + " from Level 1 ▶</button>";
   } else if (o.type === "settings") {
     h = "<h2>Settings</h2>" +
       '<div class="set-row"><label>Answer format</label><div class="seg">' +
@@ -3048,9 +3049,11 @@ const Cine = (() => {
     return new Promise(res => {
       const src = ASSET(LVI(G.episode, lv).lose + ".jpg");
       const Linfo = LVI(G.episode, lv), split = Linfo.loseSplit, lay = Linfo.loseLay;
-      const reasonH = (reason === "time" ? "Out of time!" : "Out of strength!");
+      const nEp = (G.episode + 1), nLv = (lv + 1);
+      const reasonH = reason === "time" ? ("Time's up! Try Level " + nLv + " again") : ("Out of strength! Back to the start of Episode " + nEp + ".");
+      const againL = reason === "time" ? ("↻ Try Level " + nLv + " again") : ("↻ Start Episode " + nEp);
       const title = split ? '<div class="ylose split"><span class="w1">YOU</span><span class="w2">LOSE</span></div>' : '<div class="ylose">YOU LOSE</div>';
-      const rest = title + '<div class="lreason">' + reasonH + '</div><button class="again cprimary" data-cine="again">↻ Play again</button>';
+      const rest = title + '<div class="lreason">' + reasonH + '</div><button class="again cprimary" data-cine="again">' + againL + "</button>";
       show('<div class="cscreen lose' + (split ? ' split' : '') + (lay ? ' lay' : '') + '"><div class="cbg" style="background-image:url(\'' + src + '\')"></div><div class="vwrap"><img class="cv" src="' + src + '" alt=""></div>' +
         (lay ? '<div class="lbox lay-' + lay + '">' + rest + '</div>' : rest) + '</div>');
       const b = root.querySelector(".again"); let ready = false;
@@ -3127,12 +3130,24 @@ async function winLevel() {
 }
 async function loseFlow(reason) {
   const tok = ++flowTok;
+  const ep = G.episode, lv = G.level;
+  // Save as soon as they lose so closing the tab on the lose screen still resumes correctly.
+  // Time-out: same level, keep strength (if it was already 0, refill so they aren't stuck in a lose loop).
+  // Strength-out: start of this episode, refill to 100%. Passed levels / stars are not cleared.
+  const timeKeep = G.strength > 0;
+  const restartLv = reason === "time" ? lv : 0;
+  const restartStr = reason === "time" ? (timeKeep ? G.strength : 100) : 100;
+  Progress.lost(ep, { level: restartLv, strength: restartStr }).catch(e => console.warn("save failed", e));
   G.overlay = { type: "cine" }; render();
   Music.play("lose");
-  await Cine.lose(G.level, reason);
+  await Cine.lose(lv, reason);
   if (tok !== flowTok) return;
-  Progress.lost(G.episode);
-  beginLevel(G.episode, 0, false, { replay: true });
+  if (reason === "time") {
+    if (!timeKeep) G.strength = 100;
+    beginLevel(ep, restartLv, true, { replay: true });
+  } else {
+    beginLevel(ep, 0, false, { replay: true });
+  }
 }
 async function runTitle() {
   const tok = ++flowTok;
@@ -3601,7 +3616,7 @@ const Progress = {
     await saving;
   },
   async saveLater(ep, lv, strength) { await this.save({ episode: ep, level: lv, strength }); },
-  async lost(ep) { await this.save({ episode: ep, level: 0, strength: 100 }); },
+  async lost(ep, opts) { const o = opts || {}; await this.save({ episode: ep, level: o.level != null ? o.level : 0, strength: o.strength != null ? o.strength : 100 }); },
   canJump(ep, lv) { const r = this.cur; if (!r || DEV) return true; if (lv === 0 || (r.passed || {})[ep + "-" + (lv - 1)]) return true; return ep < r.episode || (ep === r.episode && lv <= r.level) || !!r.done; }
 };
 
@@ -4112,7 +4127,7 @@ setTimeout(() => {
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
 window.showStrengthBoost = showStrengthBoost;
-window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, winLevel, loseFlow, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
+window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, winLevel, loseFlow, timeUp, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
 window.__DD = { G, EPISODES, penalty: () => penalty(), render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
