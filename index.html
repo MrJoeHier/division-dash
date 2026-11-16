@@ -7,10 +7,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 <title>Man vs. Math: Surviving Long Division</title>
-<meta name="theme-color" content="#2b1d12">
+<meta name="theme-color" content="#0b0805">
 <meta name="apple-mobile-web-app-title" content="Man vs. Math">
-<link rel="apple-touch-icon" href="assets/icon-180.jpg">
-<link rel="icon" href="assets/icon-180.jpg">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preload" href="assets/title-hero.jpg" as="image">
 <link rel="preload" href="assets/fonts/cinzel-900.woff2" as="font" type="font/woff2" crossorigin>
 <style>
@@ -4025,6 +4027,13 @@ window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, 
 window.__DD = { G, EPISODES, penalty: () => penalty(), render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
