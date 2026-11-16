@@ -652,6 +652,9 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .rsalt.cprimary { background:linear-gradient(#70482a, #3e2612); border-color:#f3c65a; }
 .tplayer { margin-top:12px; color:#fff3d0; font-weight:700; text-shadow:0 2px 6px #000; animation:fadeUp .9s .8s both; }
 .tplayer button { margin-left:6px; min-height:40px; padding:0 14px; border-radius:999px; border:1px solid rgba(243,198,90,.6); background:rgba(0,0,0,.5); color:#fff3d0; font-weight:800; }
+.tplayer.tguest { font-weight:800; }
+.tsave { min-height:58px; border-radius:16px; border:2px solid rgba(243,198,90,.8); background:rgba(0,0,0,.55); color:#fff3d0; font-weight:800; font-size:1.15rem; letter-spacing:.02em; box-shadow:0 4px 0 #1f1208, 0 10px 24px rgba(0,0,0,.45); }
+.tsave:active { transform:translateY(3px); box-shadow:0 1px 0 #1f1208; }
 /* leaderboard */
 .lbtabs { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
 .lbtabs button { min-height:44px; padding:0 14px; border-radius:999px; border:2px solid rgba(243,198,90,.45); background:transparent; color:#f6e7c4; font-weight:800; }
@@ -2714,10 +2717,15 @@ const Cine = (() => {
       const un = unlocked();
       const btns = un < 2 ? '<button class="tstart cprimary" data-cine="ep" data-epi="0">▶&nbsp; Start the expedition</button>'
         : '<div class="tpick">Choose your episode</div>' + EP_INFO.slice(0, un).map((E, i) => '<button class="tep" data-cine="ep" data-epi="' + i + '"><b>Episode ' + (i + 1) + ": " + E.name + "</b><span>" + (EPISODES[i].secs / 60) + ":00 per problem" + (E.soon ? " · " + E.soon : "") + "</span></button>").join("");
-      show('<div class="cscreen title rx"><div class="tbgblur" style="background-image:url(\'' + ASSET("title-rex.jpg") + '\')"></div><img class="hero" src="' + ASSET("title-rex.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo"><span class="tl1">MAN <span>vs.</span></span><span class="tl2">MATH</span></div><div class="tsub">Surviving Long Division</div>' + (Progress.cur ? '<div class="tplayer">Playing as <b>' + escH(Progress.cur.name) + '</b> <button data-cine="switch">Switch player</button></div>' : "") + '<div class="tbtns">' + btns + '</div><div class="tnote">Best with sound on 🔊<br><span style="opacity:.8;font-size:.82em">No sound? Turn off the iPad silent switch.</span></div></div></div>');
+      const guestCloud = !!(Progress.cur && Progress.mode === "guest" && fbOn());
+      const who = !Progress.cur ? "" : guestCloud
+        ? '<div class="tplayer tguest">Playing as a guest — scores stay on this device until you sign in.</div>'
+        : '<div class="tplayer">Playing as <b>' + escH(Progress.cur.name) + '</b> <button data-cine="switch">' + (Progress.mode === "cloud" ? "Sign out" : "Switch player") + "</button></div>";
+      const saveBtn = guestCloud ? '<button class="tsave" data-cine="signin">Sign in to save your scores</button>' : "";
+      show('<div class="cscreen title rx"><div class="tbgblur" style="background-image:url(\'' + ASSET("title-rex.jpg") + '\')"></div><img class="hero" src="' + ASSET("title-rex.jpg") + '" alt=""><div class="tgrad"></div><div class="tbox"><div class="tlogo"><span class="tl1">MAN <span>vs.</span></span><span class="tl2">MATH</span></div><div class="tsub">Surviving Long Division</div>' + who + '<div class="tbtns">' + btns + saveBtn + '</div><div class="tnote">Best with sound on 🔊<br><span style="opacity:.8;font-size:.82em">No sound? Turn off the iPad silent switch.</span></div></div></div>');
       let go = false;
       onBtn = (k, b) => {
-        if (k === "switch" && !go) { go = true; res("switch"); return; }
+        if ((k === "switch" || k === "signin") && !go) { go = true; res(k); return; }
         if (k !== "ep" || go) return; go = true;
         const ep = +b.dataset.epi; unlockMedia(); RecAudio.playTheme(); haptic(15);
         const sc = root.querySelector(".cscreen"); if (sc) sc.classList.add("go");
@@ -3132,7 +3140,7 @@ async function runTitle() {
       }
     }
     const ep = await Cine.title(); if (tok !== flowTok) return;
-    if (ep === "switch") { Progress.logout(); continue; }
+    if (ep === "switch" || ep === "signin") { Progress.logout(); continue; }
     beginLevel(ep, 0, false); return;
   }
 }
