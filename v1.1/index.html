@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="booting">
 <head>
-<!-- v1.1 test copy 158cf34 installable-pwa; assets load from ../assets/ -->
+<!-- v1.1 test copy 5d75414 scoreboard-connect; assets load from ../assets/ -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,6 +14,9 @@
 <link rel="apple-touch-icon" href="../assets/icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../assets/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js" crossorigin>
 <link rel="preload" href="../assets/title-hero.jpg" as="image">
 <link rel="preload" href="../assets/fonts/cinzel-900.woff2" as="font" type="font/woff2" crossorigin>
 <style>
@@ -950,6 +953,8 @@ body.ep-snow .cell.quo { position:relative; z-index:3; }
 .lgguest { width:100%; }
 .lgacts { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
 .lgoff { font-weight:800; color:#ffcf9a; margin:0 0 8px; font-size:1.05rem; }
+.lgwait { display:flex; flex-direction:column; align-items:center; gap:12px; padding:16px 8px 8px; font-weight:800; color:#f6e7c4; text-align:center; }
+.lgwait .spin { width:42px; height:42px; border-radius:50%; border:4px solid rgba(255,255,255,.25); border-top-color:#f3c65a; animation:vspin .8s linear infinite; }
 .lbpub { margin:-6px 0 10px; color:#cdb88f; font-weight:600; font-size:.88rem; }
 .lbt tr.me td { background:rgba(243,198,90,.16); }
 .lbyou { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; background:#f3c65a; color:#2a1c10; font-size:.72rem; font-weight:900; text-transform:uppercase; vertical-align:middle; }
@@ -3106,7 +3111,8 @@ async function runTitle() {
   const tok = ++flowTok;
   G.overlay = { type: "cine" }; render(); Music.stop();
   RecAudio.playTheme(); /* Joe's main theme, once from 0:00 (waits for the first tap if autoplay is blocked) */
-  await dbReady; if (tok !== flowTok) return;
+  if (!fbOn()) await dbReady;
+  if (tok !== flowTok) return;
   while (tok === flowTok) {
     if (!Progress.cur) {
       let got = null;
@@ -3347,18 +3353,27 @@ function CloudDB() {
   };
   const C = {
     kind: "cloud", board: {}, teacher: false,
-    async init() {
+    init() {
+      if (this._initP) return this._initP;
+      this._initP = this._init().catch(e => { this._initP = null; throw e; });
+      return this._initP;
+    },
+    async _init() {
       const app = await import(base + "firebase-app.js");
       A = await import(base + "firebase-auth.js"); S = await import(base + "firebase-firestore.js");
       const cfg = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey ? FIREBASE_CONFIG : { apiKey: "demo-key", authDomain: "demo-mvm.firebaseapp.com", projectId: "demo-mvm", appId: "demo" };
-      const fa = app.initializeApp(cfg);
+      const fa = (app.getApps && app.getApps().length) ? app.getApp() : app.initializeApp(cfg);
       auth = A.getAuth(fa);
-      try { db = S.initializeFirestore(fa, { localCache: S.persistentLocalCache({ tabManager: S.persistentMultipleTabManager() }) }); }
+      // School proxies often break WebChannel streaming; force long-polling.
+      // Memory cache only: IndexedDB (persistentLocalCache / multi-tab) can hang
+      // in Chrome app windows and on shared classroom machines.
+      const fsOpts = { experimentalForceLongPolling: true, localCache: S.memoryLocalCache() };
+      try { db = S.initializeFirestore(fa, fsOpts); }
       catch (e) { db = S.getFirestore(fa); }
       if (FB_EMU) { A.connectAuthEmulator(auth, "http://" + location.hostname + ":9099", { disableWarnings: true }); S.connectFirestoreEmulator(db, location.hostname, 8080); }
       await (auth.authStateReady ? auth.authStateReady() : new Promise(r => { const u = A.onAuthStateChanged(auth, () => { u(); r(); }); }));
       C.watchBoard();
-      if (auth.currentUser) C.teacher = await C.checkTeacher();
+      if (auth.currentUser) C.checkTeacher().then(v => { C.teacher = v; }).catch(() => {});
     },
     get user() { return auth && auth.currentUser; },
     get username() { const u = auth && auth.currentUser; return u && u.email ? u.email.split("@")[0] : ""; },
@@ -3443,13 +3458,48 @@ function CloudDB() {
   };
   return C;
 }
-let DB = LocalDB, cloudDown = false;
+let DB = LocalDB, cloudDown = false, cloudConnecting = false, cloudInst = null, connecting = false, connectGen = 0;
 const cloudMode = () => DB.kind === "cloud";
-const dbReady = (async () => {
-  if (!fbOn()) return;
-  try { const f = CloudDB(); await Promise.race([f.init(), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]); DB = f; }
-  catch (e) { cloudDown = true; console.warn("Online accounts unavailable — guest play on this device only.", e); }
-})();
+const cloudListeners = new Set();
+const onCloudState = cb => { cloudListeners.add(cb); return () => cloudListeners.delete(cb); };
+const emitCloudState = () => { cloudListeners.forEach(cb => { try { cb(); } catch (e) {} }); };
+let resolveDbReady;
+const dbReady = new Promise(r => { resolveDbReady = r; });
+function markCloudReady(f) {
+  DB = f; cloudDown = false; cloudConnecting = false; connecting = false;
+  resolveDbReady(); emitCloudState();
+}
+function startCloudConnect() {
+  if (!fbOn()) { resolveDbReady(); return dbReady; }
+  if (cloudMode()) return dbReady;
+  const gen = ++connectGen;
+  connecting = true; cloudConnecting = true; cloudDown = false; emitCloudState();
+  (async () => {
+    let delay = 2000;
+    while (!cloudMode() && gen === connectGen) {
+      try {
+        const f = cloudInst || (cloudInst = CloudDB());
+        await Promise.race([f.init(), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 45000))]);
+        if (gen !== connectGen || cloudMode()) return;
+        markCloudReady(f); return;
+      } catch (e) {
+        if (gen !== connectGen || cloudMode()) return;
+        console.warn("Scoreboard still connecting…", e);
+        cloudDown = true; cloudConnecting = false; connecting = false; emitCloudState();
+        await new Promise(r => setTimeout(r, delay));
+        delay = Math.min(Math.round(delay * 1.6), 12000);
+        if (gen !== connectGen || cloudMode()) return;
+        connecting = true; cloudConnecting = true; cloudDown = false; emitCloudState();
+      }
+    }
+  })();
+  return dbReady;
+}
+function retryCloud() {
+  if (cloudMode()) return;
+  startCloudConnect();
+}
+if (fbOn()) startCloudConnect(); else resolveDbReady();
 
 /* ---- the logged-in student ---- */
 // mode: "local" (no Firebase: name on this device), "guest" (Firebase set up, playing without an account), "cloud" (signed in)
@@ -3696,6 +3746,7 @@ const loginShell = (left, right) => '<div class="cscreen login"><img class="hero
   '<div class="lgcols">' + left + '<div class="lgcard lb" id="lbbox">' + right + "</div></div></div>" +
   '<button class="lgteach" data-pg="teacher">Teacher</button></div>';
 async function loginScreen() {
+  if (fbOn()) return accountScreen();
   await dbReady;
   preloadBoot();
   if (cloudMode() || cloudDown) return accountScreen();
@@ -3744,10 +3795,13 @@ async function loginScreen() {
 // Sign in / create account / play as guest (Firebase set up). Resolves { cloud:true } once signed in.
 function accountScreen(startTab) {
   return new Promise(res => {
-    let tab = startTab || "in", busy = false, offBoard = null;
+    let tab = startTab || "in", busy = false, offBoard = null, offState = null;
     const guestHas = hasProgress(lget(LK.guest, null));
     const field = (id, label, attrs) => '<label class="lgfield" for="' + id + '"><span>' + label + "</span><input id=\"" + id + '" class="lgin" ' + attrs + "></label>";
     const left = () => {
+      if (!cloudMode() && (cloudConnecting || !cloudDown)) return '<div class="lgcard acct"><h2>Who\'s playing?</h2><div class="lgwait"><div class="spin" aria-hidden="true"></div><div>Connecting to the scoreboard…</div></div>' +
+        '<div class="lghint">This can take a little longer on school Wi-Fi. You can play as a guest now, and sign in when it connects.</div>' +
+        '<div class="lgacts"><button class="lgbtn" data-pg="guest">Play as guest ▶</button></div></div>';
       if (!cloudMode()) return '<div class="lgcard acct"><h2>Who\'s playing?</h2><div class="lgoff">Can\'t reach the online scoreboard right now.</div>' +
         '<div class="lghint">You can still play as a guest. Your progress stays on this device, and it\'s added to your account the next time you sign in here.</div>' +
         '<div class="lgacts"><button class="lgbtn" data-pg="guest">Play as guest ▶</button><button class="rsalt" data-pg="retry">Try again</button></div></div>';
@@ -3769,7 +3823,7 @@ function accountScreen(startTab) {
       const u = document.getElementById("acname"); if (u && !matchMedia("(pointer: coarse)").matches) setTimeout(() => u.focus(), 50);
     };
     const say = (t, cls) => { const m = document.getElementById("lgmsg"); if (m) { m.className = "lgmsg " + (cls || ""); m.textContent = t; } };
-    const finish = r => { if (offBoard) offBoard(); pgHandler = null; res(r); };
+    const finish = r => { if (offBoard) offBoard(); if (offState) offState(); pgHandler = null; res(r); };
     async function submit(e) {
       e.preventDefault(); if (busy) return;
       const raw = (document.getElementById("acname") || {}).value || "", p = document.getElementById("acpass").value;
@@ -3796,10 +3850,16 @@ function accountScreen(startTab) {
       if (busy) return;
       if (k === "tab-in" || k === "tab-up") { tab = k.slice(4); draw(); return; }
       if (k === "guest") { unlockMedia(); finish({ guest: true }); return; }
-      if (k === "retry") { location.reload(); return; }
+      if (k === "retry") { retryCloud(); return; }
       if (k === "board") { showBoard(); return; }
       if (k === "teacher") { finish({ teacher: true }); return; }
     };
+    offState = onCloudState(() => {
+      if (busy) return;
+      if (cloudMode() && DB.user && !document.getElementById("acform")) { finish({ cloud: true }); return; }
+      if (cloudMode() && !offBoard) offBoard = DB.onBoard(() => { const b = document.getElementById("lbbox"); if (b) b.innerHTML = lbHtml({}); });
+      if (!(document.getElementById("acform") && cloudMode())) draw();
+    });
     draw();
     if (cloudMode()) offBoard = DB.onBoard(() => { const b = document.getElementById("lbbox"); if (b) b.innerHTML = lbHtml({}); });
   });
@@ -4008,7 +4068,9 @@ if (DEV) {
 /* ================= boot ================= */
 G.problems = genLevel(0); startProblem(); G.overlay = { type: "cine" }; render();
 runTitle();
-preloadBoot();
+const startMediaPreload = () => { if (startMediaPreload.done) return; startMediaPreload.done = true; try { preloadBoot(); } catch (e) {} try { RecAudio.prefetch(); } catch (e) {} try { Music.prerender(); } catch (e) {} };
+dbReady.then(startMediaPreload).catch(() => {});
+setTimeout(startMediaPreload, 8000);
 // If the start screen never appears (slow network / error), drop the boot cover so the player isn't stuck.
 setTimeout(() => {
   if (dismissBootCover.done) return;
@@ -4019,8 +4081,7 @@ setTimeout(() => {
   }
   dismissBootCover();
 }, 16000);
-setTimeout(() => { try { Music.prerender(); } catch (e) {} }, 400);
-setTimeout(() => { try { RecAudio.prefetch(); } catch (e) {} }, 150);
+
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
 window.showStrengthBoost = showStrengthBoost;
