@@ -257,13 +257,24 @@ button:disabled { opacity:.38; cursor:default; background:var(--key-off); box-sh
   .brand { display:none; }
 }
 
-/* iPhone landscape, including SE (667x375) which is under 700px wide. */
+/* iPhone landscape: problem on the left (~62% width, full remaining height),
+   step buttons + keypad stacked in a column on the right so digits can stay large. */
 @media (orientation: landscape) and (max-height: 520px) {
-  header { min-height:34px; padding:2px 8px; padding-top:calc(2px + env(safe-area-inset-top)); gap:6px; }
+  #app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 38%);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "hud hud" "paper keys";
+  }
+  header {
+    grid-area: hud;
+    min-height:32px; padding:2px 8px; padding-top:calc(2px + env(safe-area-inset-top));
+    gap:6px;
+  }
   .brand small { display:none; }
   .brand { font-size:.78rem; }
   .chips { flex-wrap:nowrap; gap:4px; }
-  .pie { width:32px; height:32px; }
+  .pie { width:30px; height:30px; }
   .pie::after { inset:6px; }
   .pie .tv { font-size:.55rem; }
   .chip { padding:2px 6px; font-size:.7rem; }
@@ -272,21 +283,39 @@ button:disabled { opacity:.38; cursor:default; background:var(--key-off); box-sh
   .meter .pct { min-width:2.4em; font-size:.7rem; }
   .icon-btn { width:30px; height:30px; font-size:1rem; }
   #prompt { padding:3px 8px; font-size:.85rem; min-height:22px; }
-  [data-theme="journal"] #work { margin:3px 8px 3px; }
-  #input { --kh: min(32px, 8.2vh); padding:4px 8px calc(4px + env(safe-area-inset-bottom)); }
-  #inner { max-width:1000px; grid-template-columns: 1.25fr 1fr; grid-template-areas:"steps pad" "ctx pad"; align-items:start; gap:5px; }
-  .steps { align-self:stretch; }
-  .step { min-height:calc(var(--kh, 32px) * 1.2); font-size:1.35rem; }
-  .pad, .steps, .ctx { gap:5px; }
-  .key { font-size:1.15rem; }
-  .ctxb { font-size:.82rem; min-height:var(--kh, 32px); }
-  .cbtn { min-height:max(36px, var(--kh, 32px)); font-size:1.05rem; }
+  #work { grid-area: paper; min-width:0; min-height:0; height:auto; }
+  [data-theme="journal"] #work { margin:4px 6px 4px 8px; }
+  #input {
+    grid-area: keys;
+    min-width:0; min-height:0;
+    border-top: none;
+    display: flex; flex-direction: column; justify-content: center;
+    --kh: min(44px, 12vh);
+    padding: 4px 8px calc(4px + env(safe-area-inset-bottom)) 8px;
+  }
+  [data-theme="journal"] #input { border-left: 1px solid rgba(0,0,0,.28); }
+  #inner {
+    max-width: none; width: 100%; margin: 0; flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "steps pad" "ctx ctx";
+    align-items: stretch;
+    gap: 6px;
+  }
+  .steps { grid-area: steps; grid-template-columns: 1fr; grid-template-rows: repeat(5, 1fr); align-self: stretch; gap: 5px; }
+  .step { min-height: 0; height: 100%; font-size: 1.35rem; }
+  .padwrap { grid-area: pad; display: flex; flex-direction: column; min-height: 0; }
+  .pad { flex: 1 1 auto; gap: 5px; }
+  .pad .key { min-height: 0; height: 100%; font-size: 1.2rem; }
+  .ctx { grid-area: ctx; gap: 5px; }
+  .ctxb { font-size: .82rem; min-height: var(--kh, 36px); }
+  .cbtn { min-height: max(36px, var(--kh, 36px)); font-size: 1.05rem; }
+  /* Larger handwritten digits in this layout (row height is a bit tighter than desktop). */
+  .cell { font-size: calc(var(--rh) * .82); }
+  [data-theme] body.ep-snow header::after { display:none; }
 }
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 700px) {
   .brand { display:none; }
-}
-@media (orientation: landscape) and (max-height: 520px) {
-  [data-theme] body.ep-snow header::after { display:none; }
 }
 
 /* ---------- overlays ---------- */
@@ -386,6 +415,19 @@ svg.bracket .vleaf, svg.bracket .vtex, svg.bracket .vcurl { display:none; }
 .pie.timer.danger { --pc:#e0402c; }
 .pie.timer.danger .tv { color:#b3200e; }
 .pie.timer.paused { opacity:.75; }
+/* Phone pie sizes must come after the 62px default so they actually win. */
+@media (max-width: 600px) {
+  header .pie { width:34px; height:34px; }
+  header .pie::after { inset:7px; }
+  header .pie .tv { font-size:.58rem; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  header .pie { width:30px; height:30px; }
+  header .pie::after { inset:6px; }
+  header .pie .tv { font-size:.52rem; }
+  header { overflow: hidden; }
+  .cell { font-size: calc(var(--rh) * .92); padding-bottom: calc(var(--rh) * .04); }
+}
 /* ================= cinematics ================= */
 #cine { position:fixed; inset:0; z-index:100; background:#0b0805; color:#f6e7c4; overflow:hidden; font-family:-apple-system, "Segoe UI", system-ui, sans-serif; touch-action:manipulation; }
 #cine[hidden] { display:none; }
@@ -1730,24 +1772,28 @@ function toast(msg) {
 }
 
 /* ================= rendering ================= */
+function isPhoneLand() { return !!(window.matchMedia && matchMedia("(orientation: landscape) and (max-height: 520px)").matches); }
 function layout() {
   const P = G.P, work = $("#work");
   const cb = document.getElementById("cmpbar"), cbH = cb && !cb.hidden ? cb.offsetHeight + 8 : 0; // fit as if the compare bar were not there, so the paper does not jump
   const prH = ($("#prompt") && $("#prompt").offsetHeight) || 28;
-  const tight = work.clientWidth < 600 || work.clientHeight < 420;
-  const W = work.clientWidth - (tight ? 10 : 18), H = Math.max(80, work.clientHeight - prH + cbH); // leave room for the prompt; don't let a 28px floor clip the top
+  const phoneLand = isPhoneLand();
+  const tight = !phoneLand && (work.clientWidth < 600 || work.clientHeight < 420);
+  const W = work.clientWidth - (phoneLand ? 8 : tight ? 10 : 18), H = Math.max(80, work.clientHeight - prH + cbH); // leave room for the prompt; don't let a 28px floor clip the top
   const dl = P.ds.length, n = P.n;
   const sideCols = Math.max(dl, String(9 * P.d).length) + 1.8;
   const remCols = dl + 1.6; // "R" + up to dl digits (only shown after the side problem is gone)
   const totalCols = 1.0 + dl + 1.1 + n + 0.8 + Math.max(sideCols, remCols) + 0.4;
   const rowsFull = 2 + 2 * P.A.cycles.length + 1.2;
-  let cw = Math.floor(Math.min(W / totalCols, H / ((rowsFull + (tight ? 0.9 : 1.7)) * 1.16)));
-  cw = Math.max(tight ? 13 : 18, Math.min(84, cw));
-  const rh = Math.round(cw * 1.16);
+  const rowH = phoneLand ? 1.08 : 1.16;
+  const slack = phoneLand ? 0.55 : (tight ? 0.9 : 1.7);
+  let cw = Math.floor(Math.min(W / totalCols, H / ((rowsFull + slack) * rowH)));
+  cw = Math.max(phoneLand ? 22 : tight ? 13 : 18, Math.min(84, cw));
+  const rh = Math.round(cw * rowH);
   const contentW = totalCols * cw;
   const left = Math.max(cw * 1.0, (W - contentW) / 2 + cw * 1.0);
   const X0 = left + (dl + 1.1) * cw;
-  const TOP = tight ? Math.max(4, Math.round(rh * 0.12)) : rh;
+  const TOP = (tight || phoneLand) ? Math.max(4, Math.round(rh * 0.12)) : rh;
   const SX = X0 + (n + 0.8) * cw;
   return { cw, rh, X0, TOP, SX, sideCols, W, H: work.clientHeight, rowsFull, mx: Math.max(6, left - cw * 0.55), contentW: SX + Math.max(sideCols, remCols) * cw + 0.4 * cw };
 }
@@ -1902,10 +1948,11 @@ function render() {
   const workEl = $("#work");
   const pinEl = $("#pin");
   // Pin a copy of the quotient, dividend, divisor and bracket so they stay visible while work rows scroll.
+  // Phone landscape uses a tall left pane and large digits; skip the pin so it cannot overlap the vine/divisor.
   if (pinEl && workEl) {
     const pinCut = Y(2);
     const prH = (pr && pr.offsetHeight) || 28;
-    const overflows = workEl.scrollHeight > workEl.clientHeight + 2;
+    const overflows = !isPhoneLand() && workEl.scrollHeight > workEl.clientHeight + 2;
     pinEl.hidden = !overflows;
     pinEl.style.top = prH + "px";
     pinEl.style.height = "0";
