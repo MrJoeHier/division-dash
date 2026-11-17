@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="booting">
 <head>
-<!-- v1.1 test copy 36d022b restart-timeout; assets load from ../assets/ -->
+<!-- v1.1 test copy f0a7b37 iphone-layout; assets load from ../assets/ -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -221,6 +221,74 @@ button:disabled { opacity:.38; cursor:default; background:var(--key-off); box-sh
   [data-theme="journal"] #work { margin:4px 10px 4px; }
 }
 @media (orientation: portrait) { #input { --kh: min(60px, 6.2vh); } }
+
+/* Sticky quotient + dividend so the problem being divided never scrolls away.
+   Height 0 so it takes no flow space; the inner box paints downward over the board head. */
+#pin { position:sticky; top:0; z-index:4; pointer-events:none; height:0; overflow:visible; flex:0 0 auto; }
+#pin .pin-inner { position:relative; overflow:hidden; pointer-events:none; background:var(--paper); }
+[data-theme="journal"] #pin .pin-inner { background:#f6eacc; }
+[data-theme] body.ep-snow #pin .pin-inner { background:#fafdff; }
+
+/* iPhone / narrow phones: one compact HUD row, smaller keypad, more room for the problem. */
+@media (max-width: 600px) {
+  header { min-height:36px; padding:2px 6px; padding-top:calc(2px + env(safe-area-inset-top)); gap:6px; }
+  .brand small { display:none; }
+  .brand { font-size:.8rem; }
+  .chips { flex-wrap:nowrap; gap:4px; }
+  .pie { width:34px; height:34px; }
+  .pie::after { inset:7px; }
+  .pie .tv { font-size:.58rem; }
+  .chip { padding:2px 6px; font-size:.72rem; }
+  .chip .lbl { display:none; }
+  .meterbar { width:52px; height:10px; }
+  .meter .pct { min-width:2.4em; font-size:.72rem; }
+  .icon-btn { width:32px; height:32px; font-size:1rem; }
+  #prompt { padding:4px 8px; font-size:.88rem; min-height:26px; }
+  [data-theme="journal"] #prompt { font-size:.92rem; }
+  [data-theme="journal"] #work { margin:4px 6px 3px; }
+  #input { --kh: min(46px, 5.2vh); padding:6px 8px calc(6px + env(safe-area-inset-bottom)); }
+  #inner { gap:6px; }
+  .pad, .steps, .ctx { gap:6px; }
+  .key { font-size:1.25rem; }
+  .step { font-size:1.5rem; }
+  .ctxb { font-size:.9rem; }
+  .cbtn { min-height:max(48px, var(--kh, 46px)); font-size:1.2rem; }
+}
+@media (max-width: 400px) {
+  .brand { display:none; }
+}
+
+/* iPhone landscape, including SE (667x375) which is under 700px wide. */
+@media (orientation: landscape) and (max-height: 520px) {
+  header { min-height:34px; padding:2px 8px; padding-top:calc(2px + env(safe-area-inset-top)); gap:6px; }
+  .brand small { display:none; }
+  .brand { font-size:.78rem; }
+  .chips { flex-wrap:nowrap; gap:4px; }
+  .pie { width:32px; height:32px; }
+  .pie::after { inset:6px; }
+  .pie .tv { font-size:.55rem; }
+  .chip { padding:2px 6px; font-size:.7rem; }
+  .chip .lbl { display:none; }
+  .meterbar { width:48px; height:10px; }
+  .meter .pct { min-width:2.4em; font-size:.7rem; }
+  .icon-btn { width:30px; height:30px; font-size:1rem; }
+  #prompt { padding:3px 8px; font-size:.85rem; min-height:22px; }
+  [data-theme="journal"] #work { margin:3px 8px 3px; }
+  #input { --kh: min(32px, 8.2vh); padding:4px 8px calc(4px + env(safe-area-inset-bottom)); }
+  #inner { max-width:1000px; grid-template-columns: 1.25fr 1fr; grid-template-areas:"steps pad" "ctx pad"; align-items:start; gap:5px; }
+  .steps { align-self:stretch; }
+  .step { min-height:calc(var(--kh, 32px) * 1.2); font-size:1.35rem; }
+  .pad, .steps, .ctx { gap:5px; }
+  .key { font-size:1.15rem; }
+  .ctxb { font-size:.82rem; min-height:var(--kh, 32px); }
+  .cbtn { min-height:max(36px, var(--kh, 32px)); font-size:1.05rem; }
+}
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 700px) {
+  .brand { display:none; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  [data-theme] body.ep-snow header::after { display:none; }
+}
 
 /* ---------- overlays ---------- */
 .overlay { position:fixed; inset:0; background:var(--overlay); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; animation:fadeIn .2s; }
@@ -782,6 +850,13 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .tchsub { color:#cdb88f; font-weight:700; } .tchhead .tbtn { margin-left:auto; }
 .tchauth { margin-top:10px; font-weight:700; color:#cdb88f; }
 .tchact { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0; }
+.tchjump { margin:0 0 16px; padding:14px 16px; border:1px solid rgba(243,198,90,.35); border-radius:16px; background:rgba(0,0,0,.28); }
+.tchjump-lbl { font-family:"Cinzel MVM", Georgia, serif; font-weight:900; color:#f3c65a; font-size:1.15rem; margin:0 0 4px; }
+.tchjump-hint { color:#cdb88f; font-weight:600; font-size:.9rem; margin:0 0 10px; }
+.tchjump .seg { margin:0 0 8px; }
+.tchjump .seg button { flex:1; min-height:48px; border-radius:12px; border:2px solid rgba(243,198,90,.5); background:rgba(255,255,255,.06); color:#f6e7c4; font-weight:800; }
+.tchjump .seg button.sel { border-color:#f3c65a; background:rgba(243,198,90,.18); color:#fff3d0; }
+.tchjump .tbtn { margin-top:4px; }
 .tchtable { background:rgba(0,0,0,.3); border:1px solid rgba(243,198,90,.35); border-radius:16px; overflow:auto; }
 .tchtable table { width:100%; border-collapse:collapse; min-width:740px; font-variant-numeric:tabular-nums; }
 .tchtable th { position:sticky; top:0; background:#2a1a0d; text-align:left; padding:10px 12px; font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; color:#cdb88f; }
@@ -921,7 +996,7 @@ body.ep-snow .cell.quo { position:relative; z-index:3; }
 /* Workspace margin art (journal look) */
 [data-theme="journal"] body.ep-savanna #work,
 [data-theme="journal"] body.ep-snow #work,
-[data-theme="journal"] body.ep-jungle #work { position:relative; overflow:hidden; }
+[data-theme="journal"] body.ep-jungle #work { position:relative; overflow:auto; }
 [data-theme="journal"] body.ep-savanna #work::before,
 [data-theme="journal"] body.ep-snow #work::before,
 [data-theme="journal"] body.ep-jungle #work::before {
@@ -995,6 +1070,7 @@ body.ep-snow .cell.quo { position:relative; z-index:3; }
   </header>
   <main id="work">
     <div id="prompt"></div>
+    <div id="pin" hidden></div>
     <div id="board"></div>
   </main>
   <section id="input">
@@ -1658,19 +1734,21 @@ function toast(msg) {
 function layout() {
   const P = G.P, work = $("#work");
   const cb = document.getElementById("cmpbar"), cbH = cb && !cb.hidden ? cb.offsetHeight + 8 : 0; // fit as if the compare bar were not there, so the paper does not jump
-  const W = work.clientWidth - 18, H = Math.max(80, work.clientHeight - 38 + cbH); // leave room for the prompt; don't let a 28px floor clip the top
+  const prH = ($("#prompt") && $("#prompt").offsetHeight) || 28;
+  const tight = work.clientWidth < 600 || work.clientHeight < 420;
+  const W = work.clientWidth - (tight ? 10 : 18), H = Math.max(80, work.clientHeight - prH + cbH); // leave room for the prompt; don't let a 28px floor clip the top
   const dl = P.ds.length, n = P.n;
   const sideCols = Math.max(dl, String(9 * P.d).length) + 1.8;
   const remCols = dl + 1.6; // "R" + up to dl digits (only shown after the side problem is gone)
   const totalCols = 1.0 + dl + 1.1 + n + 0.8 + Math.max(sideCols, remCols) + 0.4;
   const rowsFull = 2 + 2 * P.A.cycles.length + 1.2;
-  let cw = Math.floor(Math.min(W / totalCols, H / ((rowsFull + 1.7) * 1.16)));
-  cw = Math.max(18, Math.min(84, cw));
+  let cw = Math.floor(Math.min(W / totalCols, H / ((rowsFull + (tight ? 0.9 : 1.7)) * 1.16)));
+  cw = Math.max(tight ? 13 : 18, Math.min(84, cw));
   const rh = Math.round(cw * 1.16);
   const contentW = totalCols * cw;
   const left = Math.max(cw * 1.0, (W - contentW) / 2 + cw * 1.0);
   const X0 = left + (dl + 1.1) * cw;
-  const TOP = rh;
+  const TOP = tight ? Math.max(4, Math.round(rh * 0.12)) : rh;
   const SX = X0 + (n + 0.8) * cw;
   return { cw, rh, X0, TOP, SX, sideCols, W, H: work.clientHeight, rowsFull, mx: Math.max(6, left - cw * 0.55), contentW: SX + Math.max(sideCols, remCols) * cw + 0.4 * cw };
 }
@@ -1682,7 +1760,7 @@ function render() {
   document.body.classList.toggle("ep-snow", G.episode === 2);
   renderHeader(); renderInput(); renderOverlay();
   const P = G.P, board = $("#board");
-  if (!P) { board.innerHTML = ""; $("#prompt").textContent = ""; fresh.clear(); return; }
+  if (!P) { board.innerHTML = ""; $("#prompt").textContent = ""; const pin = $("#pin"); if (pin) { pin.hidden = true; pin.innerHTML = ""; } fresh.clear(); return; }
   const L = layout(), { cw, rh, X0, TOP } = L;
   const X = c => X0 + c * cw, Y = r => TOP + r * rh;
   const cells = new Map();
@@ -1799,10 +1877,11 @@ function render() {
     html += s; sideBottom = prodY + rh * 1.4;
   }
   html += extra;
-  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - 38, Y(L.rowsFull + 0.7), sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
+  const prH0 = ($("#prompt") && $("#prompt").offsetHeight) || 28;
+  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - prH0, Y(L.rowsFull + 0.7), sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
   board.style.cssText = "--cw:" + cw + "px;--rh:" + rh + "px;--mx:" + L.mx + "px;width:" + bw + "px;height:" + bh + "px";
-  board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + 38) + 'px;top:-38px"></div>' + html;
-  board.style.top = "38px"; board.style.position = "absolute";
+  board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + prH0) + "px;top:-" + prH0 + 'px"></div>' + html;
+  board.style.top = prH0 + "px"; board.style.position = "absolute";
   const frost = board.querySelector(".qfrost");
   if (frost) {
     const qcells = [...board.querySelectorAll(".cell.quo, .cell.qtarget")];
@@ -1821,13 +1900,43 @@ function render() {
   }
   // prompt
   const pr = $("#prompt"); pr.className = P.msgCls || ""; pr.textContent = P.msg || defaultPrompt();
-  // Keep the active spot visible, but never scroll the quotient / bracket under the sticky prompt.
-  const act = board.querySelector(".slot, .nudge, .cmpnum");
   const workEl = $("#work");
+  const pinEl = $("#pin");
+  // Pin a copy of the quotient, dividend, divisor and bracket so they stay visible while work rows scroll.
+  if (pinEl && workEl) {
+    const pinCut = Y(2);
+    const prH = (pr && pr.offsetHeight) || 28;
+    const overflows = workEl.scrollHeight > workEl.clientHeight + 2;
+    pinEl.hidden = !overflows;
+    pinEl.style.top = prH + "px";
+    pinEl.style.height = "0";
+    pinEl.style.marginBottom = "0";
+    if (!overflows) { pinEl.innerHTML = ""; }
+    else {
+      const inner = document.createElement("div");
+      inner.className = "pin-inner";
+      inner.style.height = pinCut + "px";
+      [...board.childNodes].forEach(el => {
+        if (!el || el.nodeType !== 1) return;
+        if (el.classList.contains("paperbg") || el.classList.contains("side") || el.classList.contains("side-in")) return;
+        const top = parseFloat(el.style.top);
+        const isHead = (el.tagName === "svg" && el.classList.contains("bracket")) || (Number.isFinite(top) && top < pinCut - 0.5);
+        if (isHead) {
+          inner.appendChild(el.cloneNode(true));
+          el.style.visibility = "hidden"; // originals would ghost through once scrolled
+        }
+      });
+      pinEl.innerHTML = "";
+      pinEl.appendChild(inner);
+    }
+  }
+  // Keep the active spot visible below the sticky prompt + pinned dividend; never cover the dividend.
+  const act = board.querySelector(".slot, .nudge, .cmpnum");
   if (act && workEl && workEl.scrollHeight > workEl.clientHeight) {
-    const promptH = (pr && pr.offsetHeight) || 38;
+    const promptH = (pr && pr.offsetHeight) || 28;
+    const pinH = (pinEl && !pinEl.hidden) ? (pinEl.offsetHeight || 0) : 0;
     const wr = workEl.getBoundingClientRect(), ar = act.getBoundingClientRect();
-    const topKeep = wr.top + promptH + 4;
+    const topKeep = wr.top + promptH + pinH + 4;
     const room = ar.top - topKeep;
     if (ar.bottom > wr.bottom - 4 && room > 0) workEl.scrollTop = Math.min(workEl.scrollTop + (ar.bottom - wr.bottom + 4), workEl.scrollTop + room);
   }
@@ -1922,7 +2031,7 @@ function renderOverlay() {
       '<button class="sel" data-format="remainders">Remainders</button><button data-format="fractions">Fractions<span class="soon">coming soon</span></button><button data-format="decimals">Decimals<span class="soon">coming soon</span></button></div></div>' +
       '<div class="set-row"><label>Look</label><div class="seg">' + THEMES.map(t => '<button data-theme-btn="' + t[0] + '" class="' + (settings.theme === t[0] ? "sel" : "") + '">' + t[1] + "</button>").join("") + "</div></div>" +
       '<div class="set-row"><label>Sound &amp; feel</label><div class="seg"><button data-toggle="sound" class="' + (settings.sound ? "sel" : "") + '">Sound ' + (settings.sound ? "on" : "off") + '</button><button data-toggle="music" class="' + (settings.music ? "sel" : "") + '">Music ' + (settings.music ? "on" : "off") + '</button><button data-toggle="haptics" class="' + (settings.haptics ? "sel" : "") + '">Vibration ' + (settings.haptics ? "on" : "off") + (canVibrate ? "" : '<span class="soon">not supported on this device</span>') + "</button></div></div>" +
-      '<div class="set-row"><label>Jump to episode &amp; level (restarts with 100% strength)</label>' + epSeg(o.jumpEp !== undefined ? o.jumpEp : G.episode, "jumpep") + '<div class="seg">' + LEVELS.map((L, i) => '<button data-jump="' + i + '"' + (Progress.canJump(o.jumpEp !== undefined ? o.jumpEp : G.episode, i) ? "" : " disabled") + ' class="' + (G.level === i && (o.jumpEp === undefined || o.jumpEp === G.episode) ? "sel" : "") + '">Level ' + (i + 1) + "</button>").join("") + "</div></div>" +
+      (DEV ? ('<div class="set-row"><label>Jump to episode &amp; level (restarts with 100% strength)</label>' + epSeg(o.jumpEp !== undefined ? o.jumpEp : G.episode, "jumpep") + '<div class="seg">' + LEVELS.map((L, i) => '<button data-jump="' + i + '"' + (Progress.canJump(o.jumpEp !== undefined ? o.jumpEp : G.episode, i) ? "" : " disabled") + ' class="' + (G.level === i && (o.jumpEp === undefined || o.jumpEp === G.episode) ? "sel" : "") + '">Level ' + (i + 1) + "</button>").join("") + "</div></div>") : "") +
       '<button class="big" data-act="next">Close</button>';
   }
   root.innerHTML = '<div class="overlay"><div class="card">' + h + "</div></div>";
@@ -3102,7 +3211,7 @@ async function winLevel() {
   const type = !lastLevel ? "level" : lastEp ? "all" : "episode";
   // Completing an episode restores full strength for the next one. Mid-episode (and the champion card) still get the +30% bonus.
   G.strength = type === "episode" ? 100 : Math.min(100, from + 30);
-  if (lastLevel && !Progress.cur) store.set("unlocked", Math.max(unlocked(), Math.min(3, G.episode + 2)));
+  if (lastLevel && !Progress.cur && !G.teacherJump) store.set("unlocked", Math.max(unlocked(), Math.min(3, G.episode + 2)));
   const wEp = G.episode, wLv = G.level, miss = G.lvMiss || 0;
   const passing = Progress.levelPassed(wEp, wLv, G.strength, miss).catch(e => console.warn("save failed", e));
   G.overlay = { type: "cine" }; render();
@@ -3151,6 +3260,7 @@ async function loseFlow(reason) {
 }
 async function runTitle() {
   const tok = ++flowTok;
+  G.teacherJump = false;
   G.overlay = { type: "cine" }; render(); Music.stop();
   RecAudio.playTheme(); /* Joe's main theme, once from 0:00 (waits for the first tap if autoplay is blocked) */
   if (!fbOn()) await dbReady;
@@ -3163,7 +3273,7 @@ async function runTitle() {
       runTitle.resumed = true;
       if (!got) {
         const r = await loginScreen(); if (tok !== flowTok) return;
-        if (r.teacher) { await teacherFlow(); continue; }
+        if (r.teacher) { const j = await teacherFlow(); if (tok !== flowTok) return; if (j && j.play) { G.teacherJump = true; G.strength = 100; beginLevel(j.ep, j.lv, false, { teacherJump: true }); return; } continue; }
         got = r.cloud ? await Progress.loginCloud() : r.guest ? Progress.loginGuest() : await Progress.login(r.name, r.pw);
       }
       if (tok !== flowTok) return;
@@ -3921,6 +4031,17 @@ function resumeScreen(r) {
     pgHandler = k => { if (k === "board") { openBoard(); return; } if (k === "continue" || k === "choose") unlockMedia(); pgHandler = null; res(k); };
   });
 }
+function teacherJumpPanel(selEp, selLv) {
+  const ep = selEp | 0, lv = selLv | 0;
+  const epBtns = EPISODES.map((E, i) => '<button type="button" data-pg="t-jumpep" data-ep="' + i + '" class="' + (ep === i ? "sel" : "") + '">Episode ' + (i + 1) + '<span class="soon">' + (E.secs / 60) + ":00 per problem</span></button>").join("");
+  const lvBtns = LEVELS.map((L, i) => '<button type="button" data-pg="t-jumplv" data-lv="' + i + '" class="' + (lv === i ? "sel" : "") + '">Level ' + (i + 1) + "</button>").join("");
+  return '<div class="tchjump"><div class="tchjump-lbl">Jump to any episode &amp; level</div>' +
+    '<p class="tchjump-hint">Starts that level at 100% strength. Does not mark levels passed or change the scoreboard.</p>' +
+    '<div class="seg">' + epBtns + "</div>" +
+    '<div class="seg">' + lvBtns + "</div>" +
+    '<button type="button" data-pg="t-jump" class="tbtn">Play Episode ' + (ep + 1) + " · Level " + (lv + 1) + " ▶</button></div>";
+}
+
 async function teacherFlow() {
   await dbReady;
   // Online accounts: skip the device PIN and go straight to teacher-account sign-in.
@@ -3952,13 +4073,14 @@ function rosterCsv(players) {
 function downloadCsv(csv) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "man-vs-math-roster-" + new Date().toISOString().slice(0, 10) + ".csv"; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__lastCsv = csv; }
 function teacherScreen() {
   return new Promise(res => {
-    let players = {};
+    let players = {}, jumpEp = 0, jumpLv = 0;
     const load = async () => { players = await LocalDB.players().catch(() => ({})); draw(); };
     const draw = () => {
       const rows = Object.values(players).filter(p => p && p.name).sort((a, b) => a.name.localeCompare(b.name));
       Cine.show('<div class="cscreen teacher"><div class="tchwrap"><div class="tchhead"><h1>Teacher</h1><div class="tchsub">' + rows.length + " student" + (rows.length === 1 ? "" : "s") + " · saved on this device</div>" +
         '<button data-pg="t-close" class="tbtn sec">Done</button></div>' +
         '<div class="tchact"><button data-pg="t-add" class="tbtn">＋ Add student</button><button data-pg="t-csv" class="tbtn">⬇ Export CSV</button><button data-pg="t-alerts" class="tbtn sec">Clear alerts</button><button data-pg="t-reset" class="tbtn danger">Reset scoreboard &amp; all student data</button></div>' +
+        teacherJumpPanel(jumpEp, jumpLv) +
         '<div class="tchtable"><table><thead><tr><th>Student</th><th>Reached</th><th>Levels passed</th><th>Stars</th><th>Strength</th><th>Password</th><th>Last played</th><th></th></tr></thead><tbody>' +
         (rows.length ? rows.map(r => "<tr><td><b>" + escH(r.name) + "</b></td><td>" + escH(reachTxt(r)) + "</td><td>" + passedCount(r) + " / 12</td><td>" + starTotal(r) + " / 36</td><td>" + Math.round(r.strength) + "%</td><td>" + (hasPw(r) ? "Set" : "Not yet") + "</td><td>" + escH(fmtWhen(r.ts)) + '</td><td class="tchrow"><button data-pg="t-ren" data-id="' + r.id + '">Rename</button>' + (hasPw(r) ? '<button data-pg="t-pw" data-id="' + r.id + '">Reset password</button>' : "") + '<button data-pg="t-score" data-id="' + r.id + '">Reset score</button><button data-pg="t-del" data-id="' + r.id + '" class="danger">Remove</button></td></tr>').join("")
           : '<tr><td colspan="8" class="empty">No students yet. Students appear here after they log in, or add them ahead of time.</td></tr>') + "</tbody></table></div></div></div>");
@@ -3977,6 +4099,9 @@ function teacherScreen() {
       if (k === "t-alerts") { const v = await ask({ title: "Clear alerts?", text: "Removes the history of “passed a level” alerts. Student progress stays.", ok: "Clear alerts" }); if (v !== false) await guard(() => LocalDB.clearEvents()); if (v !== false) alertToast("Alerts cleared."); return; }
       if (k === "t-reset") { const v = await ask({ title: "Reset everything?", text: "This deletes every student, every saved game, the scoreboard and all alerts. Type RESET to confirm.", input: "text", placeholder: "RESET", ok: "Reset everything", danger: true, check: v => v === "RESET" ? null : "Type RESET in capital letters." }); if (v !== false) { await guard(() => LocalDB.resetAll()); alertToast("Scoreboard and student data reset."); } return; }
       if (k === "t-csv") { downloadCsv(rosterCsv(players)); return; }
+      if (k === "t-jumpep") { jumpEp = +b.dataset.ep; draw(); return; }
+      if (k === "t-jumplv") { jumpLv = +b.dataset.lv; draw(); return; }
+      if (k === "t-jump") { pgHandler = null; res({ play: true, ep: jumpEp, lv: jumpLv }); return; }
     };
     load();
   });
@@ -3984,7 +4109,7 @@ function teacherScreen() {
 // Teacher screen with online accounts: sign in with the teacher account, then rename / hide / show / remove scoreboard entries.
 function teacherCloudScreen() {
   return new Promise(res => {
-    let rows = {}, err = "", busy = false;
+    let rows = {}, err = "", busy = false, jumpEp = 0, jumpLv = 0;
     const shown = r => (r.entry && (r.entry.modName || r.entry.name)) || r.name || "?";
     const load = async () => { if (DB.teacher) { try { rows = await DB.teacherData(); err = ""; } catch (e) { err = "Couldn't load students: " + ((e && e.code) || e); } } draw(); };
     const draw = () => {
@@ -4008,6 +4133,7 @@ function teacherCloudScreen() {
       Cine.show('<div class="cscreen teacher"><div class="tchwrap">' + head +
         '<div class="tchauth">Signed in as teacher <b>' + escH((rows[DB.user && DB.user.uid] && (rows[DB.user.uid].name || (rows[DB.user.uid].entry && rows[DB.user.uid].entry.name))) || DB.username) + "</b>. Hidden names never show on the public scoreboard.</div>" +
         '<div class="tchact"><button data-pg="t-csv" class="tbtn">⬇ Export CSV</button><button data-pg="t-refresh" class="tbtn sec">↻ Refresh</button><button data-pg="t-out" class="tbtn sec">Sign out teacher</button></div>' +
+        teacherJumpPanel(jumpEp, jumpLv) +
         (err ? '<div class="lgmsg bad">' + escH(err) + "</div>" : "") +
         '<div class="tchtable"><table><thead><tr><th>Scoreboard name</th><th>Username</th><th>Reached</th><th>Levels</th><th>Last played</th><th>On board</th><th></th></tr></thead><tbody>' +
         (list.length ? list.map(r => { const e = r.entry || {}, hid = !!e.hidden; return '<tr class="' + (hid ? "hid" : "") + '"><td><b>' + escH(shown(r)) + "</b>" + (e.modName && e.name ? '<div class="tchwas">chose “' + escH(e.name) + "”</div>" : "") + "</td><td>" + escH(r.username || "—") + "</td><td>" + escH(r.episode != null ? reachTxt(r) : "—") + "</td><td>" + (r.passed ? passedCount(r) : e.levels || 0) + " / 12</td><td>" + escH(fmtWhen(r.ts || e.ts)) + "</td><td>" + (hid ? "Hidden" : "Shown") +
@@ -4028,6 +4154,9 @@ function teacherCloudScreen() {
       if (k === "t-hide" && r && r.entry) { await guard(() => DB.setMod(r.uid, { hidden: !r.entry.hidden })); return; }
       if (k === "t-score" && r) { const v = await ask({ title: "Reset " + shown(r) + "'s score?", text: "Their stars and levels go back to the start. Their name and password stay.", ok: "Reset score", danger: true }); if (v !== false) await guard(() => DB.resetStudentScore(r)); return; }
       if (k === "t-del" && r) { const v = await ask({ title: "Remove " + shown(r) + "?", text: "Deletes this student's saved progress and scoreboard row. They can still sign in and start over. To keep a name off the board, use Hide instead.", ok: "Remove", danger: true }); if (v !== false) await guard(() => DB.removeStudent(r.uid)); return; }
+      if (k === "t-jumpep") { jumpEp = +b.dataset.ep; draw(); return; }
+      if (k === "t-jumplv") { jumpLv = +b.dataset.lv; draw(); return; }
+      if (k === "t-jump") { pgHandler = null; res({ play: true, ep: jumpEp, lv: jumpLv }); return; }
       if (k === "t-csv") {
         const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
         const list = Object.values(rows).sort((a, b) => shown(a).localeCompare(shown(b)));
@@ -4127,7 +4256,7 @@ setTimeout(() => {
 try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed")); if (sp > 0) G.timeScale = sp; } catch (e) {}
 
 window.showStrengthBoost = showStrengthBoost;
-window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, winLevel, loseFlow, timeUp, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; } };
+window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, winLevel, loseFlow, timeUp, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; }, cancelFlows: () => ++flowTok, teacherScreen, teacherCloudScreen, teacherJumpPanel };
 window.__DD = { G, EPISODES, penalty: () => penalty(), render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
