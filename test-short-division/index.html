@@ -1142,25 +1142,33 @@ body.sdmode #inner { grid-template-columns:1fr !important; grid-template-areas:"
 @media (max-aspect-ratio: 3/4) { .msdsw { top:auto; bottom:calc(100% + 16px); transform:translateX(-50%); } }
 @media (min-aspect-ratio: 4/3) and (max-height: 520px) { .msdsw { left:42%; } }
 @media (max-width: 520px) { .msdsw .sdsw-row { flex-direction:column; gap:8px; } .msdsw .sdopt { min-width:min(78vw, 300px); min-height:56px; } }
-/* in play: its own row above the keypad (never on top of the problem) */
-#sdsw { grid-area:sw; min-width:0; }
-#sdsw .sdopt { position:relative; min-width:0; overflow:visible; }
+
+/* ===== Hand-drawn Long/Short switch, drawn on the paper's top-right corner ===== */
+#sdsw { position:fixed; z-index:7; top:0; right:0; pointer-events:none; color:var(--ink); }
 #sdsw[hidden] { display:none !important; }
-#sdsw .sdsw-row { width:100%; box-sizing:border-box; justify-content:center; padding:5px; border-radius:16px; box-shadow:none; background:var(--card, rgba(20,12,4,.82)); border-color:var(--accent); }
-#sdsw .sdopt { flex:1 1 0; min-height:52px; padding:6px 10px; font-size:24px; border-color:var(--accent); color:var(--ink); }
-#sdsw .sdopt.sel { background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 3px 0 rgba(0,0,0,.25); }
-body.sdsw-on #inner { grid-template-areas:"sw" "steps" "pad" "ctx"; }
-body.sdsw-on.sdmode #inner { grid-template-areas:"sw" "pad" !important; }
-@media (min-width: 700px) { #sdsw .sdopt { font-size:30px; min-height:62px; } #sdsw { max-width:640px; justify-self:center; width:100%; } }
-@media (max-width: 600px) { #sdsw .sdsw-row { gap:6px; padding:4px; } #sdsw .sdopt { font-size:22px; font-weight:800; min-height:50px; padding:4px 6px; letter-spacing:-.01em; white-space:normal; line-height:1.05; text-align:center; } #sdsw .sdopt .ck { position:absolute; right:-5px; top:-8px; width:22px; height:22px; line-height:22px; border-radius:50%; font-size:14px; background:#fff; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,.4); z-index:2; } #sdsw .sdsw-row { overflow:visible; } }
-@media (orientation: landscape) and (min-width: 700px) { body.sdsw-on #inner { grid-template-areas:"sw sw" "steps pad" "ctx pad"; } #sdsw .sdopt { font-size:28px; } }
-@media (orientation: landscape) and (max-height: 520px) {
-  body.sdsw-on #inner { grid-template-areas:"sw sw" "steps pad" "ctx ctx"; grid-template-rows:auto minmax(0, 1fr) auto; }
-  body.sdsw-on.sdmode #inner { grid-template-rows:auto minmax(0, 1fr); }
-  #sdsw .sdopt { font-size:22px; min-height:0; padding:4px 6px; white-space:normal; line-height:1.05; text-align:center; flex-direction:column; gap:0; }
-  #sdsw .sdopt .ck { position:absolute; right:-5px; top:-8px; width:22px; height:22px; line-height:22px; border-radius:50%; font-size:14px; background:#fff; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,.4); z-index:2; }
-  #sdsw .sdopt { position:relative; }
-}
+#sdsw .sdtg { display:flex; align-items:center; gap:8px; pointer-events:auto; }
+#sdsw .sdlab { position:relative; background:none; border:0; box-shadow:none; padding:4px 8px; min-height:48px; cursor:pointer; color:var(--ink); opacity:.55;
+  font-size:22px; line-height:1.0; font-weight:600; text-align:center; touch-action:manipulation; -webkit-tap-highlight-color:transparent; transition:opacity .25s ease, transform .25s ease; }
+#sdsw .sdlab::after { content:''; position:absolute; inset:-4px -6px -6px -6px; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 70' preserveAspectRatio='none'%3E%3Cpath d='M70 6 C40 2 8 12 6 34 C4 58 46 66 76 63 C104 60 117 46 113 28 C110 12 88 4 58 7 C50 8 44 10 40 12' fill='none' stroke='%23b0392b' stroke-width='2.6' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center / 100% 100%; opacity:0; transform:scale(.85) rotate(-4deg); transition:opacity .25s ease, transform .25s ease; pointer-events:none; }
+#sdsw .sdlab.on { opacity:1; font-weight:700; transform:rotate(-2deg); }
+#sdsw .sdlab.on::after { opacity:1; transform:none; }
+#sdtoggle { position:relative; flex:0 0 auto; width:90px; height:50px; padding:0; margin:0; border:0; background:transparent; box-shadow:none; cursor:pointer; color:var(--ink); touch-action:pan-y; -webkit-tap-highlight-color:transparent; }
+#sdtoggle::before { content:''; position:absolute; inset:-4px -2px; } /* bigger tap area */
+#sdtoggle svg { width:100%; height:100%; display:block; overflow:visible; }
+#sdtoggle .sdline { fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; opacity:.9; }
+#sdtoggle .sdline.thin { stroke-width:1.2; opacity:.55; }
+#sdtoggle .sdkfill { fill:var(--paper, #fbf6e8); }
+#sdtoggle .sdshade { opacity:0; transition:opacity .25s ease; }
+#sdtoggle.on .sdshade { opacity:1; }
+#sdtoggle .sdknob { transition:transform .26s cubic-bezier(.35,.1,.25,1); }
+#sdtoggle.on .sdknob { transform:translateX(45px); }
+#sdtoggle:focus-visible { outline:2px dashed currentColor; outline-offset:4px; border-radius:30px; }
+@media (min-width: 700px) { #sdsw .sdlab { font-size:28px; min-height:60px; } #sdtoggle { width:112px; height:62px; } #sdsw .sdtg { gap:10px; } }
+@media (orientation: landscape) and (max-height: 520px) { #sdsw .sdlab { font-size:22px; padding:2px 6px; min-height:46px; } #sdtoggle { width:80px; height:46px; } #sdsw .sdtg { gap:4px; } }
+/* keep the prompt (and so the problem) clear of the switch; the paper itself keeps the real game's size */
+body.sdsw-on #work #prompt { padding-right:calc(var(--sdw, 0px) + 12px); min-height:calc(var(--sdh, 0px) + 4px); box-sizing:border-box; }
+body.sdsw-on.sdnote-on #work #prompt { padding-right:14px; padding-top:calc(var(--sdh, 0px) + 6px); min-height:0; }
+@media (max-width: 600px) and (orientation: portrait) { body.sdsw-on #work #prompt { padding-right:8px; padding-top:calc(var(--sdh, 0px) + 6px); min-height:0; } }
 </style>
 </head>
 <body>
@@ -1181,9 +1189,29 @@ body.sdsw-on.sdmode #inner { grid-template-areas:"sw" "pad" !important; }
     <div id="pin" hidden></div>
     <div id="board"></div>
   </main>
+  <div id="sdsw" hidden aria-label="Division mode"><div class="sdtg">
+    <button type="button" class="sdlab l hand" data-sdmode="long">Long<br>Division</button>
+    <button type="button" id="sdtoggle" role="switch" aria-checked="false" aria-label="Short division">
+      <svg viewBox="0 0 100 56" aria-hidden="true">
+        <defs>
+          <pattern id="sdhatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.1" opacity=".55"/></pattern>
+          <clipPath id="sdclip"><path d="M15 7 C36 4 64 8 85 6 C97 7 98 22 97 29 C98 43 91 49 84 49 C62 51 36 48 16 50 C5 49 2 37 3 28 C2 15 6 7 15 7 Z"/></clipPath>
+        </defs>
+        <rect class="sdshade" x="0" y="0" width="100" height="56" fill="url(#sdhatch)" clip-path="url(#sdclip)"/>
+        <path class="sdline" d="M15 7 C36 4 64 8 85 6 C97 7 98 22 97 29 C98 43 91 49 84 49 C62 51 36 48 16 50 C5 49 2 37 3 28 C2 15 6 7 15 7 Z"/>
+        <path class="sdline thin" d="M17 5.5 C40 6 66 4.5 86 7.5 C99 10 99.5 40 90 47.5 C70 52 40 49 14 48.5 C3 46 1 20 9 10"/>
+        <g class="sdknob">
+          <path class="sdkfill" d="M28 11 C38 11 44 19 43.5 28 C43 38 36 45 27 44.5 C17 44 11 37 11.5 27.5 C12 18 18 11 28 11 Z"/>
+          <path class="sdline" d="M28 11 C38 11 44 19 43.5 28 C43 38 36 45 27 44.5 C17 44 11 37 11.5 27.5 C12 18 18 11 28 11 Z"/>
+          <path class="sdline thin" d="M24 12.5 C34 9.5 45 17 42.5 30 C41 40 30 46 21 42"/>
+          <path class="sdline thin" d="M33 38 L38 33 M30 41 L40 31 M36 40 L41 35"/>
+        </g>
+      </svg>
+    </button>
+    <button type="button" class="sdlab r hand" data-sdmode="short">Short<br>Division</button>
+  </div></div>
   <section id="input">
     <div id="inner">
-      <div id="sdsw" class="sdsw2" hidden><div class="sdsw-row" role="radiogroup" aria-label="Division mode"><button type="button" class="sdopt" data-sdmode="long" role="radio"><span class="ck">✓</span><span>Long Division</span></button><button type="button" class="sdopt" data-sdmode="short" role="radio"><span class="ck">✓</span><span>Short Division</span></button></div></div>
       <div class="steps">
         <button class="step" data-step="divide" aria-label="Divide">÷</button>
         <button class="step" data-step="multiply" aria-label="Multiply">×</button>
@@ -1525,6 +1553,25 @@ const curCy = () => G.P.cycles[G.P.cur];
 const SD = { on: !!store.get("shortdiv", false), noteHidden: false };
 const sdAvail = () => G.level === 0;
 const sdCy = () => G.P.A.cycles[G.P.sk];
+/* Swipe the switch: right = Short Division, left = Long Division. A plain tap flips it. */
+let sdSwipe = null, sdSwipeUntil = 0;
+document.addEventListener("pointerdown", e => { const t = e.target.closest && e.target.closest("#sdtoggle"); sdSwipe = t ? { x: e.clientX } : null; }, true);
+document.addEventListener("pointerup", e => {
+  if (!sdSwipe) return; const dx = e.clientX - sdSwipe.x; sdSwipe = null;
+  if (Math.abs(dx) >= 16) { sdSwipeUntil = performance.now() + 500; if ((dx > 0) !== SD.on) sdToggleInPlay(); }
+}, true);
+document.addEventListener("pointercancel", () => { sdSwipe = null; }, true);
+function sdPlace() {
+  const sdw = document.getElementById("sdsw"), work = document.getElementById("work"); if (!sdw || !work) return;
+  if (sdw.hidden) { work.style.removeProperty("--sdw"); work.style.removeProperty("--sdh"); return; }
+  const r = work.getBoundingClientRect(), cs = getComputedStyle(work);
+  const bl = parseFloat(cs.borderTopWidth) || 0, br = parseFloat(cs.borderRightWidth) || 0;
+  sdw.style.top = Math.round(r.top + bl + 4) + "px";
+  sdw.style.right = Math.round(window.innerWidth - r.right + br + 6 + (work.offsetWidth - work.clientWidth - br - (parseFloat(cs.borderLeftWidth) || 0))) + "px";
+  work.style.setProperty("--sdw", Math.ceil(sdw.offsetWidth) + "px");
+  work.style.setProperty("--sdh", Math.ceil(sdw.offsetHeight) + "px");
+}
+window.addEventListener("resize", () => { try { sdPlace(); } catch (e) {} });
 function sdMapSwitch() {
   const opt = (k, label, on) => '<button type="button" class="sdopt' + (on ? " sel" : "") + '" data-cine="' + k + '" role="radio" aria-checked="' + (on ? "true" : "false") + '"><span class="ck">✓</span><span>' + label + "</span></button>";
   return '<div class="sdsw2 msdsw"><div class="sdsw-t">How do you want to divide?</div><div class="sdsw-row" role="radiogroup" aria-label="Division mode">' + opt("sdlong", "Long Division", !SD.on) + opt("sdshort", "Short Division", SD.on) + '</div><div class="sdsw-n">Short Division works on Level 1 (one-digit divisors)</div></div>';
@@ -1938,6 +1985,7 @@ function sdNoteHtml() {
 function renderShort() {
   const P = G.P, board = $("#board"), work = $("#work"), pr = $("#prompt");
   pr.className = P.msgCls || "";
+  document.body.classList.toggle("sdnote-on", !SD.noteHidden);
   pr.innerHTML = sdNoteHtml() + '<div class="sdmsg">' + String(P.msg || defaultPrompt()).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]) + "</div>";
   const pinEl = $("#pin"); if (pinEl) { pinEl.hidden = true; pinEl.innerHTML = ""; }
   const prH = pr.offsetHeight || 28;
@@ -2024,7 +2072,8 @@ function render() {
   const P = G.P, board = $("#board");
   if (!P) { board.innerHTML = ""; $("#prompt").textContent = ""; const pin = $("#pin"); if (pin) { pin.hidden = true; pin.innerHTML = ""; } fresh.clear(); return; }
   if (P.short) { renderShort(); return; }
-  { const pr0 = $("#prompt"); if (pr0 && pr0.querySelector(".sdnote")) pr0.textContent = ""; }
+  document.body.classList.remove("sdnote-on");
+  { const pr0 = $("#prompt"); if (pr0) { pr0.className = P.msgCls || ""; pr0.textContent = P.msg || defaultPrompt(); } } // TEST BUILD: set the prompt first so the problem is laid out below it
   const L = layout(), { cw, rh, X0, TOP } = L;
   const X = c => X0 + c * cw, Y = r => TOP + r * rh;
   const cells = new Map();
@@ -2265,8 +2314,9 @@ function renderInput() {
   const keysOn = playing && ["quotient", "multiply", "subtract", "remEntry", "sdtype", "sdlefttype", "sdrem"].includes(ph);
   document.body.classList.toggle("sdmode", !!(P && P.short));
   const sdw = document.getElementById("sdsw");
-  if (sdw) { const show = !!P && sdAvail() && G.started; sdw.hidden = !show; document.body.classList.toggle("sdsw-on", show);
-    sdw.querySelectorAll(".sdopt").forEach(b => { const on = (b.dataset.sdmode === "short") === SD.on; b.classList.toggle("sel", on); b.setAttribute("aria-checked", on ? "true" : "false"); }); }
+  if (sdw) { const show = !!P && sdAvail() && G.started && P.d < 10; sdw.hidden = !show; document.body.classList.toggle("sdsw-on", show);
+    const tg = document.getElementById("sdtoggle"); if (tg) { tg.classList.toggle("on", SD.on); tg.setAttribute("aria-checked", SD.on ? "true" : "false"); }
+    sdw.querySelectorAll(".sdlab").forEach(b => b.classList.toggle("on", (b.dataset.sdmode === "short") === SD.on)); sdPlace(); }
   $$(".key").forEach(b => { b.disabled = !keysOn; });
   $("#btn-rem").disabled = !playing || mid; $("#btn-done").disabled = !playing || mid;
   $("#btn-cant").classList.toggle("hidden", ph !== "subtract"); $("#btn-cant").disabled = !playing;
@@ -2332,6 +2382,7 @@ document.addEventListener("click", e => {
   if (t.dataset.place !== undefined) return act("place", +t.dataset.place);
   if (t.dataset.sdgap !== undefined) return act("sdgap", +t.dataset.sdgap);
   if (t.dataset.sdmode) { if ((t.dataset.sdmode === "short") !== SD.on) sdToggleInPlay(); return; }
+  if (t.id === "sdtoggle") { if (performance.now() < sdSwipeUntil) return; sdToggleInPlay(); return; }
   if (t.id === "sd-hide") { SD.noteHidden = true; SFX.step(); render(); return; }
   if (t.dataset.divtap !== undefined) return act("divtap", +t.dataset.divtap);
   if (t.dataset.top !== undefined) return act("top", +t.dataset.top);
@@ -3281,7 +3332,7 @@ const Cine = (() => {
         show('<div class="cscreen map ' + (unfurl ? "uf" : "noanim") + '"' + (unfurl ? ' style="--uf:' + ufDur + 'ms"' : "") + '><div class="mapbox"><img src="' + ASSET(mapImg + ".webp?v=20261111m") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg?v=20261111m") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 1536 864" preserveAspectRatio="none">' + buildSvg() +
           '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + (L.mapLabel || L.name) + "</div></div>" +
           (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Star Scoreboard">🏆</button>' +
-          (lv === 0 ? sdMapSwitch() : "") + (choice ? '<div class="mchoice">' + (showSave ? '<button class="msave-tag" data-cine="msave">Save for Later</button>' : "") + '<button class="mrose cprimary" data-cine="mcont" aria-label="Continue">' + compassSvg + '<span class="mrose-lab">Continue<small>▶</small></span></button></div>' : "") + "</div>" +
+          (choice ? '<div class="mchoice">' + (showSave ? '<button class="msave-tag" data-cine="msave">Save for Later</button>' : "") + '<button class="mrose cprimary" data-cine="mcont" aria-label="Continue">' + compassSvg + '<span class="mrose-lab">Continue<small>▶</small></span></button></div>' : "") + "</div>" +
           (unfurl ? '<div class="munroll" aria-hidden="true"><div class="mrw l"><div class="mrod"></div></div><div class="mrw r"><div class="mrod"></div></div></div>' : "") + "</div>");
         dots = Array.from(root.querySelectorAll(".dot.nd"));
         if (hadProgress) {
