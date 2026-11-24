@@ -1984,7 +1984,7 @@ function layout() {
   const X0 = left + (dl + 1.1) * cw;
   const TOP = (tight || phoneLand) ? Math.max(4, Math.round(rh * 0.12)) : rh;
   const SX = X0 + (n + 0.8) * cw;
-  return { cw, rh, X0, TOP, SX, sideCols, W, H: work.clientHeight, rowsFull, mx: Math.max(6, left - cw * 0.55), contentW: SX + Math.max(sideCols, remCols) * cw + 0.4 * cw };
+  return { prNat: prH, cw, rh, X0, TOP, SX, sideCols, W, H: work.clientHeight, rowsFull, mx: Math.max(6, left - cw * 0.55), contentW: SX + Math.max(sideCols, remCols) * cw + 0.4 * cw };
 }
 function esc(s) { return String(s); }
 /* TEST BUILD: short division board. Big cells, no work rows, no side multiply. */
@@ -2201,7 +2201,8 @@ function render() {
   }
   html += extra;
   const prH0 = ($("#prompt") && $("#prompt").offsetHeight) || 28;
-  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - prH0, Y(L.rowsFull + 0.7), sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
+  const sdExtra = Math.max(0, prH0 - (L.prNat || prH0)); /* TEST BUILD: room made for the switch comes out of the spare space below, not the problem size */
+  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - prH0, Math.max(Y(L.rowsFull), Y(L.rowsFull + 0.7) - sdExtra), sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
   board.style.cssText = "--cw:" + cw + "px;--rh:" + rh + "px;--mx:" + L.mx + "px;width:" + bw + "px;height:" + bh + "px";
   board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + prH0) + "px;top:-" + prH0 + 'px"></div>' + html;
   board.style.top = prH0 + "px"; board.style.position = "absolute";
@@ -2248,6 +2249,7 @@ function render() {
       const inner = document.createElement("div");
       inner.className = "pin-inner";
       inner.style.height = pinCut + "px";
+      inner.style.setProperty("--cw", cw + "px"); inner.style.setProperty("--rh", rh + "px"); /* TEST BUILD: pinned copy keeps the digit size */
       [...board.childNodes].forEach(el => {
         if (!el || el.nodeType !== 1) return;
         if (el.classList.contains("paperbg") || el.classList.contains("side") || el.classList.contains("side-in")) return;
