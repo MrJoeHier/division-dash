@@ -1107,9 +1107,6 @@ body.ep-snow #board .cell.sidefac { color:#071c2e; font-weight:900; }
 
 /* ===== TEST BUILD: short division ===== */
 #testbadge { position:fixed; left:6px; bottom:calc(3px + env(safe-area-inset-bottom)); z-index:2147483000; pointer-events:none; background:#c0392b; color:#fff; font:800 11px/1.25 system-ui, -apple-system, sans-serif; padding:3px 10px; border-radius:999px; letter-spacing:.03em; box-shadow:0 2px 6px rgba(0,0,0,.35); opacity:.93; white-space:nowrap; }
-.chip.sdchip { cursor:pointer; font:inherit; font-weight:800; font-size:.85rem; color:var(--ink); border:2px solid var(--key-edge); }
-.chip.sdchip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
-.chip.sdchip[hidden] { display:none; }
 body.sdmode .steps, body.sdmode .ctx { display:none !important; }
 body.sdmode #inner { grid-template-columns:1fr !important; grid-template-areas:"pad" !important; max-width:560px; }
 @media (orientation: landscape) and (max-height: 520px) { body.sdmode #inner { max-width:none; } }
@@ -1127,9 +1124,43 @@ body.sdmode #inner { grid-template-columns:1fr !important; grid-template-areas:"
 .cell.sdleft { color:var(--carry); font-weight:800; align-items:center; padding-bottom:0; line-height:1; z-index:2; }
 .cell.sdleft.slot::after { border-color:var(--carry); }
 .cell.sdrl { color:var(--accent); font-weight:700; }
-.msd-tag { position:relative; min-height:44px; padding:6px 16px; border-radius:10px; border:2px solid #2a1608; background:linear-gradient(#83522a, #4e2c13); color:#fbe7b5; font-family:"Cinzel MVM", Georgia, serif; font-weight:800; font-size:clamp(0.72rem, 2vmin, 1rem); letter-spacing:.02em; box-shadow:0 3px 0 #1f1208, 0 6px 12px rgba(0,0,0,.4); cursor:pointer; text-align:center; line-height:1.15; }
-.msd-tag small { display:block; font-family:system-ui, -apple-system, sans-serif; font-weight:700; font-size:.72em; opacity:.85; letter-spacing:0; }
-.msd-tag.on { background:linear-gradient(#3f8f3a, #23601f); color:#fff; }
+
+/* Big two-option mode switch: Long Division | Short Division (map + in play) */
+.sdsw2 { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.sdsw2 .sdsw-t { font:800 clamp(15px, 2.2vmin, 22px)/1.2 system-ui, -apple-system, sans-serif; color:#fff7df; text-shadow:0 2px 4px rgba(0,0,0,.7); text-align:center; }
+.sdsw2 .sdsw-row { display:flex; gap:10px; padding:7px; border-radius:20px; background:rgba(20,12,4,.82); border:2px solid rgba(243,198,90,.75); box-shadow:0 10px 28px rgba(0,0,0,.55); }
+.sdopt { appearance:none; -webkit-appearance:none; cursor:pointer; min-height:64px; min-width:0; padding:10px 18px; border-radius:14px; border:3px solid #f3c65a; background:transparent; color:#fff7df;
+  font:700 clamp(22px, 4.2vmin, 36px)/1.1 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing:.01em; white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:.35em; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.sdopt .ck { display:none; font-weight:900; }
+.sdopt.sel { background:#f3c65a; color:#1d1206; font-weight:900; border-color:#fff2c4; box-shadow:0 0 0 3px rgba(255,242,196,.35), 0 4px 0 #8a6416; }
+.sdopt.sel .ck { display:inline; }
+.sdopt:active { transform:translateY(2px); }
+.sdopt:focus-visible { outline:3px solid #fff; outline-offset:2px; }
+.sdsw2 .sdsw-n { font:700 clamp(13px, 1.8vmin, 17px)/1.2 system-ui, -apple-system, sans-serif; color:#f6e7c4; text-shadow:0 1px 3px rgba(0,0,0,.8); }
+/* map: centered in the map body (landscape); above the map in portrait, where the map is a thin band */
+.msdsw { position:absolute; left:50%; top:52%; transform:translate(-50%, -50%); z-index:8; width:max-content; max-width:96%; }
+@media (max-aspect-ratio: 3/4) { .msdsw { top:auto; bottom:calc(100% + 16px); transform:translateX(-50%); } }
+@media (min-aspect-ratio: 4/3) and (max-height: 520px) { .msdsw { left:42%; } }
+@media (max-width: 520px) { .msdsw .sdsw-row { flex-direction:column; gap:8px; } .msdsw .sdopt { min-width:min(78vw, 300px); min-height:56px; } }
+/* in play: its own row above the keypad (never on top of the problem) */
+#sdsw { grid-area:sw; min-width:0; }
+#sdsw .sdopt { position:relative; min-width:0; overflow:visible; }
+#sdsw[hidden] { display:none !important; }
+#sdsw .sdsw-row { width:100%; box-sizing:border-box; justify-content:center; padding:5px; border-radius:16px; box-shadow:none; background:var(--card, rgba(20,12,4,.82)); border-color:var(--accent); }
+#sdsw .sdopt { flex:1 1 0; min-height:52px; padding:6px 10px; font-size:24px; border-color:var(--accent); color:var(--ink); }
+#sdsw .sdopt.sel { background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 3px 0 rgba(0,0,0,.25); }
+body.sdsw-on #inner { grid-template-areas:"sw" "steps" "pad" "ctx"; }
+body.sdsw-on.sdmode #inner { grid-template-areas:"sw" "pad" !important; }
+@media (min-width: 700px) { #sdsw .sdopt { font-size:30px; min-height:62px; } #sdsw { max-width:640px; justify-self:center; width:100%; } }
+@media (max-width: 600px) { #sdsw .sdsw-row { gap:6px; padding:4px; } #sdsw .sdopt { font-size:22px; font-weight:800; min-height:50px; padding:4px 6px; letter-spacing:-.01em; white-space:normal; line-height:1.05; text-align:center; } #sdsw .sdopt .ck { position:absolute; right:-5px; top:-8px; width:22px; height:22px; line-height:22px; border-radius:50%; font-size:14px; background:#fff; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,.4); z-index:2; } #sdsw .sdsw-row { overflow:visible; } }
+@media (orientation: landscape) and (min-width: 700px) { body.sdsw-on #inner { grid-template-areas:"sw sw" "steps pad" "ctx pad"; } #sdsw .sdopt { font-size:28px; } }
+@media (orientation: landscape) and (max-height: 520px) {
+  body.sdsw-on #inner { grid-template-areas:"sw sw" "steps pad" "ctx ctx"; grid-template-rows:auto minmax(0, 1fr) auto; }
+  body.sdsw-on.sdmode #inner { grid-template-rows:auto minmax(0, 1fr); }
+  #sdsw .sdopt { font-size:22px; min-height:0; padding:4px 6px; white-space:normal; line-height:1.05; text-align:center; flex-direction:column; gap:0; }
+  #sdsw .sdopt .ck { position:absolute; right:-5px; top:-8px; width:22px; height:22px; line-height:22px; border-radius:50%; font-size:14px; background:#fff; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,.4); z-index:2; }
+  #sdsw .sdopt { position:relative; }
+}
 </style>
 </head>
 <body>
@@ -1142,7 +1173,6 @@ body.sdmode #inner { grid-template-columns:1fr !important; grid-template-areas:"
       <div class="pie timer" id="h-time" aria-label="Time left"><div class="wedge"></div><span class="tv">4:00</span></div>
       <div class="chip"><span class="lbl">Problem</span><span id="h-prob">1/5</span></div>
       <div class="chip meter" id="h-meter" aria-label="Strength"><span class="lbl">Strength</span><div class="meterbar"><div class="fillbar"></div></div><span class="pct">100%</span></div>
-      <button class="chip sdchip" id="btn-sd" hidden aria-label="Short division on or off">Short ÷ Off</button>
       <button class="icon-btn" id="btn-settings" aria-label="Settings">⚙︎</button>
     </div>
   </header>
@@ -1153,6 +1183,7 @@ body.sdmode #inner { grid-template-columns:1fr !important; grid-template-areas:"
   </main>
   <section id="input">
     <div id="inner">
+      <div id="sdsw" class="sdsw2" hidden><div class="sdsw-row" role="radiogroup" aria-label="Division mode"><button type="button" class="sdopt" data-sdmode="long" role="radio"><span class="ck">✓</span><span>Long Division</span></button><button type="button" class="sdopt" data-sdmode="short" role="radio"><span class="ck">✓</span><span>Short Division</span></button></div></div>
       <div class="steps">
         <button class="step" data-step="divide" aria-label="Divide">÷</button>
         <button class="step" data-step="multiply" aria-label="Multiply">×</button>
@@ -1494,13 +1525,16 @@ const curCy = () => G.P.cycles[G.P.cur];
 const SD = { on: !!store.get("shortdiv", false), noteHidden: false };
 const sdAvail = () => G.level === 0;
 const sdCy = () => G.P.A.cycles[G.P.sk];
+function sdMapSwitch() {
+  const opt = (k, label, on) => '<button type="button" class="sdopt' + (on ? " sel" : "") + '" data-cine="' + k + '" role="radio" aria-checked="' + (on ? "true" : "false") + '"><span class="ck">✓</span><span>' + label + "</span></button>";
+  return '<div class="sdsw2 msdsw"><div class="sdsw-t">How do you want to divide?</div><div class="sdsw-row" role="radiogroup" aria-label="Division mode">' + opt("sdlong", "Long Division", !SD.on) + opt("sdshort", "Short Division", SD.on) + '</div><div class="sdsw-n">Short Division works on Level 1 (one-digit divisors)</div></div>';
+}
 function sdSet(on) { SD.on = !!on; store.set("shortdiv", SD.on); if (SD.on) SD.noteHidden = false; }
 function sdToggleInPlay() {
   if (!sdAvail() || !G.P || G.overlay || locked() || G.P.phase === "complete" || G.P.phase === "over") return;
   sdSet(!SD.on); SFX.step();
   // Restart the same problem in the other mode (same numbers, fresh timer).
   const pr = G.problems[G.probIdx]; if (pr) startProblem();
-  toast(SD.on ? "Short division on" : "Short division off");
 }
 function sdTap(i) {
   const P = G.P;
@@ -2230,8 +2264,9 @@ function renderInput() {
   $$(".step").forEach(b => { b.disabled = !playing || mid; b.classList.toggle("active", !!playing && b.dataset.step === activeStep); });
   const keysOn = playing && ["quotient", "multiply", "subtract", "remEntry", "sdtype", "sdlefttype", "sdrem"].includes(ph);
   document.body.classList.toggle("sdmode", !!(P && P.short));
-  const sdb = document.getElementById("btn-sd");
-  if (sdb) { const show = !!P && sdAvail() && G.started; sdb.hidden = !show; sdb.classList.toggle("on", SD.on); sdb.textContent = "Short ÷ " + (SD.on ? "On" : "Off"); sdb.setAttribute("aria-pressed", SD.on ? "true" : "false"); }
+  const sdw = document.getElementById("sdsw");
+  if (sdw) { const show = !!P && sdAvail() && G.started; sdw.hidden = !show; document.body.classList.toggle("sdsw-on", show);
+    sdw.querySelectorAll(".sdopt").forEach(b => { const on = (b.dataset.sdmode === "short") === SD.on; b.classList.toggle("sel", on); b.setAttribute("aria-checked", on ? "true" : "false"); }); }
   $$(".key").forEach(b => { b.disabled = !keysOn; });
   $("#btn-rem").disabled = !playing || mid; $("#btn-done").disabled = !playing || mid;
   $("#btn-cant").classList.toggle("hidden", ph !== "subtract"); $("#btn-cant").disabled = !playing;
@@ -2296,7 +2331,7 @@ document.addEventListener("click", e => {
   if (t.closest("#cine, #devp")) return;
   if (t.dataset.place !== undefined) return act("place", +t.dataset.place);
   if (t.dataset.sdgap !== undefined) return act("sdgap", +t.dataset.sdgap);
-  if (t.id === "btn-sd") return sdToggleInPlay();
+  if (t.dataset.sdmode) { if ((t.dataset.sdmode === "short") !== SD.on) sdToggleInPlay(); return; }
   if (t.id === "sd-hide") { SD.noteHidden = true; SFX.step(); render(); return; }
   if (t.dataset.divtap !== undefined) return act("divtap", +t.dataset.divtap);
   if (t.dataset.top !== undefined) return act("top", +t.dataset.top);
@@ -3246,7 +3281,7 @@ const Cine = (() => {
         show('<div class="cscreen map ' + (unfurl ? "uf" : "noanim") + '"' + (unfurl ? ' style="--uf:' + ufDur + 'ms"' : "") + '><div class="mapbox"><img src="' + ASSET(mapImg + ".webp?v=20261111m") + '" onerror="this.onerror=null;this.src=\'' + ASSET(mapImg + ".jpg?v=20261111m") + '\'" alt="" style="filter:' + (E.filter || "none") + '"><svg viewBox="0 0 1536 864" preserveAspectRatio="none">' + buildSvg() +
           '</svg><div class="mban"><div class="mep">Episode ' + (ep + 1) + " · " + E.name + '</div><div class="mlv">Level ' + (lv + 1) + '</div><div class="mname">' + (L.mapLabel || L.name) + "</div></div>" +
           (soon ? '<div class="msoon">' + soon + "</div>" : "") + '<button class="mlb" data-cine="lb" aria-label="Star Scoreboard">🏆</button>' +
-          (choice ? '<div class="mchoice">' + (lv === 0 ? '<button class="msd-tag' + (SD.on ? " on" : "") + '" data-cine="sdtog" aria-pressed="' + (SD.on ? "true" : "false") + '">Short division: ' + (SD.on ? "ON ✓" : "OFF") + '<small>one-digit divisors · tap to switch</small></button>' : "") + (showSave ? '<button class="msave-tag" data-cine="msave">Save for Later</button>' : "") + '<button class="mrose cprimary" data-cine="mcont" aria-label="Continue">' + compassSvg + '<span class="mrose-lab">Continue<small>▶</small></span></button></div>' : "") + "</div>" +
+          (lv === 0 ? sdMapSwitch() : "") + (choice ? '<div class="mchoice">' + (showSave ? '<button class="msave-tag" data-cine="msave">Save for Later</button>' : "") + '<button class="mrose cprimary" data-cine="mcont" aria-label="Continue">' + compassSvg + '<span class="mrose-lab">Continue<small>▶</small></span></button></div>' : "") + "</div>" +
           (unfurl ? '<div class="munroll" aria-hidden="true"><div class="mrw l"><div class="mrod"></div></div><div class="mrw r"><div class="mrod"></div></div></div>' : "") + "</div>");
         dots = Array.from(root.querySelectorAll(".dot.nd"));
         if (hadProgress) {
@@ -3265,7 +3300,7 @@ const Cine = (() => {
       render(false);
       onTap = () => { Ambience.ensureAC(); if (fin) return; if (i < dots.length) { timers.forEach(clearTimeout); timers = []; dots.forEach(d => d.classList.add("on")); i = dots.length; arrive(); } else finish(); };
       onSkip = () => done("continue");
-      onBtn = (k, b) => { if (k === "sdtog") { sdSet(!SD.on); SFX.step(); if (b) { b.classList.toggle("on", SD.on); b.setAttribute("aria-pressed", SD.on ? "true" : "false"); b.innerHTML = "Short division: " + (SD.on ? "ON ✓" : "OFF") + "<small>one-digit divisors · tap to switch</small>"; } return; } if (k === "lb") { openBoard(); return; } if (k === "mcont") { SFX.step(); done("continue"); } if (k === "msave") { SFX.step(); done("save"); } };
+      onBtn = (k, b) => { if (k === "sdlong" || k === "sdshort") { const want = k === "sdshort"; if (want !== SD.on) { sdSet(want); SFX.step(); } root.querySelectorAll(".msdsw .sdopt").forEach(x => { const on = (x.dataset.cine === "sdshort") === SD.on; x.classList.toggle("sel", on); x.setAttribute("aria-checked", on ? "true" : "false"); }); return; } if (k === "lb") { openBoard(); return; } if (k === "mcont") { SFX.step(); done("continue"); } if (k === "msave") { SFX.step(); done("save"); } };
     });
   }
   function clip(name, opts) {
