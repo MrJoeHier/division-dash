@@ -2201,8 +2201,8 @@ function render() {
   }
   html += extra;
   const prH0 = ($("#prompt") && $("#prompt").offsetHeight) || 28;
-  const sdExtra = Math.max(0, prH0 - (L.prNat || prH0)); /* TEST BUILD: room made for the switch comes out of the spare space below, not the problem size */
-  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - prH0, Math.max(Y(L.rowsFull), Y(L.rowsFull + 0.7) - sdExtra), sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
+  const sdExtra = Math.max(0, prH0 - (L.prNat || prH0)); /* TEST BUILD: switch padding comes out of slack below the problem, never by making the board taller than the paper (that turned on the sticky cream pin band). */
+  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - prH0, Y(L.rowsFull + 0.7) - sdExtra, sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
   board.style.cssText = "--cw:" + cw + "px;--rh:" + rh + "px;--mx:" + L.mx + "px;width:" + bw + "px;height:" + bh + "px";
   board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + prH0) + "px;top:-" + prH0 + 'px"></div>' + html;
   board.style.top = prH0 + "px"; board.style.position = "absolute";
