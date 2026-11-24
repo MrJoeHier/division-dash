@@ -476,7 +476,8 @@ img.cv.kb { animation:kb 9s ease-out forwards; }
 .vtap .playlab { color:#fff; font-weight:800; font-size:1.15rem; letter-spacing:.04em; text-shadow:0 2px 8px rgba(0,0,0,.8); }
 @keyframes vspin { to { transform:rotate(360deg); } }
 .ccap { position:absolute; left:0; right:0; bottom:calc(22px + env(safe-area-inset-bottom)); text-align:center; font-family:"Cinzel MVM", Georgia, serif; font-weight:900;
-  font-size:clamp(1.1rem, 2.6vw, 1.8rem); letter-spacing:.05em; text-shadow:0 2px 10px #000, 0 0 3px #000; padding:0 24px; pointer-events:none; animation:fadeUp .8s .4s both; }
+  font-size:clamp(1.1rem, 2.6vw, 1.8rem); letter-spacing:.05em; line-height:1.2; text-wrap:balance; text-shadow:0 2px 10px #000, 0 0 3px #000; padding:0 18px; pointer-events:none; animation:fadeUp .8s .4s both; }
+@media (max-width: 600px) { .ccap { font-size:clamp(1.02rem, 4.4vw, 1.25rem); letter-spacing:.03em; padding:0 14px; } }
 .ccap small { display:block; font-family:-apple-system, system-ui, sans-serif; font-weight:700; font-size:.6em; letter-spacing:.02em; margin-top:4px; color:#f3d79a; }
 .cskip { position:absolute; right:16px; top:calc(16px + env(safe-area-inset-top)); padding:12px 18px; border-radius:999px; border:1px solid rgba(255,255,255,.45); background:rgba(0,0,0,.5); color:#fff; font-weight:800; font-size:1rem; z-index:3; }
 @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
@@ -1107,6 +1108,70 @@ body.ep-snow #board .cell.sidefac { color:#071c2e; font-weight:900; }
 .tchtable tr.hid td.tchrow { opacity:1; }
 .tchwas { font-size:.8rem; color:#cdb88f; font-weight:600; }
 @media (max-width:520px) { .lgcard { padding:16px 14px; } .lbt th, .lbt td { padding:8px 5px; } .lgtabs button { font-size:.98rem; } }
+
+/* ===== short division (Level 1, one-digit divisors) ===== */
+body.sdmode .steps, body.sdmode .ctx { display:none !important; }
+body.sdmode #inner { grid-template-columns:1fr !important; grid-template-areas:"pad" !important; max-width:560px; }
+@media (orientation: landscape) and (max-height: 520px) { body.sdmode #inner { max-width:none; } }
+#prompt .sdnote { display:flex; gap:10px; align-items:center; margin:0 0 6px; padding:8px 10px; border-radius:12px; background:var(--accent-soft); border:2px solid var(--accent); font-weight:700; font-size:.95rem; line-height:1.3; color:var(--ink); }
+#prompt .sdnote b { color:var(--accent); }
+#prompt .sdnote .sdx { pointer-events:auto; position:relative; z-index:6; margin-left:auto; flex:0 0 auto; border:0; border-radius:999px; background:var(--accent); color:#fff; font-weight:800; font-size:.9rem; padding:6px 14px; min-height:36px; cursor:pointer; }
+#prompt .sdmsg { min-height:1.2em; }
+@media (max-width: 600px) { #prompt .sdnote { font-size:.8rem; padding:6px 8px; gap:6px; } #prompt .sdnote .sdx { font-size:.8rem; padding:5px 10px; min-height:32px; } }
+@media (orientation: landscape) and (max-height: 520px) { #prompt .sdnote { font-size:.74rem; padding:4px 8px; margin-bottom:3px; line-height:1.22; } #prompt .sdnote .sdx { font-size:.78rem; padding:4px 10px; min-height:30px; } }
+.cell.sdq { cursor:pointer; }
+.cell.sdgap { cursor:pointer; z-index:3; padding-bottom:0; }
+.cell.sdgap::after { content:''; position:absolute; left:8%; right:8%; top:4%; bottom:4%; border:2.5px dashed var(--carry); border-radius:8px; background:rgba(217,154,30,.12); }
+.cell.sdgap::before { content:''; position:absolute; inset:-8px -6px; }
+.cell.sdgap.hinting::after { animation:nudge .9s ease-in-out infinite; }
+.cell.sdleft { color:var(--carry); font-weight:800; align-items:center; padding-bottom:0; line-height:1; z-index:2; }
+.cell.sdleft.slot::after { border-color:var(--carry); }
+.cell.sdrl { color:var(--accent); font-weight:700; }
+
+/* Big two-option mode switch: Long Division | Short Division (map + in play) */
+.sdsw2 { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.sdsw2 .sdsw-t { font:800 clamp(15px, 2.2vmin, 22px)/1.2 system-ui, -apple-system, sans-serif; color:#fff7df; text-shadow:0 2px 4px rgba(0,0,0,.7); text-align:center; }
+.sdsw2 .sdsw-row { display:flex; gap:10px; padding:7px; border-radius:20px; background:rgba(20,12,4,.82); border:2px solid rgba(243,198,90,.75); box-shadow:0 10px 28px rgba(0,0,0,.55); }
+.sdopt { appearance:none; -webkit-appearance:none; cursor:pointer; min-height:64px; min-width:0; padding:10px 18px; border-radius:14px; border:3px solid #f3c65a; background:transparent; color:#fff7df;
+  font:700 clamp(22px, 4.2vmin, 36px)/1.1 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing:.01em; white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:.35em; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.sdopt .ck { display:none; font-weight:900; }
+.sdopt.sel { background:#f3c65a; color:#1d1206; font-weight:900; border-color:#fff2c4; box-shadow:0 0 0 3px rgba(255,242,196,.35), 0 4px 0 #8a6416; }
+.sdopt.sel .ck { display:inline; }
+.sdopt:active { transform:translateY(2px); }
+.sdopt:focus-visible { outline:3px solid #fff; outline-offset:2px; }
+.sdsw2 .sdsw-n { font:700 clamp(13px, 1.8vmin, 17px)/1.2 system-ui, -apple-system, sans-serif; color:#f6e7c4; text-shadow:0 1px 3px rgba(0,0,0,.8); }
+/* map: centered in the map body (landscape); above the map in portrait, where the map is a thin band */
+.msdsw { position:absolute; left:50%; top:52%; transform:translate(-50%, -50%); z-index:8; width:max-content; max-width:96%; }
+@media (max-aspect-ratio: 3/4) { .msdsw { top:auto; bottom:calc(100% + 16px); transform:translateX(-50%); } }
+@media (min-aspect-ratio: 4/3) and (max-height: 520px) { .msdsw { left:42%; } }
+@media (max-width: 520px) { .msdsw .sdsw-row { flex-direction:column; gap:8px; } .msdsw .sdopt { min-width:min(78vw, 300px); min-height:56px; } }
+
+/* ===== Hand-drawn Long/Short switch, drawn on the paper's top-right corner ===== */
+#sdsw { position:fixed; z-index:7; top:0; right:0; pointer-events:none; color:var(--ink); }
+#sdsw[hidden] { display:none !important; }
+#sdsw .sdtg { display:flex; align-items:center; gap:8px; pointer-events:auto; }
+#sdsw .sdlab { position:relative; background:none; border:0; box-shadow:none; padding:4px 8px; min-height:48px; cursor:pointer; color:var(--ink); opacity:.55;
+  font-size:22px; line-height:1.0; font-weight:600; text-align:center; touch-action:manipulation; -webkit-tap-highlight-color:transparent; transition:opacity .25s ease, transform .25s ease; }
+#sdsw .sdlab::after { content:''; position:absolute; inset:-4px -6px -6px -6px; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 70' preserveAspectRatio='none'%3E%3Cpath d='M70 6 C40 2 8 12 6 34 C4 58 46 66 76 63 C104 60 117 46 113 28 C110 12 88 4 58 7 C50 8 44 10 40 12' fill='none' stroke='%23b0392b' stroke-width='2.6' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center / 100% 100%; opacity:0; transform:scale(.85) rotate(-4deg); transition:opacity .25s ease, transform .25s ease; pointer-events:none; }
+#sdsw .sdlab.on { opacity:1; font-weight:700; transform:rotate(-2deg); }
+#sdsw .sdlab.on::after { opacity:1; transform:none; }
+#sdtoggle { position:relative; flex:0 0 auto; width:90px; height:50px; padding:0; margin:0; border:0; background:transparent; box-shadow:none; cursor:pointer; color:var(--ink); touch-action:pan-y; -webkit-tap-highlight-color:transparent; }
+#sdtoggle::before { content:''; position:absolute; inset:-4px -2px; } /* bigger tap area */
+#sdtoggle svg { width:100%; height:100%; display:block; overflow:visible; }
+#sdtoggle .sdline { fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; opacity:.9; }
+#sdtoggle .sdline.thin { stroke-width:1.2; opacity:.55; }
+#sdtoggle .sdkfill { fill:var(--paper, #fbf6e8); }
+#sdtoggle .sdshade { opacity:0; transition:opacity .25s ease; }
+#sdtoggle.on .sdshade { opacity:1; }
+#sdtoggle .sdknob { transition:transform .26s cubic-bezier(.35,.1,.25,1); }
+#sdtoggle.on .sdknob { transform:translateX(45px); }
+#sdtoggle:focus-visible { outline:2px dashed currentColor; outline-offset:4px; border-radius:30px; }
+@media (min-width: 700px) { #sdsw .sdlab { font-size:28px; min-height:60px; } #sdtoggle { width:112px; height:62px; } #sdsw .sdtg { gap:10px; } }
+@media (orientation: landscape) and (max-height: 520px) { #sdsw .sdlab { font-size:22px; padding:2px 6px; min-height:46px; } #sdtoggle { width:80px; height:46px; } #sdsw .sdtg { gap:4px; } }
+/* keep the prompt (and so the problem) clear of the switch; the paper itself keeps the real game's size */
+body.sdsw-on #work #prompt { padding-right:calc(var(--sdw, 0px) + 12px); min-height:calc(var(--sdh, 0px) + 4px); box-sizing:border-box; }
+body.sdsw-on.sdnote-on #work #prompt { padding-right:14px; padding-top:calc(var(--sdh, 0px) + 6px); min-height:0; }
+@media (max-width: 600px) and (orientation: portrait) { body.sdsw-on #work #prompt { padding-right:8px; padding-top:calc(var(--sdh, 0px) + 6px); min-height:0; } }
 </style>
 </head>
 <body>
@@ -1127,6 +1192,27 @@ body.ep-snow #board .cell.sidefac { color:#071c2e; font-weight:900; }
     <div id="pin" hidden></div>
     <div id="board"></div>
   </main>
+  <div id="sdsw" hidden aria-label="Division mode"><div class="sdtg">
+    <button type="button" class="sdlab l hand" data-sdmode="long">Long<br>Division</button>
+    <button type="button" id="sdtoggle" role="switch" aria-checked="false" aria-label="Short division">
+      <svg viewBox="0 0 100 56" aria-hidden="true">
+        <defs>
+          <pattern id="sdhatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.1" opacity=".55"/></pattern>
+          <clipPath id="sdclip"><path d="M15 7 C36 4 64 8 85 6 C97 7 98 22 97 29 C98 43 91 49 84 49 C62 51 36 48 16 50 C5 49 2 37 3 28 C2 15 6 7 15 7 Z"/></clipPath>
+        </defs>
+        <rect class="sdshade" x="0" y="0" width="100" height="56" fill="url(#sdhatch)" clip-path="url(#sdclip)"/>
+        <path class="sdline" d="M15 7 C36 4 64 8 85 6 C97 7 98 22 97 29 C98 43 91 49 84 49 C62 51 36 48 16 50 C5 49 2 37 3 28 C2 15 6 7 15 7 Z"/>
+        <path class="sdline thin" d="M17 5.5 C40 6 66 4.5 86 7.5 C99 10 99.5 40 90 47.5 C70 52 40 49 14 48.5 C3 46 1 20 9 10"/>
+        <g class="sdknob">
+          <path class="sdkfill" d="M28 11 C38 11 44 19 43.5 28 C43 38 36 45 27 44.5 C17 44 11 37 11.5 27.5 C12 18 18 11 28 11 Z"/>
+          <path class="sdline" d="M28 11 C38 11 44 19 43.5 28 C43 38 36 45 27 44.5 C17 44 11 37 11.5 27.5 C12 18 18 11 28 11 Z"/>
+          <path class="sdline thin" d="M24 12.5 C34 9.5 45 17 42.5 30 C41 40 30 46 21 42"/>
+          <path class="sdline thin" d="M33 38 L38 33 M30 41 L40 31 M36 40 L41 35"/>
+        </g>
+      </svg>
+    </button>
+    <button type="button" class="sdlab r hand" data-sdmode="short">Short<br>Division</button>
+  </div></div>
   <section id="input">
     <div id="inner">
       <div class="steps">
@@ -1458,10 +1544,93 @@ function startProblem() {
   G.timeLeft = EPISODES[G.episode].secs; G.lastTickSec = null;
   const pr = G.problems[G.probIdx];
   G.P = { D: pr.D, d: pr.d, ds: String(pr.d).split("").map(Number), digs: pr.D.split("").map(Number), n: pr.D.length, A: analyze(pr.D, pr.d),
-    phase: "place", expect: "divide", cycles: [], cur: -1, remTyped: "", pens: 0, msg: null, msgCls: "", nudgeK: null, sideFading: null };
+    phase: "place", expect: "divide", cycles: [], cur: -1, remTyped: "", pens: 0, msg: null, msgCls: "", nudgeK: null, sideFading: null,
+    short: SD.on && sdAvail() && pr.d < 10, sk: 0, sq: [], sl: {}, gapHint: false };
   streak = 0; G.overlay = null; render();
 }
 const curCy = () => G.P.cycles[G.P.cur];
+/* ===== short division (Level 1 of every episode, one-digit divisors only) ===== */
+const SD = { on: false, noteHidden: false }; /* Long Division every time the page loads; the choice is kept only for this visit */
+const sdAvail = () => G.level === 0;
+const sdCy = () => G.P.A.cycles[G.P.sk];
+/* Swipe the switch: right = Short Division, left = Long Division. A plain tap flips it. */
+let sdSwipe = null, sdSwipeUntil = 0;
+document.addEventListener("pointerdown", e => { const t = e.target.closest && e.target.closest("#sdtoggle"); sdSwipe = t ? { x: e.clientX } : null; }, true);
+document.addEventListener("pointerup", e => {
+  if (!sdSwipe) return; const dx = e.clientX - sdSwipe.x; sdSwipe = null;
+  if (Math.abs(dx) >= 16) { sdSwipeUntil = performance.now() + 500; if ((dx > 0) !== SD.on) sdToggleInPlay(); }
+}, true);
+document.addEventListener("pointercancel", () => { sdSwipe = null; }, true);
+/* Long Division sizing = the live game: measure the prompt as it would be without room made for the switch.
+   The problem is laid out at exactly the live size, then just starts a little lower if the switch needs the room. */
+function sdNaturalPromptH() {
+  const pr = document.getElementById("prompt"); if (!pr) return 28;
+  const b = document.body, had = b.classList.contains("sdsw-on");
+  if (had) b.classList.remove("sdsw-on");
+  const h = pr.offsetHeight || 28;
+  if (had) b.classList.add("sdsw-on");
+  return h;
+}
+function sdPlace() {
+  const sdw = document.getElementById("sdsw"), work = document.getElementById("work"); if (!sdw || !work) return;
+  if (sdw.hidden) { work.style.removeProperty("--sdw"); work.style.removeProperty("--sdh"); return; }
+  const r = work.getBoundingClientRect(), cs = getComputedStyle(work);
+  const bl = parseFloat(cs.borderTopWidth) || 0, br = parseFloat(cs.borderRightWidth) || 0;
+  sdw.style.top = Math.round(r.top + bl + 4) + "px";
+  sdw.style.right = Math.round(window.innerWidth - r.right + br + 6 + (work.offsetWidth - work.clientWidth - br - (parseFloat(cs.borderLeftWidth) || 0))) + "px";
+  work.style.setProperty("--sdw", Math.ceil(sdw.offsetWidth) + "px");
+  work.style.setProperty("--sdh", Math.ceil(sdw.offsetHeight) + "px");
+}
+window.addEventListener("resize", () => { try { sdPlace(); } catch (e) {} });
+function sdMapSwitch() {
+  const opt = (k, label, on) => '<button type="button" class="sdopt' + (on ? " sel" : "") + '" data-cine="' + k + '" role="radio" aria-checked="' + (on ? "true" : "false") + '"><span class="ck">✓</span><span>' + label + "</span></button>";
+  return '<div class="sdsw2 msdsw"><div class="sdsw-t">How do you want to divide?</div><div class="sdsw-row" role="radiogroup" aria-label="Division mode">' + opt("sdlong", "Long Division", !SD.on) + opt("sdshort", "Short Division", SD.on) + '</div><div class="sdsw-n">Short Division works on Level 1 (one-digit divisors)</div></div>';
+}
+function sdSet(on) { SD.on = !!on; if (SD.on) SD.noteHidden = false; }
+function sdToggleInPlay() {
+  if (!sdAvail() || !G.P || G.overlay || locked() || G.P.phase === "complete" || G.P.phase === "over") return;
+  sdSet(!SD.on); SFX.step();
+  // Restart the same problem in the other mode (same numbers, fresh timer).
+  const pr = G.problems[G.probIdx]; if (pr) startProblem();
+}
+function sdTap(i) {
+  const P = G.P;
+  if (P.phase === "place" || P.phase === "sdq") {
+    const want = sdCy().pos;
+    if (i !== want) {
+      say(P.phase === "place" ? "Not there. Find the first number big enough to divide by " + P.d + "." : "Not that space. The next answer digit goes right after the last one.", "badmsg");
+      return penalty('[data-place="' + i + '"]');
+    }
+    P.placeHint = false; P.phase = "sdtype"; say(null); good("place"); render(); return;
+  }
+  if (P.phase === "sdleft") { say("You have a leftover. Tap between the numbers to tuck it in first.", "warnmsg"); SFX.nudge(); haptic(8); P.gapHint = true; render(); return; }
+}
+function sdGap(i) {
+  const P = G.P;
+  if (P.phase !== "sdleft") { say("No leftover to tuck in right now.", "warnmsg"); SFX.nudge(); render(); return; }
+  const want = sdCy().pos + 1;
+  if (i !== want) { say("Tuck the leftover in just before the next number.", "badmsg"); return penalty('[data-sdgap="' + i + '"]'); }
+  P.gapHint = false; P.phase = "sdlefttype"; say(null); good("place"); render();
+}
+function sdDigit(v) {
+  const P = G.P, cy = sdCy();
+  if (P.phase === "sdtype") {
+    if (v !== cy.q) { say(v > cy.q ? "Too big. Try a smaller digit." : "Too small. There's enough left for a bigger digit.", "badmsg"); return penalty(".cell.slot"); }
+    P.sq[P.sk] = v; fresh.add("glow:0," + cy.pos); good("tick"); say(null);
+    if (cy.pos >= P.n - 1) { if (P.A.remainder > 0) P.phase = "sdrem"; else { P.sk++; return complete(); } }
+    else if (cy.diff > 0) P.phase = "sdleft";
+    else { P.sk++; P.phase = "sdq"; }
+    render(); return;
+  }
+  if (P.phase === "sdlefttype") {
+    if (v !== cy.diff) { say("Not quite. What's left over?", "badmsg"); return penalty(".cell.slot"); }
+    P.sl[cy.pos + 1] = v; fresh.add("glow:L," + (cy.pos + 1)); P.sk++; P.phase = "sdq"; good("tick"); say(null); render(); return;
+  }
+  if (P.phase === "sdrem") {
+    if (v !== P.A.remainder) { say("Not quite. What's left over at the end?", "badmsg"); return penalty(".cell.slot"); }
+    P.remTyped = String(v); good("tick"); return complete();
+  }
+}
 const topVal = cy => parseInt(cy.topStr, 10);
 function rowsOf(k) { return { top: k === 0 ? 1 : 1 + 2 * k, prod: 2 + 2 * k, diff: 3 + 2 * k }; }
 
@@ -1515,6 +1684,13 @@ function act(type, arg) {
   const P = G.P;
   if (G.overlay) { if (type === "next") overlayNext(); return; }
   if (!P || locked() || P.phase === "complete" || P.phase === "over") return;
+  if (P.short) {
+    if (type === "place") return sdTap(arg);
+    if (type === "sdgap") return sdGap(arg);
+    if (type === "digit") return sdDigit(arg);
+    if (type === "divtap") { if (P.phase === "place") { P.placeHint = true; say("Tap the space above the line where the first answer digit goes. ↑", "warnmsg"); SFX.nudge(); render(); } return; }
+    return; // no step buttons in short division
+  }
   switch (type) {
     case "place": return onPlace(arg);
     case "divtap": if (P.phase === "place") { P.placeHint = true; say("Tap the space above the dividend — where the first quotient digit goes. ↑", "warnmsg"); SFX.nudge(); render(); } return;
@@ -1789,7 +1965,7 @@ function isPhoneLand() { return !!(window.matchMedia && matchMedia("(orientation
 function layout() {
   const P = G.P, work = $("#work");
   const cb = document.getElementById("cmpbar"), cbH = cb && !cb.hidden ? cb.offsetHeight + 8 : 0; // fit as if the compare bar were not there, so the paper does not jump
-  const prH = ($("#prompt") && $("#prompt").offsetHeight) || 28;
+  const prH = sdNaturalPromptH();
   const phoneLand = isPhoneLand();
   const tight = !phoneLand && (work.clientWidth < 600 || work.clientHeight < 420);
   const W = work.clientWidth - (phoneLand ? 8 : tight ? 10 : 18), H = Math.max(80, work.clientHeight - prH + cbH); // leave room for the prompt; don't let a 28px floor clip the top
@@ -1808,9 +1984,95 @@ function layout() {
   const X0 = left + (dl + 1.1) * cw;
   const TOP = (tight || phoneLand) ? Math.max(4, Math.round(rh * 0.12)) : rh;
   const SX = X0 + (n + 0.8) * cw;
-  return { cw, rh, X0, TOP, SX, sideCols, W, H: work.clientHeight, rowsFull, mx: Math.max(6, left - cw * 0.55), contentW: SX + Math.max(sideCols, remCols) * cw + 0.4 * cw };
+  return { prNat: prH, cw, rh, X0, TOP, SX, sideCols, W, H: work.clientHeight, rowsFull, mx: Math.max(6, left - cw * 0.55), contentW: SX + Math.max(sideCols, remCols) * cw + 0.4 * cw };
 }
 function esc(s) { return String(s); }
+/* Short division board: big cells, no work rows, no side multiply. */
+function sdNoteHtml() {
+  if (SD.noteHidden) return "";
+  return '<div class="sdnote" role="note"><div><b>Short division:</b> With a one-digit divisor, short division can be a quicker way to solve it. Tap a space above the line and type the digit. Got a leftover? Tap between the numbers to tuck it in small. No step buttons — do it in your head!</div><button type="button" class="sdx" id="sd-hide">Got it</button></div>';
+}
+function renderShort() {
+  const P = G.P, board = $("#board"), work = $("#work"), pr = $("#prompt");
+  pr.className = P.msgCls || "";
+  document.body.classList.toggle("sdnote-on", !SD.noteHidden);
+  pr.innerHTML = sdNoteHtml() + '<div class="sdmsg">' + String(P.msg || defaultPrompt()).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]) + "</div>";
+  const pinEl = $("#pin"); if (pinEl) { pinEl.hidden = true; pinEl.innerHTML = ""; }
+  const prH = pr.offsetHeight || 28;
+  const phoneLand = isPhoneLand();
+  const W = work.clientWidth - (phoneLand ? 8 : 12), Hh = Math.max(80, work.clientHeight - prH);
+  const n = P.n, PITCH = 1.38, rowH = 1.22;
+  const showR = P.A.remainder > 0;
+  const colsCore = 0.35 + 1 + 0.95 + n * PITCH + 0.35;
+  const colsR = colsCore + 1.9;
+  const topM = phoneLand ? 0.35 : 0.55;
+  const cwSide = Math.min(W / colsR, Hh / ((topM + 2.5) * rowH));
+  const cwBelow = Math.min(W / colsCore, Hh / ((topM + 3.6) * rowH));
+  const remBelow = cwBelow > cwSide * 1.12;
+  const totalCols = remBelow ? colsCore : colsR;
+  let cw = Math.floor(remBelow ? cwBelow : cwSide);
+  cw = Math.max(22, Math.min(130, cw));
+  const rh = Math.round(cw * rowH);
+  const contentW = totalCols * cw;
+  const left = Math.max(cw * 0.35, (W - contentW) / 2 + cw * 0.35);
+  const X0 = left + 1.95 * cw;
+  const gapW = (PITCH - 1) * cw;
+  const X = i => X0 + gapW + i * PITCH * cw; // left edge of dividend column i
+  const usedH = (topM + (remBelow ? 3.4 : 2.3)) * rh;
+  const TOP = Math.round(topM * rh + Math.max(0, (Hh - usedH) * (phoneLand ? 0.3 : 0.3)));
+  const Y = r => TOP + r * rh;
+  let html = "";
+  const cell = (x, y, txt, cls, attrs, style) => { html += '<div class="cell ' + cls + '" style="left:' + x.toFixed(1) + "px;top:" + y.toFixed(1) + "px;" + (style || "") + '"' + (attrs ? " " + attrs : "") + ">" + txt + "</div>"; };
+  // divisor
+  P.ds.forEach((dg, i) => cell(X0 - (P.ds.length + 0.75 - i) * cw, Y(1), dg, "hand divisor stone"));
+  // bracket
+  const bx = X0 - 0.3 * cw, y0 = Y(1) + 2, y1 = Y(2) - 2, xEnd = X(n - 1) + cw + 0.2 * cw;
+  {
+    const curve = "M" + bx + "," + y0 + " Q" + (bx + 0.32 * cw) + "," + ((y0 + y1) / 2) + " " + (bx - 0.05 * cw) + "," + y1, top = "M" + bx + "," + y0 + " L" + xEnd + "," + y0;
+    const leaf = (x, y, r, sz) => '<path class="vleaf" transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ") rotate(" + r + ')" d="M0,0 C' + (sz * 0.35) + "," + (-sz * 0.45) + " " + (sz * 0.9) + "," + (-sz * 0.35) + " " + (sz * 1.15) + ",0 C" + (sz * 0.9) + "," + (sz * 0.35) + " " + (sz * 0.35) + "," + (sz * 0.45) + ' 0,0Z"/>';
+    let leaves = "";
+    for (let i = 1; i <= n; i++) leaves += leaf(X(i) - gapW * 0.5, y0, i % 2 ? -38 : 32, cw * 0.28);
+    leaves += leaf(bx + 0.18 * cw, (y0 + y1) / 2, 150, cw * 0.32) + leaf(bx + 0.1 * cw, y0 + (y1 - y0) * 0.8, 200, cw * 0.26);
+    const curl = '<path class="vcurl" d="M' + xEnd + "," + y0 + " c" + (0.25 * cw) + "," + (-0.05 * cw) + " " + (0.35 * cw) + "," + (-0.4 * cw) + " " + (0.12 * cw) + "," + (-0.42 * cw) + " c" + (-0.16 * cw) + "," + (-0.02 * cw) + " " + (-0.2 * cw) + "," + (0.2 * cw) + " " + (-0.04 * cw) + "," + (0.22 * cw) + '"/>';
+    html += '<svg class="bracket" width="' + (xEnd + cw) + '" height="' + (y1 + 10) + '"><path class="vl" d="' + curve + '"/><path class="vl" d="' + top + '"/><path class="vtex" d="' + curve + '"/><path class="vtex" d="' + top + '"/>' + curl + leaves + "</svg>";
+  }
+  const cy = P.sk < P.A.cycles.length ? sdCy() : null;
+  // dividend (the part being divided right now is softly highlighted)
+  P.digs.forEach((dg, i) => {
+    let cls = "hand stone", attrs = 'data-cell="1,' + i + '"';
+    if (P.phase === "place") { cls += " tap"; attrs += ' data-divtap="' + i + '"'; }
+    if (cy && P.phase !== "place" && P.phase !== "complete" && i === cy.pos && P.phase !== "sdleft") cls += " cur";
+    cell(X(i), Y(1), '<span class="dg">' + dg + "</span>", cls, attrs);
+  });
+  // tucked leftovers: half-height, raised, just before the next digit
+  const lw = Math.max(gapW + 0.32 * cw, 0.62 * cw), lh = Math.round(rh * 0.5), lfs = Math.round(rh * 0.42);
+  const gapX = i => X(i) - gapW / 2 - lw / 2;
+  Object.keys(P.sl).forEach(k => { k = +k; cell(gapX(k), Y(1) + rh * 0.08, P.sl[k], "hand sdleft" + (fresh.has("glow:L," + k) ? " glow" : ""), "", "width:" + lw + "px;height:" + lh + "px;font-size:" + lfs + "px"); });
+  if (P.phase === "sdleft") {
+    for (let i = Math.max(1, P.A.p + 1); i < n; i++) if (P.sl[i] === undefined) cell(gapX(i), Y(1) + rh * 0.02, "", "sdgap" + (P.gapHint ? " hinting" : ""), 'data-sdgap="' + i + '" aria-label="Tuck the leftover before this digit"', "width:" + lw + "px;height:" + lh + "px");
+  }
+  if (P.phase === "sdlefttype" && cy) cell(gapX(cy.pos + 1), Y(1) + rh * 0.08, "", "sdleft slot", "", "width:" + lw + "px;height:" + lh + "px");
+  // quotient row
+  P.A.cycles.forEach((c, k) => { if (P.sq[k] !== undefined) cell(X(c.pos), Y(0), '<span class="dg">' + P.sq[k] + "</span>", "hand quo" + (fresh.has("glow:0," + c.pos) ? " glow" : "")); });
+  if (P.phase === "place" || P.phase === "sdq" || P.phase === "sdleft") {
+    const filled = new Set(P.A.cycles.filter((c, k) => P.sq[k] !== undefined).map(c => c.pos));
+    for (let i = 0; i < n; i++) if (!filled.has(i)) cell(X(i), Y(0), "", "tap qtarget sdq" + (P.placeHint ? " hinting" : ""), 'data-place="' + i + '"');
+  }
+  if (P.phase === "sdtype" && cy) cell(X(cy.pos), Y(0), "", "slot");
+  // remainder
+  if (showR && (P.phase === "sdrem" || P.phase === "complete")) {
+    const rx = remBelow ? X(n - 1) - 0.9 * cw : xEnd + 0.25 * cw, ry = remBelow ? Y(2.25) : Y(0);
+    cell(rx, ry, "R", "hand rlabel sdrl");
+    if (P.remTyped) cell(rx + 0.85 * cw, ry, '<span class="dg">' + P.remTyped + "</span>", "hand quo");
+    else cell(rx + 0.85 * cw, ry, "", "slot");
+  }
+  const bw = Math.max(W, contentW + left), bh = Math.max(Hh, Y(remBelow ? 3.5 : 2.4));
+  board.style.cssText = "--cw:" + cw + "px;--rh:" + rh + "px;--mx:" + Math.max(6, left - cw * 0.3) + "px;width:" + bw + "px;height:" + bh + "px";
+  board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + prH) + "px;top:-" + prH + 'px"></div>' + html;
+  board.style.top = prH + "px"; board.style.position = "absolute";
+  fresh.clear();
+}
+
 
 function render() {
   document.body.classList.toggle("ep-jungle", G.episode === 0);
@@ -1819,6 +2081,9 @@ function render() {
   renderHeader(); renderInput(); renderOverlay();
   const P = G.P, board = $("#board");
   if (!P) { board.innerHTML = ""; $("#prompt").textContent = ""; const pin = $("#pin"); if (pin) { pin.hidden = true; pin.innerHTML = ""; } fresh.clear(); return; }
+  if (P.short) { renderShort(); return; }
+  document.body.classList.remove("sdnote-on");
+  { const pr0 = $("#prompt"); if (pr0) { pr0.className = P.msgCls || ""; pr0.textContent = P.msg || defaultPrompt(); } } // set the prompt first so the problem is laid out below it
   const L = layout(), { cw, rh, X0, TOP } = L;
   const X = c => X0 + c * cw, Y = r => TOP + r * rh;
   const cells = new Map();
@@ -1936,7 +2201,8 @@ function render() {
   }
   html += extra;
   const prH0 = ($("#prompt") && $("#prompt").offsetHeight) || 28;
-  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - prH0, Y(L.rowsFull + 0.7), sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
+  const sdExtra = Math.max(0, prH0 - (L.prNat || prH0)); /* Switch padding comes out of slack below the problem, never by making the board taller than the paper (that turned on the sticky cream pin band). */
+  const bw = Math.max(L.W, L.contentW), bh = Math.max(L.H - prH0, Y(L.rowsFull + 0.7) - sdExtra, sideBottom, P.phase === "compare" ? Y(rowsOf(P.cur).diff + 3) : 0);
   board.style.cssText = "--cw:" + cw + "px;--rh:" + rh + "px;--mx:" + L.mx + "px;width:" + bw + "px;height:" + bh + "px";
   board.innerHTML = '<div class="paperbg" style="width:' + bw + "px;height:" + (bh + prH0) + "px;top:-" + prH0 + 'px"></div>' + html;
   board.style.top = prH0 + "px"; board.style.position = "absolute";
@@ -1983,6 +2249,7 @@ function render() {
       const inner = document.createElement("div");
       inner.className = "pin-inner";
       inner.style.height = pinCut + "px";
+      inner.style.setProperty("--cw", cw + "px"); inner.style.setProperty("--rh", rh + "px"); /* pinned copy keeps the digit size */
       [...board.childNodes].forEach(el => {
         if (!el || el.nodeType !== 1) return;
         if (el.classList.contains("paperbg") || el.classList.contains("side") || el.classList.contains("side-in")) return;
@@ -2011,6 +2278,14 @@ function render() {
 }
 function defaultPrompt() {
   const P = G.P, cy = curCy();
+  if (P.short) switch (P.phase) {
+    case "place": return "Tap the space above the line where the first answer digit goes.";
+    case "sdq": return "Tap the next space above the line.";
+    case "sdtype": return "Type the answer digit. Do the math in your head!";
+    case "sdleft": return "Got a leftover? Tap between the numbers to tuck it in small.";
+    case "sdlefttype": return "Type the leftover.";
+    case "sdrem": return "No numbers left. Type the remainder after R.";
+  }
   switch (P.phase) {
     case "place": return "Tap the space above the dividend where the quotient starts.";
     case "quotient": return "Divide: how many " + P.d + "s fit in " + parseInt(cy.topStr, 10) + "?";
@@ -2048,7 +2323,12 @@ function renderInput() {
   const mid = ph === "multiply";
   const activeStep = { place: "divide", quotient: "divide", multiply: "multiply", subtract: "subtract", compare: "compare" }[ph];
   $$(".step").forEach(b => { b.disabled = !playing || mid; b.classList.toggle("active", !!playing && b.dataset.step === activeStep); });
-  const keysOn = playing && ["quotient", "multiply", "subtract", "remEntry"].includes(ph);
+  const keysOn = playing && ["quotient", "multiply", "subtract", "remEntry", "sdtype", "sdlefttype", "sdrem"].includes(ph);
+  document.body.classList.toggle("sdmode", !!(P && P.short));
+  const sdw = document.getElementById("sdsw");
+  if (sdw) { const show = !!P && sdAvail() && G.started && P.d < 10; sdw.hidden = !show; document.body.classList.toggle("sdsw-on", show);
+    const tg = document.getElementById("sdtoggle"); if (tg) { tg.classList.toggle("on", SD.on); tg.setAttribute("aria-checked", SD.on ? "true" : "false"); }
+    sdw.querySelectorAll(".sdlab").forEach(b => b.classList.toggle("on", (b.dataset.sdmode === "short") === SD.on)); sdPlace(); }
   $$(".key").forEach(b => { b.disabled = !keysOn; });
   $("#btn-rem").disabled = !playing || mid; $("#btn-done").disabled = !playing || mid;
   $("#btn-cant").classList.toggle("hidden", ph !== "subtract"); $("#btn-cant").disabled = !playing;
@@ -2107,11 +2387,15 @@ function renderOverlay() {
 /* ================= input wiring ================= */
 function press(el) { if (!el) return; el.classList.add("pressed"); setTimeout(() => el.classList.remove("pressed"), 90); }
 document.addEventListener("click", e => {
-  const t = e.target.closest("button, [data-place], [data-divtap], [data-top], [data-act]");
+  const t = e.target.closest("button, [data-place], [data-divtap], [data-top], [data-act], [data-sdgap]");
   if (!t) return;
   audio();
   if (t.closest("#cine, #devp")) return;
   if (t.dataset.place !== undefined) return act("place", +t.dataset.place);
+  if (t.dataset.sdgap !== undefined) return act("sdgap", +t.dataset.sdgap);
+  if (t.dataset.sdmode) { if ((t.dataset.sdmode === "short") !== SD.on) sdToggleInPlay(); return; }
+  if (t.id === "sdtoggle") { if (performance.now() < sdSwipeUntil) return; sdToggleInPlay(); return; }
+  if (t.id === "sd-hide") { SD.noteHidden = true; SFX.step(); render(); return; }
   if (t.dataset.divtap !== undefined) return act("divtap", +t.dataset.divtap);
   if (t.dataset.top !== undefined) return act("top", +t.dataset.top);
   if (t.dataset.step) return act("step", t.dataset.step);
@@ -2815,24 +3099,24 @@ const EP_INFO = [
     ] }
 ];
 const LV_INFO = [
-  { name: "Unspoken River", mapLabel: "Unspoken River", brief: "Solve 4 problems to swing over the gators!", winCap: "Across the Unspoken River!", setup: "setup-l1-01c", win: "win-l1-01f", lose: "lose-l1-01b" },
-  { name: "Tangled Valley", mapLabel: "Tangled Valley", brief: "Solve 4 problems to break free of the boa!", winCap: "Free of the boa!", setup: "setup-l2-02d", win: "win-l2-02d", lose: "lose-l2-02b" },
+  { name: "Unspoken River", mapLabel: "Unspoken River", brief: "Solve 4 problems to swing over the gators!", winCap: "Here we go!", setup: "setup-l1-01c", win: "win-l1-01f", lose: "lose-l1-01b" },
+  { name: "Tangled Valley", mapLabel: "Tangled Valley", brief: "Solve 4 problems to break free of the boa!", winCap: "Slipped the serpent's grip!", setup: "setup-l2-02d", win: "win-l2-02d", lose: "lose-l2-02b" },
   { name: "Forgotten Ridge", mapLabel: "Forgotten Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", setupSfx: "sfx/setup-l3-03b.m4a", win: "win-l3-03d", lose: "lose-l3" },
-  { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Escaped by seaplane!", setup: "setup-l4-04b", setupSfx: "sfx/setup-l4-04b.m4a", win: "win-l4-04e", lose: "lose-l4-04c" }
+  { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Rescued at the rendezvous!", setup: "setup-l4-04b", setupSfx: "sfx/setup-l4-04b.m4a", win: "win-l4-04e", lose: "lose-l4-04c" }
 ];
 const JUNGLE_PTS = EP_INFO[0].pts;
 const EP_LV = {
   1: [
-    { name: "Ghost Ferry", mapLabel: "Ghost Ferry", brief: "Solve 4 problems to pole past the hippos!", winCap: "Ghost Ferry crossed!", setup: "setup-e2l1-05b", win: "win-e2l1-05d", lose: "lose-e2l1-05b" },
-    { name: "Needle Gap", mapLabel: "Needle Gap", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Rope cut — gorge crossed!", setup: "setup-e2l2-06d", setupSfx: "sfx/setup-e2l2-06d.m4a", win: "win-e2l2-06e", winSfx: "sfx/win-e2l2-06e.m4a", lose: "lose-e2l2-06c" },
-    { name: "King's Crossing", mapLabel: "King's Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "King's Crossing conquered!", setup: "setup-e2l3-07b", setupSfx: "sfx/setup-e2l3-07b.m4a", win: "win-e2l3-07c", winSfx: "sfx/win-e2l3-07c.m4a", lose: "lose-e2l3" },
-    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the stampede!", winCap: "Escaped by safari truck!", setup: "setup-e2l4-08c", setupSfx: "sfx/setup-e2l4-08c.m4a", win: "win-e2l4-08d", winSfx: "sfx/win-e2l4-08d.m4a", lose: "lose-e2l4", loseLay: "left" }
+    { name: "Ghost Ferry", mapLabel: "Ghost Ferry", brief: "Solve 4 problems to pole past the hippos!", winCap: "Let's go!", setup: "setup-e2l1-05b", win: "win-e2l1-05d", lose: "lose-e2l1-05b" },
+    { name: "Needle Gap", mapLabel: "Needle Gap", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Gorge-ous escape!", setup: "setup-e2l2-06d", setupSfx: "sfx/setup-e2l2-06d.m4a", win: "win-e2l2-06e", winSfx: "sfx/win-e2l2-06e.m4a", lose: "lose-e2l2-06c" },
+    { name: "King's Crossing", mapLabel: "King's Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "Long live Rex!", setup: "setup-e2l3-07b", setupSfx: "sfx/setup-e2l3-07b.m4a", win: "win-e2l3-07c", winSfx: "sfx/win-e2l3-07c.m4a", lose: "lose-e2l3" },
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the stampede!", winCap: "Rescued in the nick of time!", setup: "setup-e2l4-08c", setupSfx: "sfx/setup-e2l4-08c.m4a", win: "win-e2l4-08d", winSfx: "sfx/win-e2l4-08d.m4a", lose: "lose-e2l4", loseLay: "left" }
   ],
   2: [
-    { name: "Razorback Ridge", mapLabel: "Razorback Ridge", brief: "Solve 4 problems to scramble up the scree!", winCap: "Over the top — camp and a snowboard!", setup: "setup-e3l1-09b", win: "win-e3l1-09b", lose: "lose-e3l1-09b", loseLay: "mount" },
-    { name: "White Shroud", mapLabel: "White Shroud", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Avalanche dodged!", setup: "setup-e3l2-10b", setupSfx: "sfx/setup-e3l2-10b.m4a", win: "win-e3l2-10d", winSfx: "sfx/win-e3l2-10d.m4a", lose: "lose-e3l2" },
-    { name: "Widow's Camp", mapLabel: "Widow's Camp", brief: "Solve 4 problems to get that fire lit!", winCap: "The pack runs for it!", setup: "setup-e3l3-11b", setupSfx: "sfx/setup-e3l3-11b.m4a", win: "win-e3l3-11b", winSfx: "sfx/win-e3l3-11b.m4a", lose: "lose-e3l3-11b", loseSplit: true },
-    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "Rescued at the rendezvous!", setup: "setup-e3l4-12f", setupSfx: "sfx/setup-e3l4-12f.m4a", win: "win-e3l4-12b", winSfx: "sfx/win-e3l4-12b.m4a", lose: "lose-e3l4-12b", loseSplit: true }
+    { name: "Razorback Ridge", mapLabel: "Razorback Ridge", brief: "Solve 4 problems to scramble up the scree!", winCap: "Summit claimed, time for some crafts...", setup: "setup-e3l1-09b", win: "win-e3l1-09b", lose: "lose-e3l1-09b", loseLay: "mount" },
+    { name: "White Shroud", mapLabel: "White Shroud", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Woohoo!", setup: "setup-e3l2-10b", setupSfx: "sfx/setup-e3l2-10b.m4a", win: "win-e3l2-10d", winSfx: "sfx/win-e3l2-10d.m4a", lose: "lose-e3l2" },
+    { name: "Widow's Camp", mapLabel: "Widow's Camp", brief: "Solve 4 problems to get that fire lit!", winCap: "Not today, Big Bad Wolf, not today!", setup: "setup-e3l3-11b", setupSfx: "sfx/setup-e3l3-11b.m4a", win: "win-e3l3-11b", winSfx: "sfx/win-e3l3-11b.m4a", lose: "lose-e3l3-11b", loseSplit: true },
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "You've done it — way to go!", setup: "setup-e3l4-12f", setupSfx: "sfx/setup-e3l4-12f.m4a", win: "win-e3l4-12b", winSfx: "sfx/win-e3l4-12b.m4a", lose: "lose-e3l4-12b", loseSplit: true }
   ]
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
@@ -3079,7 +3363,7 @@ const Cine = (() => {
       render(false);
       onTap = () => { Ambience.ensureAC(); if (fin) return; if (i < dots.length) { timers.forEach(clearTimeout); timers = []; dots.forEach(d => d.classList.add("on")); i = dots.length; arrive(); } else finish(); };
       onSkip = () => done("continue");
-      onBtn = k => { if (k === "lb") { openBoard(); return; } if (k === "mcont") { SFX.step(); done("continue"); } if (k === "msave") { SFX.step(); done("save"); } };
+      onBtn = (k, b) => { if (k === "sdlong" || k === "sdshort") { const want = k === "sdshort"; if (want !== SD.on) { sdSet(want); SFX.step(); } root.querySelectorAll(".msdsw .sdopt").forEach(x => { const on = (x.dataset.cine === "sdshort") === SD.on; x.classList.toggle("sel", on); x.setAttribute("aria-checked", on ? "true" : "false"); }); return; } if (k === "lb") { openBoard(); return; } if (k === "mcont") { SFX.step(); done("continue"); } if (k === "msave") { SFX.step(); done("save"); } };
     });
   }
   function clip(name, opts) {
@@ -4324,7 +4608,7 @@ try { const sp = parseFloat(new URLSearchParams(location.search).get("timerSpeed
 
 window.showStrengthBoost = showStrengthBoost;
 window.__MVM = { G, Cine, Music, RecAudio, get AC() { return AC; }, beginLevel, winLevel, loseFlow, timeUp, runTitle, devSolve, store, TUNE, LV_INFO, EP_INFO, LVS, Progress, normName, rosterCsv, openBoard, get DB() { return DB; }, timerRunning, unlocked, setAnim: v => { ANIM = v; }, cancelFlows: () => ++flowTok, teacherScreen, teacherCloudScreen, teacherJumpPanel };
-window.__DD = { G, EPISODES, penalty: () => penalty(), render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
+window.__DD = { SD, sdSet, Cine, go(ep, lv) { flowTok++; Cine.hide(); G.overlay = null; G.started = true; G.episode = ep; newLevel(lv || 0, false); }, G, EPISODES, penalty: () => penalty(), render: () => render(), setTimeScale: v => { G.timeScale = v; }, act, analyze, mulSteps, genLevel, newLevel, LEVELS, setAnim: v => { ANIM = v; }, setLock: () => { lockUntil = 0; },
   loadProblem(D, d) { G.overlay = null; G.problems[G.probIdx] = { D: String(D), d }; startProblem(); }, state: () => { const P = G.P; return P && { episode: G.episode, level: G.level, timeLeft: G.timeLeft, overlay: G.overlay && G.overlay.type, phase: P.phase, expect: P.expect, cur: P.cur, lives: G.strength, strength: G.strength, pens: P.pens, msg: P.msg, nudgeK: P.nudgeK, cycles: P.cycles.map(c => ({ pos: c.pos, top: c.topStr, q: c.q, prevQ: c.prevQ, diff: c.diff, sub: c.sub && { col: c.sub.col, work: c.sub.work.slice(), written: c.sub.written.slice(), impossible: c.sub.impossible }, mulIdx: c.mul && c.mul.idx })) }; } };
 })();
 </script>
