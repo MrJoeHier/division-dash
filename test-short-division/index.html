@@ -1550,7 +1550,7 @@ function startProblem() {
 }
 const curCy = () => G.P.cycles[G.P.cur];
 /* ===== TEST BUILD: short division (Level 1 of every episode, one-digit divisors only) ===== */
-const SD = { on: !!store.get("shortdiv", false), noteHidden: false };
+const SD = { on: false, noteHidden: false }; /* Long Division every time the page loads; the choice is kept only for this visit */
 const sdAvail = () => G.level === 0;
 const sdCy = () => G.P.A.cycles[G.P.sk];
 /* Swipe the switch: right = Short Division, left = Long Division. A plain tap flips it. */
@@ -1561,6 +1561,16 @@ document.addEventListener("pointerup", e => {
   if (Math.abs(dx) >= 16) { sdSwipeUntil = performance.now() + 500; if ((dx > 0) !== SD.on) sdToggleInPlay(); }
 }, true);
 document.addEventListener("pointercancel", () => { sdSwipe = null; }, true);
+/* Long Division sizing = the live game: measure the prompt as it would be without room made for the switch.
+   The problem is laid out at exactly the live size, then just starts a little lower if the switch needs the room. */
+function sdNaturalPromptH() {
+  const pr = document.getElementById("prompt"); if (!pr) return 28;
+  const b = document.body, had = b.classList.contains("sdsw-on");
+  if (had) b.classList.remove("sdsw-on");
+  const h = pr.offsetHeight || 28;
+  if (had) b.classList.add("sdsw-on");
+  return h;
+}
 function sdPlace() {
   const sdw = document.getElementById("sdsw"), work = document.getElementById("work"); if (!sdw || !work) return;
   if (sdw.hidden) { work.style.removeProperty("--sdw"); work.style.removeProperty("--sdh"); return; }
@@ -1576,7 +1586,7 @@ function sdMapSwitch() {
   const opt = (k, label, on) => '<button type="button" class="sdopt' + (on ? " sel" : "") + '" data-cine="' + k + '" role="radio" aria-checked="' + (on ? "true" : "false") + '"><span class="ck">✓</span><span>' + label + "</span></button>";
   return '<div class="sdsw2 msdsw"><div class="sdsw-t">How do you want to divide?</div><div class="sdsw-row" role="radiogroup" aria-label="Division mode">' + opt("sdlong", "Long Division", !SD.on) + opt("sdshort", "Short Division", SD.on) + '</div><div class="sdsw-n">Short Division works on Level 1 (one-digit divisors)</div></div>';
 }
-function sdSet(on) { SD.on = !!on; store.set("shortdiv", SD.on); if (SD.on) SD.noteHidden = false; }
+function sdSet(on) { SD.on = !!on; if (SD.on) SD.noteHidden = false; }
 function sdToggleInPlay() {
   if (!sdAvail() || !G.P || G.overlay || locked() || G.P.phase === "complete" || G.P.phase === "over") return;
   sdSet(!SD.on); SFX.step();
@@ -1955,7 +1965,7 @@ function isPhoneLand() { return !!(window.matchMedia && matchMedia("(orientation
 function layout() {
   const P = G.P, work = $("#work");
   const cb = document.getElementById("cmpbar"), cbH = cb && !cb.hidden ? cb.offsetHeight + 8 : 0; // fit as if the compare bar were not there, so the paper does not jump
-  const prH = ($("#prompt") && $("#prompt").offsetHeight) || 28;
+  const prH = sdNaturalPromptH();
   const phoneLand = isPhoneLand();
   const tight = !phoneLand && (work.clientWidth < 600 || work.clientHeight < 420);
   const W = work.clientWidth - (phoneLand ? 8 : tight ? 10 : 18), H = Math.max(80, work.clientHeight - prH + cbH); // leave room for the prompt; don't let a 28px floor clip the top
