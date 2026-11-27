@@ -1275,7 +1275,7 @@ const LEVELS = [
   { name: "One-digit divisors", desc: "1-digit ÷ into 3- and 4-digit numbers", shapes: [[1, 3], [1, 3], [1, 4], [1, 4]] },
   { name: "Two-digit divisors", desc: "2-digit ÷ into 4- and 5-digit numbers", shapes: [[2, 4], [2, 4], [2, 5], [2, 5]] },
   { name: "Three-digit divisors", desc: "3-digit ÷ into 5- and 6-digit numbers", shapes: [[3, 5], [3, 5], [3, 6], [3, 6]] },
-  { name: "Four-digit divisors", desc: "4-digit ÷ into 6-digit numbers", shapes: [[4, 6], [4, 6]] }
+  { name: "Four-digit divisors", desc: "4-digit ÷ into 6-digit numbers", shapes: [[4, 6], [4, 6], [4, 6]] }
 ];
 
 /* ================= math engine ================= */
@@ -1318,7 +1318,7 @@ function mulSteps(q, d) {
   return steps;
 }
 function genLevel(l) {
-  // Random problems in the requested shapes. About 1 in 4 divide evenly (remainder 0): one per 4-problem level, and a 50/50 chance of one in Level 4.
+  // Random problems in the requested shapes. About 1 in 4 divide evenly (remainder 0): one per 4-problem level, and a 50/50 chance of one in the 3-problem Level 4.
   const cfg = LEVELS[l], out = [], seen = new Set(), n = cfg.shapes.length;
   const evenIdx = n >= 4 ? ri(0, n - 1) : (Math.random() < 0.5 ? ri(0, n - 1) : -1);
   cfg.shapes.forEach(([dl, len], idx) => {
@@ -3102,7 +3102,7 @@ const LV_INFO = [
   { name: "Unspoken River", mapLabel: "Unspoken River", brief: "Solve 4 problems to swing over the gators!", winCap: "Here we go!", setup: "setup-l1-01c", win: "win-l1-01f", lose: "lose-l1-01b" },
   { name: "Tangled Valley", mapLabel: "Tangled Valley", brief: "Solve 4 problems to break free of the boa!", winCap: "Slipped the serpent's grip!", setup: "setup-l2-02d", win: "win-l2-02d", lose: "lose-l2-02b" },
   { name: "Forgotten Ridge", mapLabel: "Forgotten Ridge", brief: "Solve 4 problems to escape the jaguar!", winCap: "What a leap!", setup: "setup-l3", setupSfx: "sfx/setup-l3-03b.m4a", win: "win-l3-03d", lose: "lose-l3" },
-  { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the river guardians!", winCap: "Rescued at the rendezvous!", setup: "setup-l4-04b", setupSfx: "sfx/setup-l4-04b.m4a", win: "win-l4-04e", lose: "lose-l4-04c" }
+  { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 3 problems to outrun the river guardians!", winCap: "Rescued at the rendezvous!", setup: "setup-l4-04b", setupSfx: "sfx/setup-l4-04b.m4a", win: "win-l4-04e", lose: "lose-l4-04c" }
 ];
 const JUNGLE_PTS = EP_INFO[0].pts;
 const EP_LV = {
@@ -3110,13 +3110,13 @@ const EP_LV = {
     { name: "Ghost Ferry", mapLabel: "Ghost Ferry", brief: "Solve 4 problems to pole past the hippos!", winCap: "Let's go!", setup: "setup-e2l1-05b", win: "win-e2l1-05d", lose: "lose-e2l1-05b" },
     { name: "Needle Gap", mapLabel: "Needle Gap", brief: "Solve 4 problems to cross the gorge before the leopard!", winCap: "Gorge-ous escape!", setup: "setup-e2l2-06d", setupSfx: "sfx/setup-e2l2-06d.m4a", win: "win-e2l2-06e", winSfx: "sfx/win-e2l2-06e.m4a", lose: "lose-e2l2-06c" },
     { name: "King's Crossing", mapLabel: "King's Crossing", brief: "Solve 4 problems to face down the lion!", winCap: "Long live Rex!", setup: "setup-e2l3-07b", setupSfx: "sfx/setup-e2l3-07b.m4a", win: "win-e2l3-07c", winSfx: "sfx/win-e2l3-07c.m4a", lose: "lose-e2l3" },
-    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to outrun the stampede!", winCap: "Rescued in the nick of time!", setup: "setup-e2l4-08c", setupSfx: "sfx/setup-e2l4-08c.m4a", win: "win-e2l4-08d", winSfx: "sfx/win-e2l4-08d.m4a", lose: "lose-e2l4", loseLay: "left" }
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 3 problems to outrun the stampede!", winCap: "Rescued in the nick of time!", setup: "setup-e2l4-08c", setupSfx: "sfx/setup-e2l4-08c.m4a", win: "win-e2l4-08d", winSfx: "sfx/win-e2l4-08d.m4a", lose: "lose-e2l4", loseLay: "left" }
   ],
   2: [
     { name: "Razorback Ridge", mapLabel: "Razorback Ridge", brief: "Solve 4 problems to scramble up the scree!", winCap: "Summit claimed, time for some crafts...", setup: "setup-e3l1-09b", win: "win-e3l1-09b", lose: "lose-e3l1-09b", loseLay: "mount" },
     { name: "White Shroud", mapLabel: "White Shroud", brief: "Solve 4 problems to outrun the avalanche!", winCap: "Woohoo!", setup: "setup-e3l2-10b", setupSfx: "sfx/setup-e3l2-10b.m4a", win: "win-e3l2-10d", winSfx: "sfx/win-e3l2-10d.m4a", lose: "lose-e3l2" },
     { name: "Widow's Camp", mapLabel: "Widow's Camp", brief: "Solve 4 problems to get that fire lit!", winCap: "Not today, Big Bad Wolf, not today!", setup: "setup-e3l3-11b", setupSfx: "sfx/setup-e3l3-11b.m4a", win: "win-e3l3-11b", winSfx: "sfx/win-e3l3-11b.m4a", lose: "lose-e3l3-11b", loseSplit: true },
-    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 2 problems to reach the rescue helicopter!", winCap: "You've done it — way to go!", setup: "setup-e3l4-12f", setupSfx: "sfx/setup-e3l4-12f.m4a", win: "win-e3l4-12b", winSfx: "sfx/win-e3l4-12b.m4a", lose: "lose-e3l4-12b", loseSplit: true }
+    { name: "Rendezvous Point", mapLabel: "Rendezvous Point", brief: "Solve 3 problems to reach the rescue helicopter!", winCap: "You've done it — way to go!", setup: "setup-e3l4-12f", setupSfx: "sfx/setup-e3l4-12f.m4a", win: "win-e3l4-12b", winSfx: "sfx/win-e3l4-12b.m4a", lose: "lose-e3l4-12b", loseSplit: true }
   ]
 };
 const LVS = ep => EP_LV[ep] || LV_INFO;
