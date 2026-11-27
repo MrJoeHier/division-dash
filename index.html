@@ -430,7 +430,7 @@ svg.bracket .vleaf, svg.bracket .vtex, svg.bracket .vcurl { display:none; }
   .cell { font-size: calc(var(--rh) * .92); padding-bottom: calc(var(--rh) * .04); }
 }
 /* ================= cinematics ================= */
-#cine { position:fixed; inset:0; z-index:100; background:#0b0805; color:#f6e7c4; overflow:hidden; font-family:-apple-system, "Segoe UI", system-ui, sans-serif; touch-action:manipulation; }
+#cine { position:fixed; inset:0; z-index:100; background:#0b0805; color:#f6e7c4; overflow:hidden; font-family:-apple-system, "Segoe UI", system-ui, sans-serif; touch-action:manipulation; --safe-t:env(safe-area-inset-top, 0px); --safe-l:env(safe-area-inset-left, 0px); }
 #cine[hidden] { display:none; }
 .cscreen { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; animation:fadeIn .45s; overflow:hidden; }
 .cbg { position:absolute; inset:-60px; background-size:cover; background-position:center; filter:blur(28px) brightness(.42) saturate(1.25); }
@@ -3497,11 +3497,75 @@ const Cine = (() => {
       const rest = title + '<div class="lreason">' + reasonH + '</div><button class="again cprimary" data-cine="again">' + againL + "</button>";
       show('<div class="cscreen lose' + (split ? ' split' : '') + (lay ? ' lay' : '') + '"><div class="cbg" style="background-image:url(\'' + src + '\')"></div><div class="vwrap"><img class="cv" src="' + src + '" alt=""></div>' +
         (lay ? '<div class="lbox lay-' + lay + '">' + rest + '</div>' : rest) + '</div>');
-      const b = root.querySelector(".again"); let ready = false;
-      setTimeout(() => { ready = true; b.classList.add("show"); }, TUNE.loseHold);
-      onBtn = k => { if (k === "again" && ready) { SFX.step(); res(); } };
+      const b = root.querySelector(".again"); let ready = false, fin = false;
+      const done = () => { if (fin) return; fin = true; res(); };
+      setTimeout(() => { if (!fin) { ready = true; b.classList.add("show"); } }, TUNE.loseHold);
+      onBtn = k => { if (k === "again" && ready) { SFX.step(); done(); } };
+      onSkip = done;
     });
   }
+  /* Hidden skip: the X key, or a 1s press in the top-left 80px corner (safe-area aware, no on-screen hint).
+     Works on first-time intros and on win/lose clips, which have no Skip button. Short taps in that corner still behave as usual. */
+  const SECRET_MS = 1000, SECRET_SIZE = 80;
+  function secretSkipOk() {
+    if (root.hidden) return false;
+    const sc = root.querySelector(".cscreen");
+    if (!sc) return false;
+    return sc.classList.contains("vid") || sc.classList.contains("lose") || sc.classList.contains("epopen");
+  }
+  function typingIn(t) {
+    if (!t) return false;
+    if (t.nodeType !== 1 && t.parentElement) t = t.parentElement;
+    if (!t || t.nodeType !== 1) return false;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return true;
+    if (t.isContentEditable) return true;
+    return !!(t.closest && t.closest("input, textarea, select, [contenteditable], [contenteditable='true']"));
+  }
+  function secretInsets() {
+    const cs = getComputedStyle(root);
+    return { t: parseFloat(cs.getPropertyValue("--safe-t")) || 0, l: parseFloat(cs.getPropertyValue("--safe-l")) || 0 };
+  }
+  function inSecretZone(e) {
+    const { t, l } = secretInsets();
+    const x = e.clientX, y = e.clientY;
+    return x >= l && x <= l + SECRET_SIZE && y >= t && y <= t + SECRET_SIZE;
+  }
+  function doSecretSkip() { if (secretSkipOk() && onSkip) onSkip(); }
+  document.addEventListener("keydown", e => {
+    if (e.repeat) return;
+    if (e.key !== "x" && e.key !== "X") return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (typingIn(e.target)) return;
+    if (!secretSkipOk()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    doSecretSkip();
+  }, true);
+  let secretHold = 0, secretPtr = -1, secretX = 0, secretY = 0, swallowAt = 0;
+  function clearSecret() { if (secretHold) { clearTimeout(secretHold); secretHold = 0; } secretPtr = -1; }
+  root.addEventListener("pointerdown", e => {
+    if (!secretSkipOk() || !inSecretZone(e)) return;
+    if (e.isPrimary === false) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    clearSecret();
+    secretPtr = e.pointerId; secretX = e.clientX; secretY = e.clientY;
+    secretHold = setTimeout(() => {
+      secretHold = 0; secretPtr = -1;
+      if (!secretSkipOk()) return;
+      swallowAt = Date.now();
+      doSecretSkip();
+    }, SECRET_MS);
+  }, true);
+  root.addEventListener("pointermove", e => {
+    if (secretPtr !== e.pointerId || !secretHold) return;
+    if (!inSecretZone(e) || Math.hypot(e.clientX - secretX, e.clientY - secretY) > 16) clearSecret();
+  }, true);
+  root.addEventListener("pointerup", clearSecret, true);
+  root.addEventListener("pointercancel", clearSecret, true);
+  root.addEventListener("contextmenu", e => { if (secretSkipOk() && inSecretZone(e)) e.preventDefault(); }, true);
+  const swallow = e => { if (Date.now() - swallowAt < 400) { e.preventDefault(); e.stopPropagation(); } };
+  document.addEventListener("click", swallow, true);
+  document.addEventListener("pointerup", swallow, true);
   return { show, hide, title, epOpen, map, clip, lose, skip() { if (onSkip) onSkip(); }, tap() { if (onTap) onTap(); }, get visible() { return !root.hidden; }, get screen() { const s = root.querySelector(".cscreen"); return s ? s.className.replace("cscreen", "").trim() : null; } };
 })();
 
