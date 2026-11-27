@@ -1121,12 +1121,8 @@ body.sdmode #inner { grid-template-columns:1fr !important; grid-template-areas:"
 @media (max-width: 600px) { #prompt .sdnote { font-size:.8rem; padding:6px 8px; gap:6px; } #prompt .sdnote .sdx { font-size:.8rem; padding:5px 10px; min-height:32px; } }
 @media (orientation: landscape) and (max-height: 520px) { #prompt .sdnote { font-size:.74rem; padding:4px 8px; margin-bottom:3px; line-height:1.22; } #prompt .sdnote .sdx { font-size:.78rem; padding:4px 10px; min-height:30px; } }
 .cell.sdq { cursor:pointer; }
-.cell.sdgap { cursor:pointer; z-index:3; padding-bottom:0; }
-.cell.sdgap::after { content:''; position:absolute; left:8%; right:8%; top:4%; bottom:4%; border:2.5px dashed var(--carry); border-radius:8px; background:rgba(217,154,30,.12); }
-.cell.sdgap::before { content:''; position:absolute; inset:-8px -6px; }
-.cell.sdgap.hinting::after { animation:nudge .9s ease-in-out infinite; }
 .cell.sdleft { color:var(--carry); font-weight:800; align-items:center; padding-bottom:0; line-height:1; z-index:2; }
-.cell.sdleft.slot::after { border-color:var(--carry); }
+.cell.sdleft.slot::after { border-color:var(--carry); background:rgba(217,154,30,.28); left:-4%; right:-4%; top:2%; bottom:-6%; border-width:3px; }
 .cell.sdrl { color:var(--accent); font-weight:700; }
 
 /* Big two-option mode switch: Long Division | Short Division (map + in play) */
@@ -1546,7 +1542,7 @@ function startProblem() {
   const pr = G.problems[G.probIdx];
   G.P = { D: pr.D, d: pr.d, ds: String(pr.d).split("").map(Number), digs: pr.D.split("").map(Number), n: pr.D.length, A: analyze(pr.D, pr.d),
     phase: "place", expect: "divide", cycles: [], cur: -1, remTyped: "", pens: 0, msg: null, msgCls: "", nudgeK: null, sideFading: null,
-    short: SD.on && sdAvail() && pr.d < 10, sk: 0, sq: [], sl: {}, gapHint: false };
+    short: SD.on && sdAvail() && pr.d < 10, sk: 0, sq: [], sl: {} };
   streak = 0; G.overlay = null; render();
 }
 const curCy = () => G.P.cycles[G.P.cur];
@@ -1595,23 +1591,15 @@ function sdToggleInPlay() {
   const pr = G.problems[G.probIdx]; if (pr) startProblem();
 }
 function sdTap(i) {
+  /* The only tap in short division: choose where the first answer digit goes. After that the player just types. */
   const P = G.P;
-  if (P.phase === "place" || P.phase === "sdq") {
-    const want = sdCy().pos;
-    if (i !== want) {
-      say(P.phase === "place" ? "Not there. Find the first number big enough to divide by " + P.d + "." : "Not that space. The next answer digit goes right after the last one.", "badmsg");
-      return penalty('[data-place="' + i + '"]');
-    }
-    P.placeHint = false; P.phase = "sdtype"; say(null); good("place"); render(); return;
+  if (P.phase !== "place") return;
+  const want = sdCy().pos;
+  if (i !== want) {
+    say("Not there. Find the first number big enough to divide by " + P.d + ".", "badmsg");
+    return penalty('[data-place="' + i + '"]');
   }
-  if (P.phase === "sdleft") { say("You have a leftover. Tap between the numbers to tuck it in first.", "warnmsg"); SFX.nudge(); haptic(8); P.gapHint = true; render(); return; }
-}
-function sdGap(i) {
-  const P = G.P;
-  if (P.phase !== "sdleft") { say("No leftover to tuck in right now.", "warnmsg"); SFX.nudge(); render(); return; }
-  const want = sdCy().pos + 1;
-  if (i !== want) { say("Tuck the leftover in just before the next number.", "badmsg"); return penalty('[data-sdgap="' + i + '"]'); }
-  P.gapHint = false; P.phase = "sdlefttype"; say(null); good("place"); render();
+  P.placeHint = false; P.phase = "sdtype"; say(null); good("place"); render();
 }
 function sdDigit(v) {
   const P = G.P, cy = sdCy();
@@ -1619,13 +1607,13 @@ function sdDigit(v) {
     if (v !== cy.q) { say(v > cy.q ? "Too big. Try a smaller digit." : "Too small. There's enough left for a bigger digit.", "badmsg"); return penalty(".cell.slot"); }
     P.sq[P.sk] = v; fresh.add("glow:0," + cy.pos); good("tick"); say(null);
     if (cy.pos >= P.n - 1) { if (P.A.remainder > 0) P.phase = "sdrem"; else { P.sk++; return complete(); } }
-    else if (cy.diff > 0) P.phase = "sdleft";
-    else { P.sk++; P.phase = "sdq"; }
+    else if (cy.diff > 0) P.phase = "sdlefttype"; /* nonzero leftover: cursor jumps to the leftover spot */
+    else { P.sk++; P.phase = "sdtype"; }       /* zero leftover: skip it, straight to the next answer space */
     render(); return;
   }
   if (P.phase === "sdlefttype") {
     if (v !== cy.diff) { say("Not quite. What's left over?", "badmsg"); return penalty(".cell.slot"); }
-    P.sl[cy.pos + 1] = v; fresh.add("glow:L," + (cy.pos + 1)); P.sk++; P.phase = "sdq"; good("tick"); say(null); render(); return;
+    P.sl[cy.pos + 1] = v; fresh.add("glow:L," + (cy.pos + 1)); P.sk++; P.phase = "sdtype"; good("tick"); say(null); render(); return;
   }
   if (P.phase === "sdrem") {
     if (v !== P.A.remainder) { say("Not quite. What's left over at the end?", "badmsg"); return penalty(".cell.slot"); }
@@ -1687,7 +1675,6 @@ function act(type, arg) {
   if (!P || locked() || P.phase === "complete" || P.phase === "over") return;
   if (P.short) {
     if (type === "place") return sdTap(arg);
-    if (type === "sdgap") return sdGap(arg);
     if (type === "digit") return sdDigit(arg);
     if (type === "divtap") { if (P.phase === "place") { P.placeHint = true; say("Tap the space above the line where the first answer digit goes. ↑", "warnmsg"); SFX.nudge(); render(); } return; }
     return; // no step buttons in short division
@@ -1991,7 +1978,7 @@ function esc(s) { return String(s); }
 /* Short division board: big cells, no work rows, no side multiply. */
 function sdNoteHtml() {
   if (SD.noteHidden) return "";
-  return '<div class="sdnote" role="note"><div><b>Short division:</b> With a one-digit divisor, short division can be a quicker way to solve it. Tap a space above the line and type the digit. Got a leftover? Tap between the numbers to tuck it in small. No step buttons — do it in your head!</div><button type="button" class="sdx" id="sd-hide">Got it</button></div>';
+  return '<div class="sdnote" role="note"><div><b>Short division:</b> With a one-digit divisor, short division can be a quicker way to solve it. Tap where the first digit of the answer goes, then just type. When there\'s a leftover, type it and it tucks in small next to the next digit. No step buttons — do it in your head!</div><button type="button" class="sdx" id="sd-hide">Got it</button></div>';
 }
 function renderShort() {
   const P = G.P, board = $("#board"), work = $("#work"), pr = $("#prompt");
@@ -2042,20 +2029,17 @@ function renderShort() {
   P.digs.forEach((dg, i) => {
     let cls = "hand stone", attrs = 'data-cell="1,' + i + '"';
     if (P.phase === "place") { cls += " tap"; attrs += ' data-divtap="' + i + '"'; }
-    if (cy && P.phase !== "place" && P.phase !== "complete" && i === cy.pos && P.phase !== "sdleft") cls += " cur";
+    if (cy && P.phase !== "place" && P.phase !== "complete" && i === cy.pos) cls += " cur";
     cell(X(i), Y(1), '<span class="dg">' + dg + "</span>", cls, attrs);
   });
   // tucked leftovers: half-height, raised, just before the next digit
   const lw = Math.max(gapW + 0.32 * cw, 0.62 * cw), lh = Math.round(rh * 0.5), lfs = Math.round(rh * 0.42);
   const gapX = i => X(i) - gapW / 2 - lw / 2;
   Object.keys(P.sl).forEach(k => { k = +k; cell(gapX(k), Y(1) + rh * 0.08, P.sl[k], "hand sdleft" + (fresh.has("glow:L," + k) ? " glow" : ""), "", "width:" + lw + "px;height:" + lh + "px;font-size:" + lfs + "px"); });
-  if (P.phase === "sdleft") {
-    for (let i = Math.max(1, P.A.p + 1); i < n; i++) if (P.sl[i] === undefined) cell(gapX(i), Y(1) + rh * 0.02, "", "sdgap" + (P.gapHint ? " hinting" : ""), 'data-sdgap="' + i + '" aria-label="Tuck the leftover before this digit"', "width:" + lw + "px;height:" + lh + "px");
-  }
   if (P.phase === "sdlefttype" && cy) cell(gapX(cy.pos + 1), Y(1) + rh * 0.08, "", "sdleft slot", "", "width:" + lw + "px;height:" + lh + "px");
   // quotient row
   P.A.cycles.forEach((c, k) => { if (P.sq[k] !== undefined) cell(X(c.pos), Y(0), '<span class="dg">' + P.sq[k] + "</span>", "hand quo" + (fresh.has("glow:0," + c.pos) ? " glow" : "")); });
-  if (P.phase === "place" || P.phase === "sdq" || P.phase === "sdleft") {
+  if (P.phase === "place") {
     const filled = new Set(P.A.cycles.filter((c, k) => P.sq[k] !== undefined).map(c => c.pos));
     for (let i = 0; i < n; i++) if (!filled.has(i)) cell(X(i), Y(0), "", "tap qtarget sdq" + (P.placeHint ? " hinting" : ""), 'data-place="' + i + '"');
   }
@@ -2280,11 +2264,9 @@ function render() {
 function defaultPrompt() {
   const P = G.P, cy = curCy();
   if (P.short) switch (P.phase) {
-    case "place": return "Tap the space above the line where the first answer digit goes.";
-    case "sdq": return "Tap the next space above the line.";
+    case "place": return "Tap the space above the line where the first answer digit goes. Then just type.";
     case "sdtype": return "Type the answer digit. Do the math in your head!";
-    case "sdleft": return "Got a leftover? Tap between the numbers to tuck it in small.";
-    case "sdlefttype": return "Type the leftover.";
+    case "sdlefttype": return "Type the leftover. It tucks in small before the next digit.";
     case "sdrem": return "No numbers left. Type the remainder after R.";
   }
   switch (P.phase) {
@@ -2388,12 +2370,11 @@ function renderOverlay() {
 /* ================= input wiring ================= */
 function press(el) { if (!el) return; el.classList.add("pressed"); setTimeout(() => el.classList.remove("pressed"), 90); }
 document.addEventListener("click", e => {
-  const t = e.target.closest("button, [data-place], [data-divtap], [data-top], [data-act], [data-sdgap]");
+  const t = e.target.closest("button, [data-place], [data-divtap], [data-top], [data-act]");
   if (!t) return;
   audio();
   if (t.closest("#cine, #devp")) return;
   if (t.dataset.place !== undefined) return act("place", +t.dataset.place);
-  if (t.dataset.sdgap !== undefined) return act("sdgap", +t.dataset.sdgap);
   if (t.dataset.sdmode) { if ((t.dataset.sdmode === "short") !== SD.on) sdToggleInPlay(); return; }
   if (t.id === "sdtoggle") { if (performance.now() < sdSwipeUntil) return; sdToggleInPlay(); return; }
   if (t.id === "sd-hide") { SD.noteHidden = true; SFX.step(); render(); return; }
